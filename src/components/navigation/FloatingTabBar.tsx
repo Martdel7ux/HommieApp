@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/theme';
@@ -29,7 +30,8 @@ const ICONS: Record<string, [IoniconName, IoniconName]> = {
   community: ['people', 'people-outline'],
 };
 
-const PILL_HEIGHT = 60;
+const PILL_HEIGHT = 62;
+const RADIUS = PILL_HEIGHT / 2;
 
 export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
   const insets = useSafeAreaInsets();
@@ -38,6 +40,7 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
 
   const routes = state.routes.filter((r) => ICONS[r.name]);
   const activeKey = state.routes[state.index]?.key;
+  const gap = Math.max(insets.bottom - 6, 14);
 
   return (
     <View
@@ -48,38 +51,42 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
         right: 0,
         bottom: 0,
         paddingHorizontal: theme.layout.tabBarInset,
-        paddingBottom: Math.max(insets.bottom, 16),
-        // same colour as the page: invisible against it, but hides list content
-        // scrolling through the gutters and the strip below the pill
-        backgroundColor: theme.colors.background,
+        paddingBottom: gap,
       }}
     >
-      {/* outer wrapper carries the shadow (no clipping) */}
-      <View style={{ borderRadius: PILL_HEIGHT / 2, ...theme.shadows.lg }}>
-        {/* inner clips the blur to the pill shape */}
-        <View
+      {/* fade any list content that scrolls through the strip below the pill */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={['transparent', theme.colors.background]}
+        locations={[0, 0.75]}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: gap + 14 }}
+      />
+      {/* wrapper carries the shadow only (no clip, so the shadow is soft all round) */}
+      <View
+        style={{
+          borderRadius: RADIUS,
+          shadowColor: '#0B1020',
+          shadowOpacity: 0.22,
+          shadowRadius: 22,
+          shadowOffset: { width: 0, height: 10 },
+          elevation: 18,
+        }}
+      >
+        <BlurView
+          tint="light"
+          intensity={Platform.OS === 'android' ? 0 : 70}
           style={{
             height: PILL_HEIGHT,
             flexDirection: 'row',
             alignItems: 'center',
-            borderRadius: PILL_HEIGHT / 2,
+            borderRadius: RADIUS,
             overflow: 'hidden',
             borderWidth: StyleSheet.hairlineWidth,
-            borderColor: 'rgba(255,255,255,0.6)',
+            borderColor: 'rgba(255,255,255,0.45)',
+            backgroundColor:
+              Platform.OS === 'android' ? theme.colors.surface : 'rgba(255,255,255,0.32)',
           }}
         >
-          <BlurView
-            tint="light"
-            intensity={Platform.OS === 'android' ? 0 : 60}
-            style={StyleSheet.absoluteFill}
-          />
-          <View
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: Platform.OS === 'android' ? theme.colors.surface : 'rgba(255,255,255,0.55)' },
-            ]}
-          />
-
           {routes.map((route) => {
             const focused = route.key === activeKey;
             const [on, off] = ICONS[route.name];
@@ -132,7 +139,7 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
               </Pressable>
             );
           })}
-        </View>
+        </BlurView>
       </View>
     </View>
   );
