@@ -49,3 +49,23 @@ export function dayLabel(iso: string): string {
   if (isYesterday(d)) return 'Yesterday';
   return format(d, 'EEEE d MMMM');
 }
+
+/** Event date: "Friday, September 15" (adds the year if it isn't this year). */
+export function eventDateLabel(iso: string): string {
+  const d = new Date(iso);
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  return format(d, sameYear ? 'EEEE, MMMM d' : 'EEEE, MMMM d, yyyy');
+}
+
+/** Event time span: "4:00 PM – 7:00 PM", or "4:00 PM" when there's no end. */
+export function eventTimeRange(startIso: string, endIso?: string | null): string {
+  const start = format(new Date(startIso), 'h:mm a');
+  if (!endIso) return start;
+  return `${start} – ${format(new Date(endIso), 'h:mm a')}`;
+}
+
+/** Compact list-card date badge: { day: "15", month: "SEP" }. */
+export function eventDateBadge(iso: string): { day: string; month: string } {
+  const d = new Date(iso);
+  return { day: format(d, 'd'), month: format(d, 'MMM').toUpperCase() };
+}

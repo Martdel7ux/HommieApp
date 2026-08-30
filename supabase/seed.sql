@@ -318,17 +318,35 @@ on conflict do nothing;
 -- ---------------------------------------------------------------------------
 -- Events (admin-created)
 -- ---------------------------------------------------------------------------
-insert into events (id, created_by, title, description, host_name, cover_image_path, starts_at, location_name, city, area) values
+insert into events (id, created_by, title, description, host_name, cover_image_path, starts_at, ends_at, location_name, city, area) values
   ('f0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001',
-   'Hommie Welcome Mixer for New Students', 'Meet other students settling into Nicosia. Free drinks and a housing Q&A corner.', 'Hommie',
-   'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1200', now() + interval '10 days', 'The Old Town Courtyard', 'Nicosia', 'Old Town'),
+   'Hommie Welcome Mixer for New Students',
+   'Kick off the new semester with our Welcome Mixer. Meet other students settling into Nicosia, connect with a few landlords in person, and get your housing questions answered at the Q&A corner. Free drinks, live music and a giveaway or two.',
+   'Hommie',
+   'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1200',
+   date_trunc('day', now() + interval '10 days') + interval '16 hours',
+   date_trunc('day', now() + interval '10 days') + interval '19 hours',
+   'The Old Town Courtyard', 'Nicosia', 'Old Town'),
   ('f0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000001',
-   'UNIC Campus Tour + Coffee', 'Guided walk around Engomi campus followed by coffee with second-years.', 'UNIC Student Union',
-   'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200', now() + interval '5 days', 'UNIC Main Entrance', 'Nicosia', 'Engomi'),
+   'UNIC Campus Tour + Coffee',
+   'Guided walk around the Engomi campus followed by coffee with second-years who know all the shortcuts. Great for new and exchange students. Meet at the main entrance.',
+   'UNIC Student Union',
+   'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200',
+   date_trunc('day', now() + interval '5 days') + interval '10 hours 30 minutes',
+   date_trunc('day', now() + interval '5 days') + interval '12 hours',
+   'UNIC Main Entrance', 'Nicosia', 'Engomi'),
   ('f0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000001',
-   'Second-hand Market Day', 'Bring what you no longer need, take what you do. Furniture, books, kitchen bits.', 'Hommie',
-   'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200', now() + interval '18 days', 'Engomi Community Park', 'Nicosia', 'Engomi')
-on conflict (id) do nothing;
+   'Second-hand Market Day',
+   'Bring what you no longer need, take what you do. Furniture, books, kitchen bits and bikes. Everything is free or a few euros. A great way to kit out a new room on a budget.',
+   'Hommie',
+   'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200',
+   date_trunc('day', now() + interval '18 days') + interval '11 hours',
+   date_trunc('day', now() + interval '18 days') + interval '15 hours',
+   'Engomi Community Park', 'Nicosia', 'Engomi')
+on conflict (id) do update set
+  description = excluded.description,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at;
 
 insert into event_rsvps (event_id, user_id, state) values
   ('f0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000003', 'going'),
