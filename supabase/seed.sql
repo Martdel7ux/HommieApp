@@ -366,10 +366,19 @@ insert into marketplace_listings (id, seller_id, title, description, category, c
   ('a1000000-0000-0000-0000-000000000006', 'a0000000-0000-0000-0000-000000000006', 'Desk lamp', 'LED, adjustable arm.', 'electronics', 'like_new', 12, false, 'Nicosia', 'Aglantzia')
 on conflict (id) do nothing;
 
-insert into marketplace_listing_images (listing_id, storage_path, position) values
-  ('a1000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=1000', 0),
-  ('a1000000-0000-0000-0000-000000000002', 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=1000', 0),
-  ('a1000000-0000-0000-0000-000000000004', 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=1000', 0)
+-- deterministic ids: marketplace_listing_images has a surrogate pk, so a plain
+-- `on conflict do nothing` would let every re-seed insert duplicates.
+insert into marketplace_listing_images (id, listing_id, storage_path, position) values
+  ('b1a00000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=1000', 0),
+  ('b1a00000-0000-0000-0000-000000000002', 'a1000000-0000-0000-0000-000000000002', 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=1000', 0),
+  ('b1a00000-0000-0000-0000-000000000003', 'a1000000-0000-0000-0000-000000000003', 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1000', 0),
+  ('b1a00000-0000-0000-0000-000000000004', 'a1000000-0000-0000-0000-000000000004', 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=1000', 0),
+  ('b1a00000-0000-0000-0000-000000000005', 'a1000000-0000-0000-0000-000000000005', 'https://images.unsplash.com/photo-1607166452427-7e4477079cb9?w=1000', 0),
+  ('b1a00000-0000-0000-0000-000000000006', 'a1000000-0000-0000-0000-000000000006', 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=1000', 0)
+on conflict (id) do nothing;
+
+insert into saved_marketplace_listings (user_id, listing_id) values
+  ('a0000000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000004')
 on conflict do nothing;
 
 -- ---------------------------------------------------------------------------
