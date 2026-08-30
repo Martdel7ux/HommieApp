@@ -1,12 +1,5 @@
-import { ComingSoon } from '@/components/ComingSoon';
+import { MessagesScreen } from '@/features/messaging/MessagesScreen';
 
 export default function LandlordMessages() {
-  return (
-    <ComingSoon
-      title="Messages"
-      icon="chatbubble-outline"
-      subtitle="Conversations with students who enquired about your properties, with realtime updates."
-      phase="Phase 2"
-    />
-  );
+  return <MessagesScreen role="landlord" />;
 }

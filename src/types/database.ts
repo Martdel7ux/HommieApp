@@ -421,6 +421,8 @@ export interface Database {
       };
       mark_notifications_read: { Args: { p_ids: string[] }; Returns: undefined };
       unread_notification_count: { Args: Record<string, never>; Returns: number };
+      unread_conversation_count: { Args: Record<string, never>; Returns: number };
+      mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
       request_account_deletion: { Args: Record<string, never>; Returns: undefined };
     };
     Enums: {

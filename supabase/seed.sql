@@ -337,30 +337,63 @@ insert into marketplace_listing_images (listing_id, storage_path, position) valu
 on conflict do nothing;
 
 -- ---------------------------------------------------------------------------
--- A sample conversation + enquiry (Maria -> Costas about listing 1)
+-- Sample conversations for Maria's inbox (1 unread + 2 read) + an enquiry.
+-- Message created_at is staggered so the inbox shows realistic timestamps.
 -- ---------------------------------------------------------------------------
 do $$
-declare v_conv uuid;
 begin
+  -- 1) Maria <-> Costas (landlord) about listing 1 — Costas replied last => UNREAD for Maria
   insert into conversations (id, context, accommodation_listing_id, created_by, last_message_preview)
   values ('c1000000-0000-0000-0000-000000000001', 'accommodation', 'd0000000-0000-0000-0000-000000000001',
-          'a0000000-0000-0000-0000-000000000001', 'Hi! Is the 2-bed flat still available for September?')
+          'a0000000-0000-0000-0000-000000000001', 'placeholder')
   on conflict (id) do nothing;
-
   insert into conversation_participants (conversation_id, user_id) values
     ('c1000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001'),
     ('c1000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001')
   on conflict do nothing;
+  insert into messages (conversation_id, sender_id, body, created_at) values
+    ('c1000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001',
+     'Hi! Is the room still available for the fall semester?', now() - interval '4 hours'),
+    ('c1000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001',
+     'Hello Maria, yes it is. Would you like to view it this week?', now() - interval '3 hours')
+  on conflict do nothing;
 
-  insert into messages (conversation_id, sender_id, body) values
-    ('c1000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Hi! Is the 2-bed flat still available for September?'),
-    ('c1000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'Hello Maria, yes it is. Would you like to view it this week?')
+  -- 2) Maria <-> Andreas (roommate) — Maria replied last => READ
+  insert into conversations (id, context, roommate_profile_id, created_by, last_message_preview)
+  values ('c1000000-0000-0000-0000-000000000002', 'roommate', 'a0000000-0000-0000-0000-000000000002',
+          'a0000000-0000-0000-0000-000000000001', 'placeholder')
+  on conflict (id) do nothing;
+  insert into conversation_participants (conversation_id, user_id) values
+    ('c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001'),
+    ('c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002')
+  on conflict do nothing;
+  insert into messages (conversation_id, sender_id, body, created_at) values
+    ('c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002',
+     'Hey! Saw we both want Engomi for September — want to look together?', now() - interval '1 day 6 hours'),
+    ('c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001',
+     'Yes definitely! I''m free this weekend to view a few places.', now() - interval '1 day 4 hours')
+  on conflict do nothing;
+
+  -- 3) Maria <-> Sofia (roommate) — Maria replied last => READ
+  insert into conversations (id, context, roommate_profile_id, created_by, last_message_preview)
+  values ('c1000000-0000-0000-0000-000000000003', 'roommate', 'a0000000-0000-0000-0000-000000000005',
+          'a0000000-0000-0000-0000-000000000001', 'placeholder')
+  on conflict (id) do nothing;
+  insert into conversation_participants (conversation_id, user_id) values
+    ('c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001'),
+    ('c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000005')
+  on conflict do nothing;
+  insert into messages (conversation_id, sender_id, body, created_at) values
+    ('c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000005',
+     'Thanks for the tips on the bus routes!', now() - interval '4 days 2 hours'),
+    ('c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001',
+     'No problem — shout if you need anything else settling in.', now() - interval '4 days 1 hour')
   on conflict do nothing;
 
   insert into enquiries (listing_id, student_id, landlord_id, conversation_id, message, share_move_in, share_budget, share_university)
   values ('d0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001',
           'b0000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001',
-          'Hi! Is the 2-bed flat still available for September? I study at UNIC.', true, true, true)
+          'Hi! Is the room still available for the fall semester? I study at UNIC.', true, true, true)
   on conflict (listing_id, student_id) do nothing;
 end $$;
 

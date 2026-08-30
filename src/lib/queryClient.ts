@@ -45,6 +45,7 @@ export const qk = {
   marketplace: (filters?: unknown) => ['marketplace', filters] as const,
   marketplaceItem: (id: string) => ['marketplace-item', id] as const,
   conversations: ['conversations'] as const,
+  unreadConversations: ['conversations', 'unread-count'] as const,
   messages: (conversationId: string) => ['messages', conversationId] as const,
   enquiries: ['enquiries'] as const,
   notifications: ['notifications'] as const,

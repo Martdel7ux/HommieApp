@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { View, type ColorValue } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/theme';
-import { useUnreadNotificationCount } from '@/features/notifications/hooks';
+import { useUnreadConversationCount } from '@/features/messaging/hooks';
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
@@ -10,17 +10,17 @@ function TabIcon({
   name,
   focused,
   color,
-  dot,
+  badge,
 }: {
   name: IoniconName;
   focused: boolean;
   color: ColorValue;
-  dot?: boolean;
+  badge?: number;
 }) {
   return (
     <View
       style={{
-        width: 56,
+        width: 58,
         height: 30,
         borderRadius: 999,
         alignItems: 'center',
@@ -28,16 +28,16 @@ function TabIcon({
         backgroundColor: focused ? theme.colors.primarySubtle : 'transparent',
       }}
     >
-      <Ionicons name={name} size={22} color={color} />
-      {dot ? (
+      <Ionicons name={name} size={21} color={color} />
+      {badge && badge > 0 ? (
         <View
           style={{
             position: 'absolute',
-            top: 3,
-            right: 12,
-            width: 8,
-            height: 8,
-            borderRadius: 4,
+            top: 2,
+            right: 11,
+            width: 9,
+            height: 9,
+            borderRadius: 5,
             backgroundColor: theme.colors.danger,
             borderWidth: 1.5,
             borderColor: theme.colors.surface,
@@ -49,15 +49,15 @@ function TabIcon({
 }
 
 export default function StudentTabsLayout() {
-  const unread = useUnreadNotificationCount();
-  const hasUnread = (unread.data ?? 0) > 0;
+  const unread = useUnreadConversationCount();
+  const unreadCount = unread.data ?? 0;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textTertiary,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
@@ -94,7 +94,7 @@ export default function StudentTabsLayout() {
               name={focused ? 'chatbubble' : 'chatbubble-outline'}
               focused={focused}
               color={color}
-              dot={hasUnread}
+              badge={unreadCount}
             />
           ),
         }}
@@ -108,8 +108,15 @@ export default function StudentTabsLayout() {
           ),
         }}
       />
-      {/* Profile is reached from the Home avatar, not the tab bar. */}
-      <Tabs.Screen name="profile" options={{ href: null }} />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
