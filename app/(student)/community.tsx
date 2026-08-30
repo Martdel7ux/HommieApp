@@ -203,7 +203,7 @@ export default function Community() {
       />
 
       {/* clear the floating tab bar + its blur scrim so the button stays crisp */}
-      <View style={{ position: 'absolute', right: theme.spacing.xl, bottom: theme.layout.tabBarClearance + 52 }}>
+      <View style={{ position: 'absolute', right: theme.spacing.xl, bottom: theme.layout.tabBarClearance + 20 }}>
         <Button
           title="Post"
           leftIcon={<Ionicons name="add" size={18} color={theme.colors.onPrimary} />}

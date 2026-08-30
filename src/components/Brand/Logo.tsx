@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ViewStyle } from 'react-native';
 import { Image } from 'expo-image';
-import { Text } from '@/components/ui';
+import { Text } from '@/components/ui/Text';
 import { useTheme } from '@/theme';
 
 const MARK = require('../../../assets/logo.png');

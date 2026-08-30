@@ -7,15 +7,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 
 /**
- * The soft "fog" that sits just above the floating tab bar: page content blurs
- * and fades into the background as it scrolls down toward the bar. Purely
- * decorative — always rendered with pointerEvents="none".
+ * A thin, subtle haze right where scrolling content meets the floating tab bar:
+ * content softly blurs at its bottom edge as it passes behind the bar. Kept
+ * gentle on purpose — over the (near-white) page background it is barely there.
+ * Always decorative: pointerEvents="none".
  */
 export function BottomScrim() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const pillBottom = Math.max(insets.bottom, 12);
-  const RAMP = 84;
+  const pillTop = Math.max(insets.bottom, 14) + 60; // paddingBottom + PILL_HEIGHT
+  const RAMP = 40;
 
   return (
     <View
@@ -24,8 +25,7 @@ export function BottomScrim() {
         position: 'absolute',
         left: 0,
         right: 0,
-        // start a touch behind the pill's top edge so there is no visible seam
-        bottom: pillBottom + theme.layout.tabBarPillHeight - 14,
+        bottom: pillTop - 12, // tuck the bottom of the ramp behind the pill's top edge
         height: RAMP,
       }}
     >
@@ -34,19 +34,18 @@ export function BottomScrim() {
         maskElement={
           <LinearGradient
             style={StyleSheet.absoluteFill}
-            colors={['transparent', 'rgba(0,0,0,0.45)', 'rgba(0,0,0,1)']}
-            locations={[0, 0.55, 1]}
+            colors={['transparent', 'rgba(0,0,0,0.85)']}
+            locations={[0, 1]}
           />
         }
       >
-        <BlurView tint="default" intensity={26} style={StyleSheet.absoluteFill} />
+        <BlurView tint="light" intensity={16} style={StyleSheet.absoluteFill} />
+        <LinearGradient
+          style={StyleSheet.absoluteFill}
+          colors={['transparent', theme.colors.background]}
+          locations={[0.2, 1]}
+        />
       </MaskedView>
-
-      <LinearGradient
-        style={StyleSheet.absoluteFill}
-        colors={['transparent', theme.colors.background]}
-        locations={[0.1, 1]}
-      />
     </View>
   );
 }
