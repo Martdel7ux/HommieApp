@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase';
-import { resolveAvatar } from '@/lib/images';
+import { resolveAvatar, resolveImage } from '@/lib/images';
 import { guard } from '@/services/errors';
-import type { ConversationSummary } from './types';
+import { PAGE_SIZE } from '@/config/constants';
+import type { ChatMessage, ConversationDetail, ConversationSummary } from './types';
 
 /** Raw shape of the participant->conversation embed. */
 interface RawParticipant {
@@ -91,5 +92,125 @@ export const messagingApi = {
       });
       if (error) throw error;
     }, { scope: 'messaging.markRead' });
+  },
+
+  async getConversation(conversationId: string, userId: string): Promise<ConversationDetail> {
+    return guard(async () => {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select(
+          `
+          id, context, created_by,
+          accommodation_listing:accommodation_listings (
+            id, title, rent_month, area, city,
+            images:accommodation_listing_images ( storage_path, position )
+          ),
+          marketplace_listing:marketplace_listings ( id, title, price ),
+          participants:conversation_participants (
+            user_id, last_read_at,
+            profile:profiles ( id, first_name, display_name, avatar_url )
+          )
+        `,
+        )
+        .eq('id', conversationId)
+        .single<{
+          id: string;
+          context: ConversationDetail['context'];
+          created_by: string;
+          accommodation_listing: {
+            id: string;
+            title: string;
+            rent_month: number;
+            area: string;
+            city: string;
+            images: { storage_path: string; position: number }[];
+          } | null;
+          marketplace_listing: { id: string; title: string; price: number } | null;
+          participants: {
+            user_id: string;
+            last_read_at: string;
+            profile: {
+              id: string;
+              first_name: string | null;
+              display_name: string | null;
+              avatar_url: string | null;
+            } | null;
+          }[];
+        }>();
+      if (error) throw error;
+
+      const otherRow = data.participants.find((p) => p.user_id !== userId);
+      const op = otherRow?.profile ?? null;
+      const al = data.accommodation_listing;
+      const ml = data.marketplace_listing;
+
+      return {
+        id: data.id,
+        context: data.context,
+        createdBy: data.created_by,
+        other: op
+          ? {
+              id: op.id,
+              name: op.first_name ?? op.display_name ?? 'Hommie user',
+              avatarUrl: resolveAvatar(op.avatar_url) ?? null,
+            }
+          : null,
+        otherLastReadAt: otherRow?.last_read_at ?? null,
+        contextCard: al
+          ? {
+              kind: 'accommodation',
+              id: al.id,
+              title: al.title,
+              subtitle: `€${al.rent_month} / month`,
+              image: resolveImage(
+                [...(al.images ?? [])].sort((a, b) => a.position - b.position)[0]?.storage_path,
+              ),
+            }
+          : ml
+            ? {
+                kind: 'marketplace',
+                id: ml.id,
+                title: ml.title,
+                subtitle: ml.price === 0 ? 'Free' : `€${ml.price}`,
+              }
+            : null,
+      };
+    }, { scope: 'messaging.getConversation' });
+  },
+
+  async listMessages(
+    conversationId: string,
+    opts: { before?: string; limit?: number } = {},
+  ): Promise<ChatMessage[]> {
+    return guard(async () => {
+      let q = supabase
+        .from('messages')
+        .select('id, sender_id, body, created_at')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: false })
+        .limit(opts.limit ?? PAGE_SIZE.messages);
+      if (opts.before) q = q.lt('created_at', opts.before);
+
+      const { data, error } = await q;
+      if (error) throw error;
+      return (data ?? []).map((m) => ({
+        id: m.id,
+        senderId: m.sender_id,
+        body: m.body,
+        createdAt: m.created_at,
+      }));
+    }, { scope: 'messaging.listMessages' });
+  },
+
+  async sendMessage(conversationId: string, senderId: string, body: string): Promise<ChatMessage> {
+    return guard(async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({ conversation_id: conversationId, sender_id: senderId, body: body.trim() })
+        .select('id, sender_id, body, created_at')
+        .single();
+      if (error) throw error;
+      return { id: data.id, senderId: data.sender_id, body: data.body, createdAt: data.created_at };
+    }, { scope: 'messaging.sendMessage' });
   },
 };

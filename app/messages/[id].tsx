@@ -1,11 +1,183 @@
-import { RouteStub } from '@/components/RouteStub';
+import { useCallback } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Text, Avatar, LoadingState, ErrorState } from '@/components/ui';
+import { useTheme } from '@/theme';
+import { StatusBar } from 'expo-status-bar';
+import { useAuth } from '@/features/auth/AuthProvider';
+import { dayLabel } from '@/lib/datetime';
+import { useConversation, useThread } from '@/features/messaging/thread';
+import { MessageBubble } from '@/features/messaging/components/MessageBubble';
+import { ContextCard } from '@/features/messaging/components/ContextCard';
+import { MessageComposer } from '@/features/messaging/components/MessageComposer';
+import type { ChatMessage } from '@/features/messaging/types';
+
+function sameDay(a: string, b: string) {
+  return new Date(a).toDateString() === new Date(b).toDateString();
+}
+
+function DaySeparator({ label }: { label: string }) {
+  const theme = useTheme();
+  return (
+    <View style={{ alignItems: 'center', marginVertical: theme.spacing.md }}>
+      <View
+        style={{
+          backgroundColor: theme.colors.surfaceSunken,
+          borderRadius: theme.radius.pill,
+          paddingHorizontal: theme.spacing.md,
+          paddingVertical: 4,
+        }}
+      >
+        <Text variant="caption" color={theme.colors.textSecondary}>
+          {label}
+        </Text>
+      </View>
+    </View>
+  );
+}
 
 export default function ConversationThread() {
+  const theme = useTheme();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  const convo = useConversation(id);
+  const thread = useThread(id);
+  const { messages } = thread;
+
+  const otherReadAt = convo.data?.otherLastReadAt ?? null;
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: ChatMessage; index: number }) => {
+      const mine = item.senderId === user?.id;
+      const newer = messages[index - 1]; // visually below (inverted list)
+      const older = messages[index + 1]; // visually above
+      const showTime = !newer || newer.senderId !== item.senderId || item.status === 'failed';
+      const newDay = !older || !sameDay(older.createdAt, item.createdAt);
+      const read =
+        mine && !!otherReadAt && new Date(otherReadAt) >= new Date(item.createdAt);
+
+      return (
+        <View>
+          {newDay ? <DaySeparator label={dayLabel(item.createdAt)} /> : null}
+          <MessageBubble
+            message={item}
+            mine={mine}
+            showTime={showTime}
+            read={read}
+            onRetry={() => thread.retry(item)}
+          />
+        </View>
+      );
+    },
+    [messages, user?.id, otherReadAt, thread],
+  );
+
+  const other = convo.data?.other;
+
   return (
-    <RouteStub
-      title="Conversation"
-      icon="chatbubble-outline"
-      message="The chat thread — text messages, context header, realtime, and failed-send retry — is next."
-    />
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <StatusBar style="dark" />
+
+      {/* header */}
+      <View
+        style={{
+          paddingTop: insets.top + 6,
+          paddingBottom: theme.spacing.md,
+          paddingHorizontal: theme.spacing.md,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing.sm,
+          backgroundColor: theme.colors.surface,
+          borderBottomWidth: 1,
+          borderBottomColor: theme.colors.border,
+        }}
+      >
+        <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back" style={{ padding: 4 }}>
+          <Ionicons name="arrow-back" size={24} color={theme.colors.textPrimary} />
+        </Pressable>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Text variant="h3" numberOfLines={1} style={{ fontSize: 17 }}>
+              {other?.name ?? 'Conversation'}
+            </Text>
+            <Ionicons name="checkmark-circle" size={15} color={theme.colors.verifiedBadge} />
+          </View>
+          {convo.data?.contextCard ? (
+            <Text variant="caption" muted numberOfLines={1}>
+              {convo.data.contextCard.title}
+            </Text>
+          ) : null}
+        </View>
+        <Avatar uri={other?.avatarUrl} name={other?.name} size={38} />
+      </View>
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={0}
+      >
+        {thread.isLoading ? (
+          <LoadingState />
+        ) : thread.isError ? (
+          <ErrorState message="Couldn't load this conversation." onRetry={() => thread.refetch()} />
+        ) : (
+          <FlatList
+            data={messages}
+            keyExtractor={(m) => m.id}
+            renderItem={renderItem}
+            inverted
+            contentContainerStyle={{
+              paddingHorizontal: theme.layout.screenPadding,
+              paddingTop: theme.spacing.lg,
+              paddingBottom: theme.spacing.lg,
+            }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            onEndReachedThreshold={0.4}
+            onEndReached={() => {
+              if (thread.hasNextPage && !thread.isFetchingNextPage) thread.fetchNextPage();
+            }}
+            ListFooterComponent={
+              <View>
+                {convo.data?.contextCard ? (
+                  <ContextCard
+                    card={convo.data.contextCard}
+                    onPress={() => {
+                      const c = convo.data!.contextCard!;
+                      router.push(
+                        c.kind === 'accommodation' ? `/accommodation/${c.id}` : `/marketplace/${c.id}`,
+                      );
+                    }}
+                  />
+                ) : null}
+                {thread.isFetchingNextPage ? (
+                  <ActivityIndicator color={theme.colors.primary} style={{ marginVertical: theme.spacing.md }} />
+                ) : null}
+              </View>
+            }
+            ListEmptyComponent={
+              <View style={{ transform: [{ scaleY: -1 }], paddingTop: theme.spacing['4xl'], alignItems: 'center' }}>
+                <Text muted>Say hello 👋</Text>
+              </View>
+            }
+          />
+        )}
+
+        <MessageComposer onSend={thread.sendMessage} disabled={thread.isSending} />
+      </KeyboardAvoidingView>
+    </View>
   );
 }

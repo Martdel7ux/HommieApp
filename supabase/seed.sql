@@ -351,12 +351,14 @@ begin
     ('c1000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001'),
     ('c1000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001')
   on conflict do nothing;
-  insert into messages (conversation_id, sender_id, body, created_at) values
-    ('c1000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001',
-     'Hi! Is the room still available for the fall semester?', now() - interval '4 hours'),
-    ('c1000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001',
-     'Hello Maria, yes it is. Would you like to view it this week?', now() - interval '3 hours')
-  on conflict do nothing;
+  insert into messages (id, conversation_id, sender_id, body, created_at) values
+    ('e1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001',
+     'Hi! Is the room still available for the fall semester?', date_trunc('day', now()) + interval '10 hours 42 minutes'),
+    ('e1000000-0000-0000-0000-000000000002', 'c1000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001',
+     'I love the natural light in the photos — is a September move-in possible?', date_trunc('day', now()) + interval '10 hours 45 minutes'),
+    ('e1000000-0000-0000-0000-000000000003', 'c1000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001',
+     'Hello Maria, yes it is. The current tenant leaves late August. Would you like to view it this week?', date_trunc('day', now()) + interval '11 hours 2 minutes')
+  on conflict (id) do nothing;
 
   -- 2) Maria <-> Andreas (roommate) — Maria replied last => READ
   insert into conversations (id, context, roommate_profile_id, created_by, last_message_preview)
@@ -367,12 +369,12 @@ begin
     ('c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001'),
     ('c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002')
   on conflict do nothing;
-  insert into messages (conversation_id, sender_id, body, created_at) values
-    ('c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002',
-     'Hey! Saw we both want Engomi for September — want to look together?', now() - interval '1 day 6 hours'),
-    ('c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001',
-     'Yes definitely! I''m free this weekend to view a few places.', now() - interval '1 day 4 hours')
-  on conflict do nothing;
+  insert into messages (id, conversation_id, sender_id, body, created_at) values
+    ('e1000000-0000-0000-0000-000000000011', 'c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002',
+     'Hey! Saw we both want Engomi for September — want to look together?', date_trunc('day', now()) - interval '1 day' + interval '16 hours'),
+    ('e1000000-0000-0000-0000-000000000012', 'c1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001',
+     'Yes definitely! I''m free this weekend to view a few places.', date_trunc('day', now()) - interval '1 day' + interval '18 hours')
+  on conflict (id) do nothing;
 
   -- 3) Maria <-> Sofia (roommate) — Maria replied last => READ
   insert into conversations (id, context, roommate_profile_id, created_by, last_message_preview)
@@ -383,12 +385,12 @@ begin
     ('c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001'),
     ('c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000005')
   on conflict do nothing;
-  insert into messages (conversation_id, sender_id, body, created_at) values
-    ('c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000005',
-     'Thanks for the tips on the bus routes!', now() - interval '4 days 2 hours'),
-    ('c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001',
-     'No problem — shout if you need anything else settling in.', now() - interval '4 days 1 hour')
-  on conflict do nothing;
+  insert into messages (id, conversation_id, sender_id, body, created_at) values
+    ('e1000000-0000-0000-0000-000000000021', 'c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000005',
+     'Thanks for the tips on the bus routes!', date_trunc('day', now()) - interval '4 days' + interval '14 hours'),
+    ('e1000000-0000-0000-0000-000000000022', 'c1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001',
+     'No problem — shout if you need anything else settling in.', date_trunc('day', now()) - interval '4 days' + interval '15 hours')
+  on conflict (id) do nothing;
 
   insert into enquiries (listing_id, student_id, landlord_id, conversation_id, message, share_move_in, share_budget, share_university)
   values ('d0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001',
