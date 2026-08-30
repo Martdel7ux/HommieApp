@@ -2,12 +2,15 @@ import React from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   StyleProp,
   View,
   ViewStyle,
   RefreshControl,
 } from 'react-native';
+// gesture-handler's ScrollView composes correctly with nested scrollables and
+// the stack/tab navigators on the New Architecture; RN's own ScrollView can
+// silently stop responding to drags when another ScrollView is nested in it.
+import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTheme } from '@/theme';
