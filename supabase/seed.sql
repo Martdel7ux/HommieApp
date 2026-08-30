@@ -273,17 +273,18 @@ on conflict (user_id) do nothing;
 -- ---------------------------------------------------------------------------
 -- Community posts
 -- ---------------------------------------------------------------------------
-insert into community_posts (id, author_id, category, body) values
+insert into community_posts (id, author_id, category, body, image_paths, created_at) values
   ('e0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000003', 'new_in_cyprus',
-   'Just landed in Nicosia for Erasmus! Any tips for getting a local SIM and a bus card?'),
-  ('e0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'housing_help',
-   'Is €350 for a room in Engomi with bills included a good deal? First time renting here.'),
-  ('e0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000004', 'recommendations',
-   'Best cheap eats near UNIC? Looking for something under €6 for lunch between classes.'),
+   'Just landed in Nicosia for Erasmus! Any tips for getting a local SIM and a bus card?', '{}', now() - interval '2 minutes'),
   ('e0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000006', 'campus_life',
-   'Starting a 7am running group around the UCY campus loop. Anyone in?'),
+   'The new study lounge at UNIC is actually amazing. Highly recommend checking it out if you need a quiet spot!',
+   array['https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1200'], now() - interval '15 minutes'),
+  ('e0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000004', 'recommendations',
+   'Best coffee near EUC? Looking for a place with good WiFi.', '{}', now() - interval '1 hour'),
+  ('e0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'housing_help',
+   'Is €350 for a room in Engomi with bills included a good deal? First time renting here.', '{}', now() - interval '3 hours'),
   ('e0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000001', 'general',
-   'Welcome to the Hommie community! Be kind, keep it student-friendly, and report anything dodgy.')
+   'Welcome to the Hommie community! Be kind, keep it student-friendly, and report anything dodgy.', '{}', now() - interval '2 days')
 on conflict (id) do nothing;
 
 insert into community_comments (post_id, author_id, body) values
