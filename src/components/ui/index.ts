@@ -10,6 +10,8 @@ export { Badge } from './Badge';
 export { Avatar } from './Avatar';
 export { Banner } from './Banner';
 export { SectionHeader } from './SectionHeader';
+export { SegmentedControl } from './SegmentedControl';
+export type { SegmentOption } from './SegmentedControl';
 export { Chip, ChipGroup } from './Chip';
 export type { ChipOption } from './Chip';
 export { Select } from './Select';

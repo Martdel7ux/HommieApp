@@ -2,29 +2,37 @@ import { supabase } from '@/lib/supabase';
 import { resolveImage } from '@/lib/images';
 import { guard } from '@/services/errors';
 import { PAGE_SIZE } from '@/config/constants';
-import type { AccommodationCard, AccommodationFilters } from './types';
+import type { AccommodationCard, AccommodationFilters, AccommodationPage } from './types';
 
 const CARD_SELECT = `
   id, title, rent_month, deposit, bills_included, property_type, bedrooms, bathrooms,
   furnished, roommate_suitable, city, area, available_from, amenities, saves_count,
-  views_count, published_at, status,
+  views_count, published_at, status, distance_to_campus_km,
   images:accommodation_listing_images ( storage_path, position ),
   landlord:profiles!accommodation_listings_landlord_id_fkey (
     id, display_name, avatar_url,
     landlord_profile:landlord_profiles ( verification, business_name )
-  )
+  ),
+  nearest_university:universities!accommodation_listings_nearest_university_id_fkey ( short_name, name )
 `;
 
 export const accommodationApi = {
-  async list(filters: AccommodationFilters = {}, opts: { limit?: number; offset?: number } = {}) {
+  async list(
+    filters: AccommodationFilters = {},
+    opts: { limit?: number; offset?: number; withCount?: boolean } = {},
+  ): Promise<AccommodationPage> {
     return guard(async () => {
-      let q = supabase.from('accommodation_listings').select(CARD_SELECT).eq('status', 'active');
+      let q = supabase
+        .from('accommodation_listings')
+        .select(CARD_SELECT, opts.withCount ? { count: 'exact' } : undefined)
+        .eq('status', 'active');
 
       if (filters.query) {
         const term = `%${filters.query}%`;
         q = q.or(`title.ilike.${term},area.ilike.${term},city.ilike.${term}`);
       }
       if (filters.city) q = q.eq('city', filters.city);
+      if (filters.area) q = q.eq('area', filters.area);
       if (filters.universityId) q = q.eq('nearest_university_id', filters.universityId);
       if (filters.propertyTypes?.length) q = q.in('property_type', filters.propertyTypes);
       if (filters.rentMin != null) q = q.gte('rent_month', filters.rentMin);
@@ -45,17 +53,19 @@ export const accommodationApi = {
             ? q.order('rent_month', { ascending: false })
             : q.order('published_at', { ascending: false, nullsFirst: false });
 
-      const { data, error } = await ordered.range(offset, offset + limit - 1).returns<AccommodationCard[]>();
+      const { data, error, count } = await ordered
+        .range(offset, offset + limit - 1)
+        .returns<AccommodationCard[]>();
       if (error) throw error;
-      return data ?? [];
+      return { rows: data ?? [], count: count ?? null };
     }, { scope: 'accommodation.list' });
   },
 
   /** Home rail: freshest active listings, nudged toward the student's city. */
-  async recommended(city: string | null | undefined, limit = 6) {
-    const inCity = city ? await this.list({ city, sort: 'newest' }, { limit }) : [];
+  async recommended(city: string | null | undefined, limit = 6): Promise<AccommodationCard[]> {
+    const inCity = city ? (await this.list({ city, sort: 'newest' }, { limit })).rows : [];
     if (inCity.length >= limit) return inCity;
-    const rest = await this.list({ sort: 'newest' }, { limit: limit + inCity.length });
+    const rest = (await this.list({ sort: 'newest' }, { limit: limit + inCity.length })).rows;
     const seen = new Set(inCity.map((l) => l.id));
     return [...inCity, ...rest.filter((l) => !seen.has(l.id))].slice(0, limit);
   },
@@ -96,4 +106,15 @@ export const accommodationApi = {
 export function coverImage(card: Pick<AccommodationCard, 'images'>): string | undefined {
   const sorted = [...(card.images ?? [])].sort((a, b) => a.position - b.position);
   return resolveImage(sorted[0]?.storage_path);
+}
+
+/** "800m from UNIC" / "1.2km from EUC" / "Engomi, Nicosia". */
+export function locationLabel(card: AccommodationCard): string {
+  const uni = card.nearest_university?.short_name ?? card.nearest_university?.name;
+  const d = card.distance_to_campus_km;
+  if (uni && d != null) {
+    const dist = d < 1 ? `${Math.round(d * 1000)}m` : `${d}km`;
+    return `${dist} from ${uni}`;
+  }
+  return `${card.area}, ${card.city}`;
 }

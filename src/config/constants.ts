@@ -109,6 +109,20 @@ export const CYPRUS_CITIES = [
   'Paphos',
 ] as const;
 
+/** Neighbourhoods used for the accommodation "Area" filter. */
+export const CYPRUS_AREAS = [
+  'Engomi',
+  'Aglantzia',
+  'Strovolos',
+  'Pallouriotissa',
+  'Latsia',
+  'Lakatamia',
+  'Old Town',
+  'Kaimakli',
+  'Pyla',
+  'City Centre',
+] as const;
+
 export const AMENITIES = [
   'wifi',
   'air_conditioning',

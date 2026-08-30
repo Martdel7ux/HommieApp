@@ -36,13 +36,18 @@ export interface AccommodationCard {
   views_count: number;
   published_at: string | null;
   status: ListingStatus;
+  distance_to_campus_km: number | null;
   images: ListingImage[];
   landlord: ListingLandlord | null;
+  nearest_university: { short_name: string | null; name: string } | null;
 }
+
+export type AccommodationSort = 'relevance' | 'newest' | 'rent_asc' | 'rent_desc';
 
 export interface AccommodationFilters {
   query?: string;
   city?: string;
+  area?: string;
   universityId?: string;
   propertyTypes?: PropertyType[];
   rentMin?: number;
@@ -52,5 +57,10 @@ export interface AccommodationFilters {
   billsIncluded?: boolean;
   roommateSuitable?: boolean;
   availableFrom?: string;
-  sort?: 'relevance' | 'newest' | 'rent_asc' | 'rent_desc';
+  sort?: AccommodationSort;
+}
+
+export interface AccommodationPage {
+  rows: AccommodationCard[];
+  count: number | null;
 }
