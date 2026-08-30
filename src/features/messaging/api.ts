@@ -85,6 +85,32 @@ export const messagingApi = {
     }, { scope: 'messaging.listConversations' });
   },
 
+  /**
+   * Get (or create) the one-to-one conversation with another user and return
+   * its id. Idempotent — the `start_conversation` RPC dedupes on context.
+   */
+  async startConversation(
+    otherUserId: string,
+    opts: {
+      context?: ConversationDetail['context'];
+      roommateProfileId?: string;
+      accommodationListingId?: string;
+      marketplaceListingId?: string;
+    } = {},
+  ): Promise<string> {
+    return guard(async () => {
+      const { data, error } = await supabase.rpc('start_conversation', {
+        p_other_user: otherUserId,
+        p_context: opts.context ?? 'general',
+        p_roommate_profile_id: opts.roommateProfileId ?? null,
+        p_accommodation_listing_id: opts.accommodationListingId ?? null,
+        p_marketplace_listing_id: opts.marketplaceListingId ?? null,
+      });
+      if (error) throw error;
+      return data as string;
+    }, { scope: 'messaging.startConversation' });
+  },
+
   async markRead(conversationId: string) {
     return guard(async () => {
       const { error } = await supabase.rpc('mark_conversation_read', {

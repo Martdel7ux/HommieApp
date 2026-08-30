@@ -149,6 +149,23 @@ update profiles set
   onboarding_completed = true
 where id = 'a0000000-0000-0000-0000-000000000007';
 
+-- Surnames (shown as an initial on roommate cards: "Elena K.")
+update profiles set last_name = case id
+  when 'a0000000-0000-0000-0000-000000000001' then 'Antoniou'
+  when 'a0000000-0000-0000-0000-000000000002' then 'Petrou'
+  when 'a0000000-0000-0000-0000-000000000003' then 'Weber'
+  when 'a0000000-0000-0000-0000-000000000004' then 'Charalambous'
+  when 'a0000000-0000-0000-0000-000000000005' then 'Georgiou'
+  when 'a0000000-0000-0000-0000-000000000006' then 'Nicolaou'
+  when 'a0000000-0000-0000-0000-000000000007' then 'Kyriacou'
+end
+where id in (
+  'a0000000-0000-0000-0000-000000000001','a0000000-0000-0000-0000-000000000002',
+  'a0000000-0000-0000-0000-000000000003','a0000000-0000-0000-0000-000000000004',
+  'a0000000-0000-0000-0000-000000000005','a0000000-0000-0000-0000-000000000006',
+  'a0000000-0000-0000-0000-000000000007'
+);
+
 -- ---------------------------------------------------------------------------
 -- Landlord profiles
 -- ---------------------------------------------------------------------------
@@ -247,28 +264,28 @@ on conflict do nothing;
 -- Roommate profiles
 -- ---------------------------------------------------------------------------
 insert into roommate_preferences (
-  user_id, is_published, headline, about, preferred_city, preferred_areas, university_id,
+  user_id, age, is_published, headline, about, preferred_city, preferred_areas, university_id,
   budget_min, budget_max, move_in_from, move_in_to, smoking, pets, cleanliness,
   sleep_schedule, social_level, guests_frequency, gender_preference, lifestyle_tags
 ) values
-  ('a0000000-0000-0000-0000-000000000002', true, 'Quiet MSc student looking for a chill flatmate',
+  ('a0000000-0000-0000-0000-000000000002', 24, true, 'Quiet MSc student looking for a chill flatmate',
    'I study most evenings and value a calm home. Happy to share cooking and cleaning fairly.',
    'Nicosia', array['Aglantzia','Engomi'], '11111111-0000-0000-0000-000000000004',
    350, 550, date '2026-09-15', date '2026-10-05', 'no', 'no_preference', 4,
    'night_owl', 'balanced', 'rarely', 'no_preference', array['non_smoker','clean','studious']),
 
-  ('a0000000-0000-0000-0000-000000000005', true, 'First year, friendly and tidy',
+  ('a0000000-0000-0000-0000-000000000005', 19, true, 'First year, friendly and tidy',
    'Looking for a room or a flatmate to search together. I love cooking and film nights.',
    'Nicosia', array['Pallouriotissa','Engomi','Strovolos'], '11111111-0000-0000-0000-000000000003',
    280, 420, date '2026-09-01', date '2026-09-25', 'no', 'yes', 4,
    'flexible', 'very_social', 'sometimes', 'same', array['pet_lover','sociable','cook']),
 
-  ('a0000000-0000-0000-0000-000000000007', true, 'Postgrad, early riser, into yoga & baking',
+  ('a0000000-0000-0000-0000-000000000007', 23, true, 'Postgrad, early riser, into yoga & baking',
    'Clean, organised and quiet in the mornings. Would love a flatmate with similar rhythm.',
    'Nicosia', array['Engomi','Aglantzia'], '11111111-0000-0000-0000-000000000002',
    300, 460, date '2026-09-10', date '2026-09-30', 'no', 'no', 5,
    'early_bird', 'balanced', 'rarely', 'same', array['non_smoker','clean','quiet'])
-on conflict (user_id) do nothing;
+on conflict (user_id) do update set age = excluded.age;
 
 -- ---------------------------------------------------------------------------
 -- Community posts

@@ -159,6 +159,7 @@ interface RoommatePreferenceRow extends Timestamps {
   id: string;
   user_id: string;
   is_published: boolean;
+  age: number | null;
   headline: string | null;
   about: string | null;
   preferred_city: string | null;

@@ -4,6 +4,7 @@ export interface RoommateProfileCard {
   user_id: string;
   headline: string | null;
   about: string | null;
+  age: number | null;
   preferred_city: string | null;
   preferred_areas: string[];
   budget_min: number | null;
@@ -17,6 +18,7 @@ export interface RoommateProfileCard {
   profile: {
     id: string;
     first_name: string | null;
+    last_name: string | null;
     display_name: string | null;
     avatar_url: string | null;
     study_level: StudyLevel | null;
@@ -31,4 +33,18 @@ export interface Compatibility {
 
 export interface RoommateMatch extends RoommateProfileCard {
   compatibility: Compatibility;
+}
+
+export type RoommateSort = 'match' | 'newest' | 'budget_low';
+
+export interface RoommateFilters {
+  universityId?: string;
+  budgetMax?: number;
+  area?: string;
+  sort?: RoommateSort;
+}
+
+export interface RoommatePage {
+  rows: RoommateProfileCard[];
+  count: number;
 }

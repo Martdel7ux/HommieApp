@@ -70,7 +70,7 @@ export default function StudentHome() {
 
   const roommates = useQuery({
     queryKey: qk.roommates({ home: true }),
-    queryFn: () => roommatesApi.list({ limit: 8, excludeUserId: user?.id }),
+    queryFn: () => roommatesApi.list({}, { limit: 8, excludeUserId: user?.id }),
     enabled: !!user,
   });
 
@@ -81,7 +81,7 @@ export default function StudentHome() {
   });
 
   const matches: RoommateMatch[] = useMemo(() => {
-    const rows = roommates.data ?? [];
+    const rows = roommates.data?.rows ?? [];
     return rows
       .map((r) => ({ ...r, compatibility: estimateCompatibility(profile, r) }))
       .sort((a, b) => b.compatibility.score - a.compatibility.score)
