@@ -1,11 +1,83 @@
-import { useMemo } from 'react';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo } from 'react';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryClient';
+import { supabase } from '@/lib/supabase';
+import { guard } from '@/services/errors';
 import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
+import { messagingApi } from '@/features/messaging/api';
 import { accommodationApi } from './api';
-import type { AccommodationFilters, AccommodationCard } from './types';
+import type { AccommodationDetail, AccommodationFilters, AccommodationCard } from './types';
+
+export function useListing(id: string) {
+  const { user } = useAuth();
+  const query = useQuery({
+    queryKey: qk.listing(id),
+    queryFn: () => accommodationApi.get(id, user!.id),
+    enabled: !!user && !!id,
+  });
+
+  useEffect(() => {
+    if (id) accommodationApi.recordView(id);
+  }, [id]);
+
+  return query;
+}
+
+export function useSimilarListings(listing: AccommodationDetail | undefined) {
+  return useQuery({
+    queryKey: ['listings', 'similar', listing?.id],
+    queryFn: () => accommodationApi.similar(listing!, 6),
+    enabled: !!listing,
+  });
+}
+
+interface EnquiryInput {
+  landlordId: string;
+  message: string;
+  shareMoveIn: boolean;
+  shareBudget: boolean;
+  shareUniversity: boolean;
+}
+
+/** Send a first enquiry about a listing → conversation + enquiry row. Returns the conversation id. */
+export function useSendEnquiry(listingId: string) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: EnquiryInput) =>
+      guard(async () => {
+        const conversationId = await messagingApi.startConversation(input.landlordId, {
+          context: 'accommodation',
+          accommodationListingId: listingId,
+        });
+
+        const body = input.message.trim();
+        await messagingApi.sendMessage(conversationId, user!.id, body);
+
+        const { error } = await supabase.from('enquiries').insert({
+          listing_id: listingId,
+          student_id: user!.id,
+          landlord_id: input.landlordId,
+          conversation_id: conversationId,
+          message: body,
+          share_move_in: input.shareMoveIn,
+          share_budget: input.shareBudget,
+          share_university: input.shareUniversity,
+        });
+        // a repeat enquiry (unique listing+student) is fine — reuse the conversation
+        if (error && error.code !== '23505') throw error;
+
+        return conversationId;
+      }, { scope: 'accommodation.sendEnquiry' }),
+    onSuccess: () => {
+      analytics.track('enquiry_sent', { listing_id: listingId });
+      queryClient.invalidateQueries({ queryKey: qk.conversations });
+    },
+  });
+}
 
 export function useAccommodationSearch(filters: AccommodationFilters) {
   const query = useInfiniteQuery({

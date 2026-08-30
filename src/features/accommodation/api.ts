@@ -2,7 +2,12 @@ import { supabase } from '@/lib/supabase';
 import { resolveImage } from '@/lib/images';
 import { guard } from '@/services/errors';
 import { PAGE_SIZE } from '@/config/constants';
-import type { AccommodationCard, AccommodationFilters, AccommodationPage } from './types';
+import type {
+  AccommodationCard,
+  AccommodationDetail,
+  AccommodationFilters,
+  AccommodationPage,
+} from './types';
 
 const CARD_SELECT = `
   id, title, rent_month, deposit, bills_included, property_type, bedrooms, bathrooms,
@@ -59,6 +64,56 @@ export const accommodationApi = {
       if (error) throw error;
       return { rows: data ?? [], count: count ?? null };
     }, { scope: 'accommodation.list' });
+  },
+
+  async get(id: string, userId: string): Promise<AccommodationDetail> {
+    return guard(async () => {
+      const { data, error } = await supabase
+        .from('accommodation_listings')
+        .select(
+          `
+          id, title, description, rent_month, deposit, bills_included, bills_note, property_type,
+          bedrooms, bathrooms, furnished, roommate_suitable, max_occupants, city, area, address_line,
+          approx_lat, approx_lng, available_from, available_to, amenities, saves_count, views_count,
+          status, distance_to_campus_km, nearest_university_id,
+          images:accommodation_listing_images ( storage_path, position ),
+          landlord:profiles!accommodation_listings_landlord_id_fkey (
+            id, first_name, display_name, avatar_url,
+            landlord_profile:landlord_profiles ( verification, business_name, contact_name )
+          ),
+          nearest_university:universities!accommodation_listings_nearest_university_id_fkey ( id, short_name, name )
+        `,
+        )
+        .eq('id', id)
+        .single<Omit<AccommodationDetail, 'saved'>>();
+      if (error) throw error;
+
+      const { data: sv } = await supabase
+        .from('saved_accommodation_listings')
+        .select('listing_id')
+        .eq('user_id', userId)
+        .eq('listing_id', id)
+        .maybeSingle();
+
+      return { ...data, saved: !!sv };
+    }, { scope: 'accommodation.get' });
+  },
+
+  /** Other active listings near the same campus (or area), excluding this one. */
+  async similar(listing: Pick<AccommodationDetail, 'id' | 'area' | 'nearest_university_id'>, limit = 6) {
+    const filters: AccommodationFilters = listing.nearest_university_id
+      ? { universityId: listing.nearest_university_id, sort: 'newest' }
+      : { area: listing.area, sort: 'newest' };
+    const page = await this.list(filters, { limit: limit + 1 });
+    return page.rows.filter((r) => r.id !== listing.id).slice(0, limit);
+  },
+
+  async recordView(listingId: string) {
+    try {
+      await supabase.rpc('record_listing_view', { p_listing_id: listingId });
+    } catch {
+      // view tracking is best-effort
+    }
   },
 
   /** Home rail: freshest active listings, nudged toward the student's city. */

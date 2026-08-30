@@ -250,15 +250,22 @@ insert into accommodation_listings (
    array['wifi','heating'], date '2026-10-01')
 on conflict (id) do nothing;
 
-insert into accommodation_listing_images (listing_id, storage_path, position) values
-  ('d0000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200', 0),
-  ('d0000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1200', 1),
-  ('d0000000-0000-0000-0000-000000000002', 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200', 0),
-  ('d0000000-0000-0000-0000-000000000003', 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200', 0),
-  ('d0000000-0000-0000-0000-000000000004', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200', 0),
-  ('d0000000-0000-0000-0000-000000000005', 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=1200', 0),
-  ('d0000000-0000-0000-0000-000000000006', 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200', 0)
-on conflict do nothing;
+-- deterministic ids: this table has a surrogate pk, so `on conflict do nothing`
+-- alone would let every re-seed insert duplicate rows.
+insert into accommodation_listing_images (id, listing_id, storage_path, position) values
+  ('d1a00000-0000-0000-0000-000000000101', 'd0000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200', 0),
+  ('d1a00000-0000-0000-0000-000000000102', 'd0000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1200', 1),
+  ('d1a00000-0000-0000-0000-000000000103', 'd0000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200', 2),
+  ('d1a00000-0000-0000-0000-000000000104', 'd0000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=1200', 3),
+  ('d1a00000-0000-0000-0000-000000000105', 'd0000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200', 4),
+  ('d1a00000-0000-0000-0000-000000000201', 'd0000000-0000-0000-0000-000000000002', 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200', 0),
+  ('d1a00000-0000-0000-0000-000000000202', 'd0000000-0000-0000-0000-000000000002', 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200', 1),
+  ('d1a00000-0000-0000-0000-000000000301', 'd0000000-0000-0000-0000-000000000003', 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1200', 0),
+  ('d1a00000-0000-0000-0000-000000000302', 'd0000000-0000-0000-0000-000000000003', 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=1200', 1),
+  ('d1a00000-0000-0000-0000-000000000401', 'd0000000-0000-0000-0000-000000000004', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200', 0),
+  ('d1a00000-0000-0000-0000-000000000501', 'd0000000-0000-0000-0000-000000000005', 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=1200', 0),
+  ('d1a00000-0000-0000-0000-000000000601', 'd0000000-0000-0000-0000-000000000006', 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1200', 0)
+on conflict (id) do nothing;
 
 -- ---------------------------------------------------------------------------
 -- Roommate profiles
