@@ -4,7 +4,7 @@ import { qk } from '@/lib/queryClient';
 import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
-import { marketplaceApi } from './api';
+import { marketplaceApi, type NewListingInput } from './api';
 import type { MarketplaceCard, MarketplaceFilters } from './types';
 
 export function useMarketplace(filters: MarketplaceFilters) {
@@ -31,6 +31,18 @@ export function useMarketplace(filters: MarketplaceFilters) {
   const total = query.data?.pages[0]?.count ?? null;
 
   return { ...query, rows, total };
+}
+
+export function useCreateListing() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: NewListingInput) => marketplaceApi.create(user!.id, input),
+    onSuccess: (_id, input) => {
+      analytics.track('marketplace_listing_created', { category: input.category });
+      queryClient.invalidateQueries({ queryKey: ['marketplace'] });
+    },
+  });
 }
 
 export function useMarketplaceItem(id: string) {

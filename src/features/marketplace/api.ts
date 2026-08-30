@@ -1,7 +1,9 @@
 import { supabase, STORAGE_BUCKETS } from '@/lib/supabase';
 import { resolveImage, resolveAvatar } from '@/lib/images';
 import { guard } from '@/services/errors';
+import { uploadImage } from '@/lib/upload';
 import { PAGE_SIZE } from '@/config/constants';
+import type { MarketplaceCategory, MarketplaceCondition } from '@/types/database';
 import type {
   MarketplaceCard,
   MarketplaceFilters,
@@ -9,6 +11,18 @@ import type {
   MarketplaceItemDetail,
   MarketplacePage,
 } from './types';
+
+export interface NewListingInput {
+  title: string;
+  price: number;
+  isFree: boolean;
+  category: MarketplaceCategory;
+  condition: MarketplaceCondition;
+  description?: string;
+  city: string;
+  area?: string | null;
+  photos: { uri: string; mimeType?: string | null }[];
+}
 
 const CARD_SELECT = `
   id, title, description, price, is_free, category, condition, city, area, status, saves_count,
@@ -76,6 +90,46 @@ export const marketplaceApi = {
           : null,
       };
     }, { scope: 'marketplace.get' });
+  },
+
+  async create(userId: string, input: NewListingInput): Promise<string> {
+    return guard(async () => {
+      const { data, error } = await supabase
+        .from('marketplace_listings')
+        .insert({
+          seller_id: userId,
+          title: input.title.trim(),
+          description: input.description?.trim() || null,
+          category: input.category,
+          condition: input.condition,
+          price: input.isFree ? 0 : Math.round(input.price),
+          is_free: input.isFree,
+          city: input.city,
+          area: input.area ?? null,
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      const id = data.id as string;
+
+      if (input.photos.length) {
+        const rows: { listing_id: string; storage_path: string; position: number }[] = [];
+        for (let i = 0; i < input.photos.length; i++) {
+          const photo = input.photos[i];
+          const path = await uploadImage(
+            STORAGE_BUCKETS.marketplaceImages,
+            `${userId}/${id}`,
+            photo.uri,
+            { contentType: photo.mimeType ?? 'image/jpeg' },
+          );
+          rows.push({ listing_id: id, storage_path: path, position: i });
+        }
+        const { error: imgErr } = await supabase.from('marketplace_listing_images').insert(rows);
+        if (imgErr) throw imgErr;
+      }
+
+      return id;
+    }, { scope: 'marketplace.create' });
   },
 
   async savedIds(userId: string): Promise<string[]> {

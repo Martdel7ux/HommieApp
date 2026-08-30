@@ -18,6 +18,7 @@ export function Select({
   value,
   onChange,
   error,
+  filled = false,
 }: {
   label?: string;
   placeholder?: string;
@@ -25,6 +26,8 @@ export function Select({
   value: string | null;
   onChange: (value: string) => void;
   error?: string;
+  /** Borderless pale-fill style (matches the "Create listing" form). */
+  filled?: boolean;
 }) {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -46,12 +49,12 @@ export function Select({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderWidth: 1,
+          borderWidth: filled ? 0 : 1,
           borderColor: error ? theme.colors.danger : theme.colors.border,
-          borderRadius: theme.radius.md,
-          backgroundColor: theme.colors.surface,
+          borderRadius: filled ? theme.radius.lg : theme.radius.md,
+          backgroundColor: filled ? theme.colors.surfaceAlt : theme.colors.surface,
           paddingHorizontal: theme.spacing.lg,
-          minHeight: 48,
+          minHeight: filled ? 52 : 48,
         }}
       >
         <Text color={current ? theme.colors.textPrimary : theme.colors.textTertiary}>
