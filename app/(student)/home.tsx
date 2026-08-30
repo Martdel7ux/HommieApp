@@ -199,7 +199,10 @@ export default function StudentHome() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              style={{ marginHorizontal: -theme.layout.screenPadding }}
+              // Explicit height: a horizontal ScrollView nested in the vertical
+              // page ScrollView can't self-size its cross axis and will otherwise
+              // eat vertical space, pushing the sections below it off-screen.
+              style={{ height: 264, marginHorizontal: -theme.layout.screenPadding }}
               contentContainerStyle={{
                 paddingHorizontal: theme.layout.screenPadding,
                 paddingVertical: 4,

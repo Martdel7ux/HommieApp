@@ -30,7 +30,8 @@ export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'c
   const theme = useTheme();
   const uri = coverImage(listing);
   const verified = listing.landlord?.landlord_profile?.verification === 'verified';
-  const width = layout === 'carousel' ? 272 : undefined;
+  const carousel = layout === 'carousel';
+  const width = carousel ? 272 : undefined;
 
   return (
     <Pressable
@@ -39,6 +40,9 @@ export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'c
       accessibilityLabel={`${listing.title}, ${listing.rent_month} euro per month, ${listing.area}, ${listing.city}`}
       style={({ pressed }) => ({
         width,
+        // Uniform height in the carousel keeps the row tidy and lets the parent
+        // horizontal ScrollView have a fixed height (see home.tsx).
+        height: carousel ? 254 : undefined,
         alignSelf: layout === 'list' ? 'stretch' : undefined,
         borderRadius: 16,
         opacity: pressed ? 0.95 : 1,
@@ -48,6 +52,7 @@ export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'c
       {/* inner wrapper clips the image corners; the Pressable keeps the shadow */}
       <View
         style={{
+          flex: 1,
           borderRadius: 16,
           overflow: 'hidden',
           backgroundColor: theme.colors.surface,
@@ -55,7 +60,7 @@ export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'c
           borderColor: theme.colors.border,
         }}
       >
-      <View style={{ height: 150, backgroundColor: theme.colors.surfaceSunken }}>
+      <View style={{ height: 146, backgroundColor: theme.colors.surfaceSunken }}>
         {uri ? (
           <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" transition={160} />
         ) : (
@@ -114,7 +119,7 @@ export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'c
         ) : null}
       </View>
 
-      <View style={{ padding: theme.spacing.md, gap: 6 }}>
+      <View style={{ flex: 1, padding: theme.spacing.md, gap: 6 }}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.sm }}>
           <Text variant="h3" numberOfLines={1} style={{ flex: 1, fontSize: 15 }}>
             {listing.title}
