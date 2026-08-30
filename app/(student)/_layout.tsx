@@ -108,15 +108,8 @@ export default function StudentTabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} color={color} />
-          ),
-        }}
-      />
+      {/* Profile is opened from the avatar in each screen's header, not the tab bar. */}
+      <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );
 }
