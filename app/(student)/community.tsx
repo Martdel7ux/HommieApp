@@ -44,33 +44,40 @@ export default function Community() {
     <View style={{ gap: theme.spacing.md, paddingBottom: theme.spacing.md }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Logo size={26} />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.lg }}>
-          <Pressable onPress={() => setSearchOpen((s) => !s)} hitSlop={8} accessibilityLabel="Search posts">
-            <Ionicons name={searchOpen ? 'close' : 'search'} size={22} color={theme.colors.textPrimary} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
+          <Pressable
+            onPress={() => setSearchOpen((s) => !s)}
+            hitSlop={10}
+            accessibilityLabel="Search posts"
+            style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Ionicons name={searchOpen ? 'close' : 'search'} size={23} color={theme.colors.textPrimary} />
           </Pressable>
           <Pressable
             onPress={() => router.push('/notifications')}
-            hitSlop={8}
+            hitSlop={10}
             accessibilityLabel="Notifications"
-            style={{ padding: 1 }}
+            style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Ionicons name="notifications-outline" size={22} color={theme.colors.textPrimary} />
+            <Ionicons name="notifications-outline" size={24} color={theme.colors.textPrimary} />
             {(unread.data ?? 0) > 0 ? (
               <View
                 style={{
                   position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  width: 8,
-                  height: 8,
-                  borderRadius: 4,
+                  top: 7,
+                  right: 7,
+                  width: 9,
+                  height: 9,
+                  borderRadius: 5,
                   backgroundColor: theme.colors.danger,
+                  borderWidth: 1.5,
+                  borderColor: theme.colors.background,
                 }}
               />
             ) : null}
           </Pressable>
           <Pressable onPress={() => router.push('/(student)/profile')} accessibilityLabel="Open profile">
-            <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={34} />
+            <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={40} />
           </Pressable>
         </View>
       </View>
@@ -159,7 +166,7 @@ export default function Community() {
         contentContainerStyle={{
           paddingHorizontal: theme.layout.screenPadding,
           paddingTop: theme.spacing.md,
-          paddingBottom: theme.spacing['6xl'],
+          paddingBottom: theme.layout.tabBarClearance + theme.spacing['3xl'],
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}
@@ -195,7 +202,8 @@ export default function Community() {
         }
       />
 
-      <View style={{ position: 'absolute', right: theme.spacing.xl, bottom: theme.spacing.xl }}>
+      {/* clear the floating tab bar + its blur scrim so the button stays crisp */}
+      <View style={{ position: 'absolute', right: theme.spacing.xl, bottom: theme.layout.tabBarClearance + 52 }}>
         <Button
           title="Post"
           leftIcon={<Ionicons name="add" size={18} color={theme.colors.onPrimary} />}

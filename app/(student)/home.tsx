@@ -4,7 +4,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Screen, Text, Card, SectionHeader, EmptyState } from '@/components/ui';
+import { Screen, Text, Card, SectionHeader, EmptyState, ScreenHeader } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { qk } from '@/lib/queryClient';
@@ -17,7 +17,6 @@ import type { RoommateMatch } from '@/features/roommates/types';
 import { eventsApi } from '@/features/events/api';
 import { EventRow } from '@/features/events/components/EventRow';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks';
-import { HomeTopBar } from '@/features/home/components/HomeTopBar';
 import { QuickActionsGrid, QuickAction } from '@/features/home/components/QuickActionsGrid';
 import { analytics } from '@/services/analytics';
 
@@ -140,14 +139,16 @@ export default function StudentHome() {
   return (
     <Screen
       scroll
+      edges={['top']}
       refreshing={recommended.isRefetching || roommates.isRefetching || events.isRefetching}
       onRefresh={onRefresh}
-      contentContainerStyle={{ paddingBottom: theme.spacing['4xl'] }}
+      contentContainerStyle={{ paddingBottom: theme.layout.tabBarClearance }}
     >
       <View style={{ gap: theme.spacing['2xl'] }}>
         {/* top bar */}
         <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.xs }}>
-          <HomeTopBar
+          <ScreenHeader
+            left={null}
             avatarUrl={profile?.avatar_url}
             name={profile?.first_name}
             hasNotifications={(unread.data ?? 0) > 0}

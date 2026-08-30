@@ -2,13 +2,12 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Screen, Text, Button, SegmentedControl, EmptyState, ErrorState, Card } from '@/components/ui';
+import { Screen, Text, Button, SegmentedControl, EmptyState, ErrorState, Card, ScreenHeader } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { qk } from '@/lib/queryClient';
 import { useDebounce } from '@/hooks/useDebounce';
 import { analytics } from '@/services/analytics';
-import { HomeTopBar } from '@/features/home/components/HomeTopBar';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks';
 import { accommodationApi } from '@/features/accommodation/api';
 import { useAccommodationSearch, useSavedListings } from '@/features/accommodation/hooks';
@@ -66,7 +65,7 @@ export default function Explore() {
 
   const header = (
     <View style={{ gap: theme.spacing.lg, paddingBottom: theme.spacing.lg }}>
-      <HomeTopBar
+      <ScreenHeader
         avatarUrl={profile?.avatar_url}
         name={profile?.first_name}
         hasNotifications={(unread.data ?? 0) > 0}
@@ -195,7 +194,7 @@ export default function Explore() {
           contentContainerStyle={{
             paddingHorizontal: theme.layout.screenPadding,
             paddingTop: theme.spacing.md,
-            paddingBottom: theme.spacing['4xl'],
+            paddingBottom: theme.layout.tabBarClearance,
             flexGrow: 1,
           }}
           showsVerticalScrollIndicator={false}

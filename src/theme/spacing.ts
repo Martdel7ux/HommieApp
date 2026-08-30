@@ -39,4 +39,10 @@ export const layout = {
   hitSlop: { top: 8, bottom: 8, left: 8, right: 8 },
   tabBarHeight: 60,
   minTouchTarget: 44,
+  /** Horizontal inset of the floating pill tab bar from the screen edges. */
+  tabBarInset: 16,
+  /** Height of the floating pill tab bar itself. */
+  tabBarPillHeight: 62,
+  /** Bottom padding scrollable tab screens need so content clears the floating bar. */
+  tabBarClearance: 116,
 } as const;

@@ -2,11 +2,11 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, Avatar, EmptyState, ErrorState } from '@/components/ui';
-import { Logo } from '@/components/Brand/Logo';
+import { Screen, Text, EmptyState, ErrorState, ScreenHeader } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
+import { useUnreadNotificationCount } from '@/features/notifications/hooks';
 import { useConversations } from './hooks';
 import { ConversationRow } from './components/ConversationRow';
 
@@ -15,6 +15,7 @@ export function MessagesScreen({ role }: { role: 'student' | 'landlord' }) {
   const router = useRouter();
   const { profile } = useAuth();
   const conversations = useConversations();
+  const unreadNotifications = useUnreadNotificationCount();
   const [search, setSearch] = useState('');
 
   const rows = useMemo(() => {
@@ -33,12 +34,13 @@ export function MessagesScreen({ role }: { role: 'student' | 'landlord' }) {
 
   const header = (
     <View style={{ gap: theme.spacing.lg, paddingBottom: theme.spacing.md }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Logo size={26} withWordmark />
-        <Pressable onPress={() => router.push(profilePath)} accessibilityLabel="Open profile">
-          <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={38} />
-        </Pressable>
-      </View>
+      <ScreenHeader
+        avatarUrl={profile?.avatar_url}
+        name={profile?.first_name}
+        hasNotifications={(unreadNotifications.data ?? 0) > 0}
+        onOpenNotifications={() => router.push('/notifications')}
+        onOpenProfile={() => router.push(profilePath)}
+      />
 
       <Text variant="h1">Messages</Text>
 
@@ -98,7 +100,7 @@ export function MessagesScreen({ role }: { role: 'student' | 'landlord' }) {
         contentContainerStyle={{
           paddingHorizontal: theme.layout.screenPadding,
           paddingTop: theme.spacing.md,
-          paddingBottom: theme.spacing['4xl'],
+          paddingBottom: role === 'student' ? theme.layout.tabBarClearance : theme.spacing['4xl'],
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}
