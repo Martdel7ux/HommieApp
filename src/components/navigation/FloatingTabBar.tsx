@@ -1,6 +1,5 @@
 import React from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -54,37 +53,36 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
         paddingBottom: gap,
       }}
     >
-      {/* fade any list content that scrolls through the strip below the pill */}
+      {/* hide any list content that scrolls through the strip below the pill */}
       <LinearGradient
         pointerEvents="none"
-        colors={['transparent', theme.colors.background]}
-        locations={[0, 0.75]}
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: gap + 14 }}
+        colors={['transparent', theme.colors.background, theme.colors.background]}
+        locations={[0, 0.55, 1]}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: gap + RADIUS }}
       />
-      {/* wrapper carries the shadow only (no clip, so the shadow is soft all round) */}
+
+      {/* wrapper carries the shadow only (no clip → soft shadow all round) */}
       <View
         style={{
           borderRadius: RADIUS,
+          backgroundColor: theme.colors.surface,
           shadowColor: '#0B1020',
-          shadowOpacity: 0.22,
-          shadowRadius: 22,
-          shadowOffset: { width: 0, height: 10 },
-          elevation: 18,
+          shadowOpacity: 0.16,
+          shadowRadius: 20,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 16,
         }}
       >
-        <BlurView
-          tint="light"
-          intensity={Platform.OS === 'android' ? 0 : 70}
+        <View
           style={{
             height: PILL_HEIGHT,
             flexDirection: 'row',
             alignItems: 'center',
             borderRadius: RADIUS,
             overflow: 'hidden',
+            backgroundColor: theme.colors.surface,
             borderWidth: StyleSheet.hairlineWidth,
-            borderColor: 'rgba(255,255,255,0.45)',
-            backgroundColor:
-              Platform.OS === 'android' ? theme.colors.surface : 'rgba(255,255,255,0.32)',
+            borderColor: theme.colors.border,
           }}
         >
           {routes.map((route) => {
@@ -131,7 +129,7 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
                         borderRadius: 5,
                         backgroundColor: theme.colors.danger,
                         borderWidth: 1.5,
-                        borderColor: '#FFFFFF',
+                        borderColor: theme.colors.surface,
                       }}
                     />
                   ) : null}
@@ -139,7 +137,7 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
               </Pressable>
             );
           })}
-        </BlurView>
+        </View>
       </View>
     </View>
   );

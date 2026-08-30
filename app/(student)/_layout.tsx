@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { theme } from '@/theme';
-import { BottomScrim } from '@/components/ui';
 import { FloatingTabBar } from '@/components/navigation/FloatingTabBar';
 
 export default function StudentTabsLayout() {
@@ -22,8 +21,6 @@ export default function StudentTabsLayout() {
         {/* Profile is opened from the avatar in each screen's header, not the tab bar. */}
         <Tabs.Screen name="profile" options={{ href: null }} />
       </Tabs>
-
-      <BottomScrim />
     </View>
   );
 }

@@ -11,7 +11,6 @@ export { Avatar } from './Avatar';
 export { Banner } from './Banner';
 export { SectionHeader } from './SectionHeader';
 export { ScreenHeader } from './ScreenHeader';
-export { BottomScrim } from './BottomScrim';
 export { SegmentedControl } from './SegmentedControl';
 export type { SegmentOption } from './SegmentedControl';
 export { Chip, ChipGroup } from './Chip';
