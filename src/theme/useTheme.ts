@@ -1,4 +1,4 @@
-import { theme, Theme } from './index';
+import { theme, Theme } from './theme';
 
 /**
  * Access the active theme. V1 is light-only, so this is a constant hook today;
