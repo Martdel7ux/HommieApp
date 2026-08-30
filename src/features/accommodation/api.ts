@@ -60,14 +60,16 @@ export const accommodationApi = {
     return [...inCity, ...rest.filter((l) => !seen.has(l.id))].slice(0, limit);
   },
 
-  async savedIds(userId: string): Promise<Set<string>> {
+  // Returns a plain array (not a Set) so it survives the persisted query cache
+  // — JSON.stringify turns a Set into `{}`.
+  async savedIds(userId: string): Promise<string[]> {
     return guard(async () => {
       const { data, error } = await supabase
         .from('saved_accommodation_listings')
         .select('listing_id')
         .eq('user_id', userId);
       if (error) throw error;
-      return new Set((data ?? []).map((r) => r.listing_id));
+      return (data ?? []).map((r) => r.listing_id);
     }, { scope: 'accommodation.savedIds' });
   },
 

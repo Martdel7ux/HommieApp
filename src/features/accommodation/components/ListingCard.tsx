@@ -40,15 +40,21 @@ export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'c
       style={({ pressed }) => ({
         width,
         alignSelf: layout === 'list' ? 'stretch' : undefined,
-        backgroundColor: theme.colors.surface,
         borderRadius: 16,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        overflow: 'hidden',
         opacity: pressed ? 0.95 : 1,
         ...theme.shadows.sm,
       })}
     >
+      {/* inner wrapper clips the image corners; the Pressable keeps the shadow */}
+      <View
+        style={{
+          borderRadius: 16,
+          overflow: 'hidden',
+          backgroundColor: theme.colors.surface,
+          borderWidth: 1,
+          borderColor: theme.colors.border,
+        }}
+      >
       <View style={{ height: 150, backgroundColor: theme.colors.surfaceSunken }}>
         {uri ? (
           <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" transition={160} />
@@ -146,6 +152,7 @@ export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'c
             </View>
           ))}
         </View>
+      </View>
       </View>
     </Pressable>
   );

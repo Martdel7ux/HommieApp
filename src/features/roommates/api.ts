@@ -37,14 +37,16 @@ export const roommatesApi = {
     }, { scope: 'roommates.list' });
   },
 
-  async savedIds(userId: string): Promise<Set<string>> {
+  // Plain array (see note in accommodation/api.ts) — Sets don't survive the
+  // persisted query cache.
+  async savedIds(userId: string): Promise<string[]> {
     return guard(async () => {
       const { data, error } = await supabase
         .from('saved_roommate_profiles')
         .select('saved_profile_id')
         .eq('user_id', userId);
       if (error) throw error;
-      return new Set((data ?? []).map((r) => r.saved_profile_id));
+      return (data ?? []).map((r) => r.saved_profile_id);
     }, { scope: 'roommates.savedIds' });
   },
 };

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
@@ -63,6 +63,10 @@ export default function StudentHome() {
     queryFn: () => accommodationApi.savedIds(user!.id),
     enabled: !!user,
   });
+  const savedSet = useMemo(
+    () => new Set(Array.isArray(savedIds.data) ? savedIds.data : []),
+    [savedIds.data],
+  );
 
   const roommates = useQuery({
     queryKey: qk.roommates({ home: true }),
@@ -192,28 +196,28 @@ export default function StudentHome() {
               />
             </Card>
           ) : (
-            <View style={{ marginHorizontal: -theme.layout.screenPadding }}>
-              <FlatList
-                horizontal
-                data={recommended.data}
-                keyExtractor={(l) => l.id}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingHorizontal: theme.layout.screenPadding,
-                  gap: theme.spacing.md,
-                }}
-                renderItem={({ item }) => (
-                  <ListingCard
-                    listing={item}
-                    saved={savedIds.data?.has(item.id)}
-                    onPress={() => {
-                      analytics.track('listing_viewed', { listing_id: item.id, source: 'home_recommended' });
-                      router.push(`/accommodation/${item.id}`);
-                    }}
-                  />
-                )}
-              />
-            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginHorizontal: -theme.layout.screenPadding }}
+              contentContainerStyle={{
+                paddingHorizontal: theme.layout.screenPadding,
+                paddingVertical: 4,
+                gap: theme.spacing.md,
+              }}
+            >
+              {recommended.data!.map((item) => (
+                <ListingCard
+                  key={item.id}
+                  listing={item}
+                  saved={savedSet.has(item.id)}
+                  onPress={() => {
+                    analytics.track('listing_viewed', { listing_id: item.id, source: 'home_recommended' });
+                    router.push(`/accommodation/${item.id}`);
+                  }}
+                />
+              ))}
+            </ScrollView>
           )}
         </View>
 

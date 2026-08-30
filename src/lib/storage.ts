@@ -28,7 +28,7 @@ export const secureStorage = {
 export const appStorage = AsyncStorage;
 
 export const STORAGE_KEYS = {
-  querycache: 'hommie.query-cache.v1',
+  querycache: 'hommie.query-cache.v2',
   onboardingDraft: 'hommie.onboarding-draft.v1',
   lastRoleHint: 'hommie.last-role-hint.v1',
   pushTokenSynced: 'hommie.push-token-synced.v1',
