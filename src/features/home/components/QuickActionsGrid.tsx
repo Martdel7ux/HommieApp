@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme';
 import { Text } from '@/components/ui';
 
@@ -9,7 +8,8 @@ type Variant = 'primary' | 'tint' | 'violet' | 'outline';
 export interface QuickAction {
   key: string;
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  /** Render the icon so each tile can pull from any icon set (Ionicons, MDI…). */
+  icon: (props: { size: number; color: string }) => React.ReactNode;
   variant: Variant;
   onPress: () => void;
 }
@@ -61,7 +61,7 @@ function Tile({ action }: { action: QuickAction }) {
           justifyContent: 'center',
         }}
       >
-        <Ionicons name={action.icon} size={20} color={iconColor} />
+        {action.icon({ size: 20, color: iconColor })}
       </View>
       <Text style={{ fontSize: 16, fontWeight: '700' }} color={s.fg}>
         {action.label}

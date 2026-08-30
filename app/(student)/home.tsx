@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Screen, Text, Card, SectionHeader, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
@@ -107,16 +107,34 @@ export default function StudentHome() {
     {
       key: 'home',
       label: 'Find a Home',
-      icon: 'home',
+      icon: (p) => <Ionicons name="home" {...p} />,
       variant: 'primary',
       onPress: () => {
         analytics.track('accommodation_search_performed', { filters_count: 0 });
         router.push('/(student)/explore');
       },
     },
-    { key: 'roommates', label: 'Roommates', icon: 'people', variant: 'tint', onPress: () => router.push('/roommates') },
-    { key: 'events', label: 'Events', icon: 'sparkles', variant: 'violet', onPress: () => router.push('/events') },
-    { key: 'market', label: 'Marketplace', icon: 'storefront', variant: 'outline', onPress: () => router.push('/marketplace') },
+    {
+      key: 'roommates',
+      label: 'Roommates',
+      icon: (p) => <Ionicons name="people" {...p} />,
+      variant: 'tint',
+      onPress: () => router.push('/roommates'),
+    },
+    {
+      key: 'events',
+      label: 'Events',
+      icon: (p) => <MaterialCommunityIcons name="party-popper" {...p} />,
+      variant: 'violet',
+      onPress: () => router.push('/events'),
+    },
+    {
+      key: 'market',
+      label: 'Marketplace',
+      icon: (p) => <Ionicons name="storefront" {...p} />,
+      variant: 'outline',
+      onPress: () => router.push('/marketplace'),
+    },
   ];
 
   return (
