@@ -11,6 +11,7 @@ export { Avatar } from './Avatar';
 export { Banner } from './Banner';
 export { SectionHeader } from './SectionHeader';
 export { ScreenHeader } from './ScreenHeader';
+export { OverlayHeader, OverlayIconButton } from './OverlayHeader';
 export { SegmentedControl } from './SegmentedControl';
 export type { SegmentOption } from './SegmentedControl';
 export { Chip, ChipGroup } from './Chip';

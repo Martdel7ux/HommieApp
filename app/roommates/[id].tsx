@@ -7,7 +7,7 @@ import { Image } from 'expo-image';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Text, Button, LoadingState, ErrorState } from '@/components/ui';
+import { Text, Button, LoadingState, ErrorState, OverlayHeader, OverlayIconButton } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { toAppError } from '@/services/errors';
@@ -183,33 +183,6 @@ export default function RoommateProfile() {
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.background }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: theme.layout.screenPadding,
-            height: 48,
-          }}
-        >
-          <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Go back" style={{ width: 40 }}>
-            <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
-          </Pressable>
-          <Text variant="h3" color={theme.colors.primary} style={{ fontWeight: '700' }}>
-            Hommie
-          </Text>
-          <Pressable
-            onPress={openMenu}
-            hitSlop={10}
-            accessibilityLabel="Profile options"
-            style={{ width: 40, alignItems: 'flex-end' }}
-          >
-            <Ionicons name="ellipsis-vertical" size={20} color={theme.colors.textSecondary} />
-          </Pressable>
-        </View>
-      </SafeAreaView>
-
       {query.isLoading ? (
         <LoadingState />
       ) : query.isError ? (
@@ -244,10 +217,22 @@ export default function RoommateProfile() {
                 </View>
               )}
 
+              <OverlayHeader
+                onBack={() => router.back()}
+                right={
+                  <OverlayIconButton
+                    icon="ellipsis-vertical"
+                    label="Profile options"
+                    tint={theme.colors.textSecondary}
+                    onPress={openMenu}
+                  />
+                }
+              />
+
               <View
                 style={{
                   position: 'absolute',
-                  top: theme.spacing.md,
+                  bottom: theme.spacing['3xl'] + theme.spacing.sm,
                   left: theme.spacing.lg,
                   flexDirection: 'row',
                   alignItems: 'center',

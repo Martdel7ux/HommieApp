@@ -1,11 +1,19 @@
 import type { ReactNode } from 'react';
-import { Alert, Linking, Pressable, View } from 'react-native';
+import { Alert, Linking, Pressable, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Button, Avatar, LoadingState, ErrorState } from '@/components/ui';
+import {
+  Text,
+  Button,
+  Avatar,
+  LoadingState,
+  ErrorState,
+  OverlayHeader,
+  OverlayIconButton,
+} from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { eventDateLabel, eventTimeRange } from '@/lib/datetime';
@@ -54,6 +62,7 @@ function InfoCard({
 export default function EventDetail() {
   const theme = useTheme();
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const { profile } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -90,37 +99,6 @@ export default function EventDetail() {
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.background }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: theme.layout.screenPadding,
-            height: 48,
-          }}
-        >
-          <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Go back">
-            <Ionicons name="chevron-back" size={26} color={theme.colors.textPrimary} />
-          </Pressable>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-            <Pressable
-              onPress={() => router.push('/notifications')}
-              hitSlop={10}
-              accessibilityLabel="Notifications"
-            >
-              <Ionicons name="notifications-outline" size={24} color={theme.colors.textPrimary} />
-            </Pressable>
-            <Pressable
-              onPress={() => router.push('/(student)/profile')}
-              accessibilityLabel="Open profile"
-            >
-              <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={34} />
-            </Pressable>
-          </View>
-        </View>
-      </SafeAreaView>
-
       {event.isLoading ? (
         <LoadingState />
       ) : event.isError || !event.data ? (
@@ -128,41 +106,45 @@ export default function EventDetail() {
       ) : (
         <>
           <ScrollView
-            contentContainerStyle={{
-              padding: theme.layout.screenPadding,
-              paddingBottom: theme.spacing['6xl'] + 24,
-              gap: theme.spacing.lg,
-            }}
+            contentContainerStyle={{ paddingBottom: theme.spacing['6xl'] + 24 }}
             showsVerticalScrollIndicator={false}
           >
             <View>
               {eventCover(event.data) ? (
                 <Image
                   source={{ uri: eventCover(event.data) }}
-                  style={{
-                    width: '100%',
-                    height: 200,
-                    borderRadius: theme.radius.xl,
-                    backgroundColor: theme.colors.primarySubtle,
-                  }}
+                  style={{ width, height: width * 0.78, backgroundColor: theme.colors.primarySubtle }}
                   contentFit="cover"
                   transition={200}
                 />
               ) : (
-                <View
-                  style={{
-                    width: '100%',
-                    height: 200,
-                    borderRadius: theme.radius.xl,
-                    backgroundColor: theme.colors.primarySubtle,
-                  }}
-                />
+                <View style={{ width, height: width * 0.6, backgroundColor: theme.colors.primarySubtle }} />
               )}
+
+              <OverlayHeader
+                onBack={() => router.back()}
+                right={
+                  <>
+                    <OverlayIconButton
+                      icon="notifications-outline"
+                      label="Notifications"
+                      onPress={() => router.push('/notifications')}
+                    />
+                    <Pressable
+                      onPress={() => router.push('/(student)/profile')}
+                      accessibilityLabel="Open profile"
+                    >
+                      <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={38} />
+                    </Pressable>
+                  </>
+                }
+              />
+
               <View
                 style={{
                   position: 'absolute',
-                  top: theme.spacing.md,
-                  right: theme.spacing.md,
+                  left: theme.spacing.lg,
+                  bottom: theme.spacing.xl,
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 5,
@@ -180,6 +162,7 @@ export default function EventDetail() {
               </View>
             </View>
 
+            <View style={{ padding: theme.layout.screenPadding, gap: theme.spacing.lg }}>
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: theme.spacing.md }}>
               <View style={{ flex: 1, gap: 4 }}>
                 <Text variant="h1">{event.data.title}</Text>
@@ -304,6 +287,7 @@ export default function EventDetail() {
                   Be the first to RSVP.
                 </Text>
               )}
+            </View>
             </View>
           </ScrollView>
 

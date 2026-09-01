@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Text, Button, Avatar, LoadingState, ErrorState } from '@/components/ui';
+import { Text, Button, Avatar, LoadingState, ErrorState, OverlayHeader, OverlayIconButton } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { toAppError } from '@/services/errors';
@@ -298,62 +298,24 @@ export default function ListingDetail() {
                 <View style={{ width, height: width * 0.7, backgroundColor: theme.colors.primarySubtle }} />
               )}
 
-              <SafeAreaView
-                edges={['top']}
-                style={{ position: 'absolute', left: 0, right: 0, top: 0 }}
-                pointerEvents="box-none"
-              >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingHorizontal: theme.layout.screenPadding,
-                    paddingTop: theme.spacing.sm,
-                  }}
-                >
-                  <Pressable
-                    onPress={() => router.back()}
-                    hitSlop={8}
-                    accessibilityLabel="Go back"
-                    style={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: 19,
-                      backgroundColor: theme.colors.surface,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      ...theme.shadows.sm,
-                    }}
-                  >
-                    <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
-                  </Pressable>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-                    <Pressable
+              <OverlayHeader
+                onBack={() => router.back()}
+                right={
+                  <>
+                    <OverlayIconButton
+                      icon="notifications-outline"
+                      label="Notifications"
                       onPress={() => router.push('/notifications')}
-                      hitSlop={8}
-                      accessibilityLabel="Notifications"
-                      style={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: 19,
-                        backgroundColor: theme.colors.surface,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        ...theme.shadows.sm,
-                      }}
-                    >
-                      <Ionicons name="notifications-outline" size={20} color={theme.colors.textPrimary} />
-                    </Pressable>
+                    />
                     <Pressable
                       onPress={() => router.push('/(student)/profile')}
                       accessibilityLabel="Open profile"
                     >
                       <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={38} />
                     </Pressable>
-                  </View>
-                </View>
-              </SafeAreaView>
+                  </>
+                }
+              />
 
               {images.length > 1 ? (
                 <View

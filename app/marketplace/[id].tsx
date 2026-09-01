@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import { Alert, Pressable, View, useWindowDimensions } from 'react-native';
+import { Alert, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useMutation } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Button, Avatar, LoadingState, ErrorState } from '@/components/ui';
+import {
+  Text,
+  Button,
+  Avatar,
+  LoadingState,
+  ErrorState,
+  OverlayHeader,
+  OverlayIconButton,
+} from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { timeAgo } from '@/lib/datetime';
@@ -68,40 +76,6 @@ export default function MarketplaceItem() {
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.background }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: theme.layout.screenPadding,
-            height: 48,
-          }}
-        >
-          <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Go back">
-            <Ionicons name="chevron-back" size={26} color={theme.colors.textPrimary} />
-          </Pressable>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.lg }}>
-            {!isMine ? (
-              <Pressable
-                onPress={() => toggle(id, !saved)}
-                hitSlop={10}
-                accessibilityLabel={saved ? 'Remove from saved' : 'Save item'}
-              >
-                <Ionicons
-                  name={saved ? 'heart' : 'heart-outline'}
-                  size={24}
-                  color={saved ? theme.colors.primary : theme.colors.textPrimary}
-                />
-              </Pressable>
-            ) : null}
-            <Pressable onPress={report} hitSlop={10} accessibilityLabel="Report listing">
-              <Ionicons name="ellipsis-horizontal" size={22} color={theme.colors.textSecondary} />
-            </Pressable>
-          </View>
-        </View>
-      </SafeAreaView>
-
       {item.isLoading ? (
         <LoadingState />
       ) : item.isError || !item.data ? (
@@ -112,6 +86,7 @@ export default function MarketplaceItem() {
             contentContainerStyle={{ paddingBottom: theme.spacing['6xl'] + 24 }}
             showsVerticalScrollIndicator={false}
           >
+            <View>
             {images.length ? (
               <View>
                 <ScrollView
@@ -169,6 +144,29 @@ export default function MarketplaceItem() {
                 <Ionicons name="pricetag-outline" size={40} color={theme.colors.primary} />
               </View>
             )}
+
+              <OverlayHeader
+                onBack={() => router.back()}
+                right={
+                  <>
+                    {!isMine ? (
+                      <OverlayIconButton
+                        icon={saved ? 'heart' : 'heart-outline'}
+                        label={saved ? 'Remove from saved' : 'Save item'}
+                        tint={saved ? theme.colors.danger : theme.colors.textPrimary}
+                        onPress={() => toggle(id, !saved)}
+                      />
+                    ) : null}
+                    <OverlayIconButton
+                      icon="ellipsis-horizontal"
+                      label="Report listing"
+                      tint={theme.colors.textSecondary}
+                      onPress={report}
+                    />
+                  </>
+                }
+              />
+            </View>
 
             <View style={{ padding: theme.layout.screenPadding, gap: theme.spacing.lg }}>
               <View style={{ gap: 6 }}>
