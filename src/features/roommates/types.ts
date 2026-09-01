@@ -53,6 +53,7 @@ export interface RoommateProfileDetail {
     display_name: string | null;
     avatar_url: string | null;
     study_level: StudyLevel | null;
+    interests: string[];
   } | null;
   university: { name: string; short_name: string | null } | null;
   saved: boolean;

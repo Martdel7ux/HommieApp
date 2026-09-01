@@ -13,7 +13,7 @@ const DETAIL_SELECT = `
   move_in_from, move_in_to, smoking, pets, cleanliness, sleep_schedule, social_level,
   guests_frequency, gender_preference, lifestyle_tags, university_id,
   profile:profiles!roommate_preferences_user_id_fkey (
-    id, first_name, last_name, display_name, avatar_url, study_level
+    id, first_name, last_name, display_name, avatar_url, study_level, interests
   ),
   university:universities ( name, short_name )
 `;
