@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from '@/lib/queryClient';
 import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { analytics } from '@/services/analytics';
 import { roommatesApi } from './api';
 import { estimateCompatibility } from './compatibility';
-import type { RoommateFilters, RoommateMatch } from './types';
+import type { Compatibility, RoommateFilters, RoommateMatch, RoommateProfileDetail } from './types';
 
 /** Browse published roommate profiles, scored + sorted against the viewer. */
 export function useRoommateBrowse(filters: RoommateFilters) {
@@ -39,6 +40,51 @@ export function useRoommateBrowse(filters: RoommateFilters) {
   const total = query.data?.pages[0]?.count ?? null;
 
   return { ...query, matches, total };
+}
+
+export interface RoommateProfileWithMatch extends RoommateProfileDetail {
+  compatibility: Compatibility;
+}
+
+/** A single published roommate profile, scored against the viewer. */
+export function useRoommateProfile(userId: string) {
+  const { user, profile } = useAuth();
+  const query = useQuery({
+    queryKey: qk.roommate(userId),
+    queryFn: () => roommatesApi.getDetail(userId, user!.id),
+    enabled: !!user && !!userId,
+  });
+
+  const data = useMemo<RoommateProfileWithMatch | null>(() => {
+    if (!query.data) return null;
+    return { ...query.data, compatibility: estimateCompatibility(profile, query.data) };
+  }, [query.data, profile]);
+
+  return { ...query, data };
+}
+
+export function useSaveRoommate(userId: string) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const key = qk.roommate(userId);
+
+  return useMutation({
+    mutationFn: (next: boolean) => roommatesApi.toggleSave(user!.id, userId, next),
+    onMutate: async (next) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const prev = queryClient.getQueryData<RoommateProfileDetail>(key);
+      if (prev) queryClient.setQueryData<RoommateProfileDetail>(key, { ...prev, saved: next });
+      if (next) analytics.track('roommate_saved', { profile_id: userId });
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(key, ctx.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: key });
+      queryClient.invalidateQueries({ queryKey: qk.savedListings(`roommates:${user?.id ?? 'anon'}`) });
+    },
+  });
 }
 
 export function useHasRoommateProfile() {

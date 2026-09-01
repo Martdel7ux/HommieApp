@@ -26,6 +26,38 @@ export interface RoommateProfileCard {
   university: { name: string; short_name: string | null } | null;
 }
 
+export interface RoommateProfileDetail {
+  user_id: string;
+  headline: string | null;
+  about: string | null;
+  age: number | null;
+  preferred_city: string | null;
+  preferred_areas: string[];
+  budget_min: number | null;
+  budget_max: number | null;
+  move_in_from: string | null;
+  move_in_to: string | null;
+  smoking: 'yes' | 'no' | 'outside_only' | 'no_preference';
+  pets: 'yes' | 'no' | 'no_preference';
+  cleanliness: number | null;
+  sleep_schedule: 'early_bird' | 'night_owl' | 'flexible' | null;
+  social_level: 'homebody' | 'balanced' | 'very_social' | null;
+  guests_frequency: 'rarely' | 'sometimes' | 'often' | null;
+  gender_preference: 'same' | 'any' | 'no_preference';
+  lifestyle_tags: string[];
+  university_id: string | null;
+  profile: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    display_name: string | null;
+    avatar_url: string | null;
+    study_level: StudyLevel | null;
+  } | null;
+  university: { name: string; short_name: string | null } | null;
+  saved: boolean;
+}
+
 export interface Compatibility {
   score: number;
   reasons: string[];

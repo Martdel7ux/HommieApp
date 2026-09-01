@@ -1,7 +1,22 @@
 import { supabase } from '@/lib/supabase';
 import { guard } from '@/services/errors';
 import { PAGE_SIZE } from '@/config/constants';
-import type { RoommateFilters, RoommatePage, RoommateProfileCard } from './types';
+import type {
+  RoommateFilters,
+  RoommatePage,
+  RoommateProfileCard,
+  RoommateProfileDetail,
+} from './types';
+
+const DETAIL_SELECT = `
+  user_id, headline, about, age, preferred_city, preferred_areas, budget_min, budget_max,
+  move_in_from, move_in_to, smoking, pets, cleanliness, sleep_schedule, social_level,
+  guests_frequency, gender_preference, lifestyle_tags, university_id,
+  profile:profiles!roommate_preferences_user_id_fkey (
+    id, first_name, last_name, display_name, avatar_url, study_level
+  ),
+  university:universities ( name, short_name )
+`;
 
 const CARD_SELECT = `
   user_id, headline, about, age, preferred_city, preferred_areas, budget_min, budget_max,
@@ -52,6 +67,46 @@ export const roommatesApi = {
       if (error) throw error;
       return data;
     }, { scope: 'roommates.get' });
+  },
+
+  async getDetail(userId: string, viewerId: string): Promise<RoommateProfileDetail | null> {
+    return guard(async () => {
+      const { data, error } = await supabase
+        .from('roommate_preferences')
+        .select(DETAIL_SELECT)
+        .eq('user_id', userId)
+        .eq('is_published', true)
+        .maybeSingle<Omit<RoommateProfileDetail, 'saved'>>();
+      if (error) throw error;
+      if (!data) return null;
+
+      const { data: sv } = await supabase
+        .from('saved_roommate_profiles')
+        .select('saved_profile_id')
+        .eq('user_id', viewerId)
+        .eq('saved_profile_id', userId)
+        .maybeSingle();
+
+      return { ...data, saved: !!sv };
+    }, { scope: 'roommates.getDetail' });
+  },
+
+  async toggleSave(viewerId: string, profileId: string, next: boolean) {
+    return guard(async () => {
+      if (next) {
+        const { error } = await supabase
+          .from('saved_roommate_profiles')
+          .insert({ user_id: viewerId, saved_profile_id: profileId });
+        if (error && error.code !== '23505') throw error;
+      } else {
+        const { error } = await supabase
+          .from('saved_roommate_profiles')
+          .delete()
+          .eq('user_id', viewerId)
+          .eq('saved_profile_id', profileId);
+        if (error) throw error;
+      }
+    }, { scope: 'roommates.toggleSave' });
   },
 
   /** Does the signed-in user have a published roommate profile of their own? */
