@@ -457,4 +457,29 @@ insert into saved_accommodation_listings (user_id, listing_id) values
   ('a0000000-0000-0000-0000-000000000006', 'd0000000-0000-0000-0000-000000000001')
 on conflict do nothing;
 
+-- ---------------------------------------------------------------------------
+-- Notifications for Maria. The message trigger (`bump_conversation_on_message`)
+-- has already created "New message" rows from the seeded messages above, so we
+-- clear Maria's notifications and lay down one deterministic, readable set.
+-- ---------------------------------------------------------------------------
+delete from notifications where user_id = 'a0000000-0000-0000-0000-000000000001';
+
+insert into notifications (id, user_id, type, title, body, data, is_read, created_at) values
+  ('f1000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'message',
+   'Costas replied about the 2-bed flat', 'Hello Maria, yes it is. The current tenant leaves late August. Would you like to view it this week?',
+   '{"conversation_id":"c1000000-0000-0000-0000-000000000001"}', false, now() - interval '2 hours'),
+  ('f1000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'event_reminder',
+   'UNIC Campus Tour + Coffee is coming up', 'This Friday · UNIC Main Entrance, Engomi',
+   '{"event_id":"f0000000-0000-0000-0000-000000000002"}', false, now() - interval '6 hours'),
+  ('f1000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'community_reply',
+   'New reply on your post', 'Yiannis: That is a fair price for Engomi, especially with bills included. Check the A/C works before signing.',
+   '{"post_id":"e0000000-0000-0000-0000-000000000002"}', false, now() - interval '1 day'),
+  ('f1000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'community_like',
+   'Andreas liked your post', 'Is €350 for a room in Engomi with bills included a good deal?',
+   '{"post_id":"e0000000-0000-0000-0000-000000000002"}', true, now() - interval '2 days'),
+  ('f1000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'system',
+   'Welcome to Hommie', 'Complete your profile to get better roommate matches and recommendations.',
+   '{}', true, now() - interval '4 days')
+on conflict (id) do nothing;
+
 drop function _seed_user(uuid, text, text, jsonb);
