@@ -8,8 +8,30 @@ import type {
   RoommateProfileDetail,
 } from './types';
 
+export interface RoommatePrefPatch {
+  headline?: string | null;
+  about?: string | null;
+  age?: number | null;
+  preferred_city?: string | null;
+  preferred_areas?: string[];
+  university_id?: string | null;
+  budget_min?: number | null;
+  budget_max?: number | null;
+  move_in_from?: string | null;
+  move_in_to?: string | null;
+  sleep_schedule?: 'early_bird' | 'night_owl' | 'flexible' | null;
+  social_level?: 'homebody' | 'balanced' | 'very_social' | null;
+  cleanliness?: number | null;
+  guests_frequency?: 'rarely' | 'sometimes' | 'often' | null;
+  smoking?: 'yes' | 'no' | 'outside_only' | 'no_preference';
+  pets?: 'yes' | 'no' | 'no_preference';
+  gender_preference?: 'same' | 'any' | 'no_preference';
+  lifestyle_tags?: string[];
+  is_published?: boolean;
+}
+
 const DETAIL_SELECT = `
-  user_id, headline, about, age, preferred_city, preferred_areas, budget_min, budget_max,
+  user_id, is_published, headline, about, age, preferred_city, preferred_areas, budget_min, budget_max,
   move_in_from, move_in_to, smoking, pets, cleanliness, sleep_schedule, social_level,
   guests_frequency, gender_preference, lifestyle_tags, university_id,
   profile:profiles!roommate_preferences_user_id_fkey (
@@ -91,24 +113,21 @@ export const roommatesApi = {
     }, { scope: 'roommates.getDetail' });
   },
 
+  /** The signed-in user's own roommate preferences row (published or not). */
+  async getMine(userId: string): Promise<RoommateProfileDetail | null> {
+    return guard(async () => {
+      const { data, error } = await supabase
+        .from('roommate_preferences')
+        .select(DETAIL_SELECT)
+        .eq('user_id', userId)
+        .maybeSingle<Omit<RoommateProfileDetail, 'saved'>>();
+      if (error) throw error;
+      return data ? { ...data, saved: false } : null;
+    }, { scope: 'roommates.getMine' });
+  },
+
   /** Create or update the signed-in student's own roommate preferences row. */
-  async upsertPreferences(
-    userId: string,
-    patch: {
-      age?: number | null;
-      preferred_city?: string | null;
-      university_id?: string | null;
-      budget_min?: number | null;
-      budget_max?: number | null;
-      move_in_from?: string | null;
-      sleep_schedule?: 'early_bird' | 'night_owl' | 'flexible' | null;
-      social_level?: 'homebody' | 'balanced' | 'very_social' | null;
-      cleanliness?: number | null;
-      smoking?: 'yes' | 'no' | 'outside_only' | 'no_preference';
-      pets?: 'yes' | 'no' | 'no_preference';
-      is_published?: boolean;
-    },
-  ) {
+  async upsertPreferences(userId: string, patch: RoommatePrefPatch) {
     return guard(async () => {
       const { error } = await supabase
         .from('roommate_preferences')

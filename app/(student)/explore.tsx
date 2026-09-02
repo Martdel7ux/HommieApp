@@ -39,7 +39,12 @@ export default function Explore() {
 
   const [searchText, setSearchText] = useState('');
   const debouncedSearch = useDebounce(searchText, 400);
-  const [baseFilters, setBaseFilters] = useState<AccommodationFilters>({ sort: 'relevance' });
+  const [baseFilters, setBaseFilters] = useState<AccommodationFilters>(() => ({
+    sort: 'relevance',
+    area: profile?.campus_area ?? undefined,
+    rentMax: profile?.budget_max ?? undefined,
+    availableFrom: profile?.move_in_from ?? undefined,
+  }));
   const [view, setView] = useState<'list' | 'map'>('list');
   const [sheetOpen, setSheetOpen] = useState(false);
 

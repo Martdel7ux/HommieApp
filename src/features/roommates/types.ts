@@ -28,6 +28,7 @@ export interface RoommateProfileCard {
 
 export interface RoommateProfileDetail {
   user_id: string;
+  is_published: boolean;
   headline: string | null;
   about: string | null;
   age: number | null;

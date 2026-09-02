@@ -15,7 +15,7 @@ import { STORAGE_BUCKETS } from '@/lib/supabase';
 import { resolveAvatar } from '@/lib/images';
 import { uploadImage } from '@/lib/upload';
 import { toAppError } from '@/services/errors';
-import { APP_NAME, SUPPORT_EMAIL } from '@/config/constants';
+import { APP_NAME } from '@/config/constants';
 import { verificationLabels } from '@/config/labels';
 
 type RowIcon = { render: (color: string, size: number) => ReactNode };
@@ -262,19 +262,17 @@ export function ProfileScreen() {
             first
             icon={ion('person-outline')}
             label="Personal Information"
-            subtitle="Update your name, email, and phone"
-            onPress={soon('Editing your name, email and phone arrives with the next update.')}
+            subtitle="Update your name, phone, and bio"
+            onPress={() => router.push('/profile/personal')}
           />
           <SettingsRow
             icon={mci('school-outline')}
             label={isStudent ? 'University Verification' : 'Business Verification'}
             subtitle={isStudent ? 'Manage your student status' : 'Manage your landlord verification'}
             verified={isStudent || landlordProfile?.verification === 'verified'}
-            onPress={soon(
-              isStudent
-                ? "You're verified as a student. Re-verification tools arrive soon."
-                : 'Verification management arrives with the next update.',
-            )}
+            onPress={() =>
+              isStudent ? router.push('/profile/verification') : soon('Landlord verification arrives with the next update.')()
+            }
           />
         </SettingsSection>
 
@@ -284,8 +282,8 @@ export function ProfileScreen() {
               first
               icon={mci('home-city-outline')}
               label="Housing Filters"
-              subtitle="Budget, location, amenities"
-              onPress={soon('Saved housing filters arrive with the next update. For now, set filters in Explore.')}
+              subtitle="Budget, area and move-in"
+              onPress={() => router.push('/profile/housing')}
             />
             <SettingsRow
               icon={ion('people-outline')}
@@ -302,13 +300,13 @@ export function ProfileScreen() {
             icon={ion('notifications-outline')}
             label="Notifications"
             subtitle="Push and email alerts"
-            onPress={soon('Notification settings arrive with the next update.')}
+            onPress={() => router.push('/profile/notifications')}
           />
           <SettingsRow
             icon={ion('help-circle-outline')}
             label="Support & Help"
             subtitle="FAQs and contact us"
-            onPress={() => Alert.alert('Support & Help', `Email us at ${SUPPORT_EMAIL}`)}
+            onPress={() => router.push('/profile/support')}
           />
         </SettingsSection>
 

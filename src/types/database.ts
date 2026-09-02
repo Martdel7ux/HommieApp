@@ -70,6 +70,8 @@ interface ProfileRow extends Timestamps {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  phone: string | null;
+  notification_prefs: Json;
   university_id: string | null;
   city: string | null;
   campus_area: string | null;
