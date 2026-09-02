@@ -54,7 +54,7 @@ export function MessageBubble({
         >
           <Ionicons name="alert-circle" size={13} color={theme.colors.danger} />
           <Text variant="caption" color={theme.colors.danger}>
-            Not sent — tap to retry
+            Not sent. Tap to retry
           </Text>
         </Pressable>
       ) : showTime ? (

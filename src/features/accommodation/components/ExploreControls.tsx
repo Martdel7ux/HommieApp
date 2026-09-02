@@ -100,7 +100,7 @@ function activeChips(f: AccommodationFilters, patch: (p: AccommodationFilters) =
   if (f.rentMin != null || f.rentMax != null) {
     const label =
       f.rentMin != null && f.rentMax != null
-        ? `€${f.rentMin}–${f.rentMax}`
+        ? `€${f.rentMin} to €${f.rentMax}`
         : f.rentMax != null
           ? `Up to €${f.rentMax}`
           : `From €${f.rentMin}`;

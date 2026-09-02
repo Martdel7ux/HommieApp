@@ -94,7 +94,7 @@ export default function LandlordDashboard() {
             <View style={{ flex: 1 }}>
               <Text variant="h3">Create a listing</Text>
               <Text variant="bodySm" muted>
-                A quick multi-step flow — photos, location, rent and more.
+                A quick step-by-step flow for photos, location, rent and more.
               </Text>
             </View>
           </View>

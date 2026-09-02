@@ -57,11 +57,11 @@ export function eventDateLabel(iso: string): string {
   return format(d, sameYear ? 'EEEE, MMMM d' : 'EEEE, MMMM d, yyyy');
 }
 
-/** Event time span: "4:00 PM – 7:00 PM", or "4:00 PM" when there's no end. */
+/** Event time span: "4:00 PM to 7:00 PM", or "4:00 PM" when there's no end. */
 export function eventTimeRange(startIso: string, endIso?: string | null): string {
   const start = format(new Date(startIso), 'h:mm a');
   if (!endIso) return start;
-  return `${start} – ${format(new Date(endIso), 'h:mm a')}`;
+  return `${start} to ${format(new Date(endIso), 'h:mm a')}`;
 }
 
 /** Compact list-card date badge: { day: "15", month: "SEP" }. */

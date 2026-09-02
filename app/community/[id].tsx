@@ -87,7 +87,7 @@ export default function PostDetail() {
             {comments.isLoading ? (
               <ActivityIndicator color={theme.colors.primary} />
             ) : (comments.data?.length ?? 0) === 0 ? (
-              <Text muted>No comments yet — start the conversation.</Text>
+              <Text muted>No comments yet. Start the conversation.</Text>
             ) : (
               <View style={{ gap: theme.spacing.lg }}>
                 {comments.data!.map((c) => (

@@ -13,7 +13,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'What does “Hommie Verified” mean?',
-    a: 'Verified landlords have confirmed their identity and property ownership with our team. It is a trust signal, not a guarantee — always view a place before paying anything.',
+    a: 'Verified landlords have confirmed their identity and property ownership with our team. It is a trust signal, not a guarantee. Always view a place before paying anything.',
   },
   {
     q: 'How does roommate matching work?',

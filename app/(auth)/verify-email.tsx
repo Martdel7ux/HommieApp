@@ -75,7 +75,7 @@ export default function VerifyEmail() {
         {message ? <Banner tone={message.tone} message={message.text} /> : null}
 
         <View style={{ gap: theme.spacing.sm }}>
-          <Button title="I've confirmed — continue" loading={busy} onPress={checkAgain} />
+          <Button title="I've confirmed my email" loading={busy} onPress={checkAgain} />
           <Button title="Resend email" variant="ghost" loading={busy} onPress={resend} />
           <Button title="Sign out" variant="ghost" onPress={() => authApi.signOut()} />
         </View>

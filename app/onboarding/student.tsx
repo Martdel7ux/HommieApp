@@ -394,7 +394,7 @@ export default function StudentOnboarding() {
           {step === 3 && (
             <>
               <Text muted>
-                This stays private until you publish a roommate profile — it just makes your matches better.
+                This stays private until you publish a roommate profile. It just makes your matches better.
               </Text>
               <Field label="Daily routine">
                 <ChipGroup
@@ -432,7 +432,7 @@ export default function StudentOnboarding() {
 
           {step === 4 && (
             <View style={{ gap: theme.spacing.sm }}>
-              <Text muted>Pick a few things you&apos;re into — this helps with roommate and event suggestions.</Text>
+              <Text muted>Pick a few things you&apos;re into. This helps with roommate and event suggestions.</Text>
               <ChipGroup
                 multiple
                 options={INTERESTS.map((i) => ({ value: i, label: i[0].toUpperCase() + i.slice(1) }))}

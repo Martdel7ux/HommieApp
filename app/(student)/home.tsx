@@ -185,7 +185,7 @@ export default function StudentHome() {
                   Complete your profile
                 </Text>
                 <Text variant="bodySm" muted>
-                  {completion}% done — better roommate matches and recommendations.
+                  {completion}% done. Better roommate matches and recommendations.
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color={theme.colors.textTertiary} />

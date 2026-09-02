@@ -170,7 +170,7 @@ export default function RoommateProfile() {
 
   const budget =
     p?.budget_min != null && p?.budget_max != null
-      ? `€${p.budget_min}–${p.budget_max}`
+      ? `€${p.budget_min} to €${p.budget_max}`
       : p?.budget_max != null
         ? `Up to €${p.budget_max}`
         : p?.budget_min != null

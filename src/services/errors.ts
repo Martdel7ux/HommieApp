@@ -18,7 +18,7 @@ export class AppError extends Error {
 
 const FRIENDLY: Record<string, string> = {
   'invalid_credentials': 'That email or password is not right. Please try again.',
-  'email_not_confirmed': 'Please confirm your email address first — check your inbox.',
+  'email_not_confirmed': 'Please confirm your email address first. Check your inbox.',
   'user_already_exists': 'An account with this email already exists. Try signing in.',
   'over_email_send_rate_limit': 'Too many attempts. Please wait a minute and try again.',
   'weak_password': 'Please choose a stronger password (at least 8 characters).',

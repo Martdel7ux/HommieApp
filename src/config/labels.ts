@@ -19,10 +19,10 @@ export const studentStatusLabels: Record<StudentStatus, string> = {
 
 export const studyLevelLabels: Record<StudyLevel, string> = {
   foundation: 'Foundation',
-  undergraduate_y1: 'Undergraduate — Year 1',
-  undergraduate_y2: 'Undergraduate — Year 2',
-  undergraduate_y3: 'Undergraduate — Year 3',
-  undergraduate_y4: 'Undergraduate — Year 4',
+  undergraduate_y1: 'Undergraduate, Year 1',
+  undergraduate_y2: 'Undergraduate, Year 2',
+  undergraduate_y3: 'Undergraduate, Year 3',
+  undergraduate_y4: 'Undergraduate, Year 4',
   postgraduate: 'Postgraduate',
   phd: 'PhD',
   erasmus_exchange: 'Erasmus / Exchange',
