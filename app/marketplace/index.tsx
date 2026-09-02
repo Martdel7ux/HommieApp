@@ -135,7 +135,7 @@ export default function Marketplace() {
                 />
               ) : null}
             </Pressable>
-            <Pressable onPress={() => router.push('/(student)/profile')} accessibilityLabel="Open profile">
+            <Pressable onPress={() => router.push('/profile')} accessibilityLabel="Open profile">
               <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={34} />
             </Pressable>
           </View>

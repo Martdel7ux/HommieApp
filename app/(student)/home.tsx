@@ -153,7 +153,7 @@ export default function StudentHome() {
             name={profile?.first_name}
             hasNotifications={(unread.data ?? 0) > 0}
             onOpenNotifications={() => router.push('/notifications')}
-            onOpenProfile={() => router.push('/(student)/profile')}
+            onOpenProfile={() => router.push('/profile')}
           />
           <View style={{ gap: 6 }}>
             <Text variant="h1">
@@ -166,7 +166,7 @@ export default function StudentHome() {
         </View>
 
         {completion < 100 ? (
-          <Card onPress={() => router.push('/(student)/profile')} accessibilityLabel="Complete your profile">
+          <Card onPress={() => router.push('/profile')} accessibilityLabel="Complete your profile">
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
               <View
                 style={{

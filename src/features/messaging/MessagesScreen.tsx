@@ -30,7 +30,7 @@ export function MessagesScreen({ role }: { role: 'student' | 'landlord' }) {
     );
   }, [conversations.data, search]);
 
-  const profilePath = role === 'landlord' ? '/(landlord)/profile' : '/(student)/profile';
+  const profilePath = role === 'landlord' ? '/(landlord)/profile' : '/profile';
 
   const header = (
     <View style={{ gap: theme.spacing.lg, paddingBottom: theme.spacing.md }}>

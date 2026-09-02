@@ -70,7 +70,7 @@ export default function Explore() {
         name={profile?.first_name}
         hasNotifications={(unread.data ?? 0) > 0}
         onOpenNotifications={() => router.push('/notifications')}
-        onOpenProfile={() => router.push('/(student)/profile')}
+        onOpenProfile={() => router.push('/profile')}
       />
 
       <SearchBar

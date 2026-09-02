@@ -308,7 +308,7 @@ export default function ListingDetail() {
                       onPress={() => router.push('/notifications')}
                     />
                     <Pressable
-                      onPress={() => router.push('/(student)/profile')}
+                      onPress={() => router.push('/profile')}
                       accessibilityLabel="Open profile"
                     >
                       <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={38} />

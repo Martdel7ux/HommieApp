@@ -18,8 +18,6 @@ export default function StudentTabsLayout() {
         <Tabs.Screen name="explore" options={{ title: 'Explore' }} />
         <Tabs.Screen name="messages" options={{ title: 'Messages' }} />
         <Tabs.Screen name="community" options={{ title: 'Community' }} />
-        {/* Profile is opened from the avatar in each screen's header, not the tab bar. */}
-        <Tabs.Screen name="profile" options={{ href: null }} />
       </Tabs>
     </View>
   );
