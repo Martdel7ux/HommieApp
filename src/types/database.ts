@@ -427,6 +427,7 @@ export interface Database {
       unread_conversation_count: { Args: Record<string, never>; Returns: number };
       mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
       request_account_deletion: { Args: Record<string, never>; Returns: undefined };
+      apply_selected_role: { Args: { p_role: UserRole }; Returns: undefined };
     };
     Enums: {
       user_role: UserRole;

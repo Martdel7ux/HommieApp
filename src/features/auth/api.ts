@@ -1,13 +1,97 @@
 import * as Linking from 'expo-linking';
 import { supabase } from '@/lib/supabase';
-import { guard } from '@/services/errors';
+import { guard, toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
+import { logger } from '@/services/logger';
+import {
+  getAppleCredential,
+  getGoogleCredential,
+  signOutGoogle,
+  SocialCancelledError,
+  type SocialCredential,
+  type SocialProvider,
+} from './social';
 import type { SignInInput, SignUpInput } from './schemas';
 import type { UserRole } from '@/types/database';
 
 const redirectTo = Linking.createURL('/auth/callback');
 
+/**
+ * Exchange a provider ID token for a Supabase session, then, for a brand-new
+ * account, apply the role the user picked on the welcome screen and backfill
+ * the name Apple hands us once. The `handle_new_user` trigger has already
+ * created the base profile (role 'student') by the time this runs.
+ */
+async function completeIdTokenSignIn(
+  credential: SocialCredential,
+  selectedRole: UserRole | undefined,
+): Promise<{ isNewUser: boolean }> {
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: credential.provider,
+    token: credential.idToken,
+  });
+  if (error) throw error;
+
+  const user = data.user;
+  const createdAt = user?.created_at ? new Date(user.created_at).getTime() : 0;
+  const lastSignIn = user?.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : createdAt;
+  const isNewUser = !!user && Math.abs(createdAt - lastSignIn) < 5000;
+
+  if (isNewUser && user) {
+    if (selectedRole && selectedRole !== 'student') {
+      const { error: roleErr } = await supabase.rpc('apply_selected_role', { p_role: selectedRole });
+      if (roleErr) logger.capture(roleErr, { scope: 'auth.applySelectedRole' });
+    }
+    const given = credential.fullName?.givenName?.trim();
+    const family = credential.fullName?.familyName?.trim();
+    if (given) {
+      await supabase
+        .from('profiles')
+        .update({
+          first_name: given,
+          last_name: family || null,
+          display_name: [given, family].filter(Boolean).join(' ') || given,
+        })
+        .eq('id', user.id)
+        .is('first_name', null);
+    }
+  }
+
+  return { isNewUser };
+}
+
+async function socialSignIn(
+  provider: SocialProvider,
+  getCredential: () => Promise<SocialCredential>,
+  selectedRole: UserRole | undefined,
+): Promise<{ isNewUser: boolean }> {
+  analytics.track('social_sign_in_started', { provider });
+  try {
+    const credential = await getCredential();
+    const result = await completeIdTokenSignIn(credential, selectedRole);
+    analytics.track('social_sign_in_completed', { provider, is_new_user: result.isNewUser });
+    // AuthGate takes over navigation once the session propagates.
+    return result;
+  } catch (e) {
+    if (e instanceof SocialCancelledError) throw e;
+    const err = toAppError(e);
+    logger.capture(err, { scope: `auth.signInWith.${provider}`, code: err.code });
+    analytics.track('social_sign_in_failed', { provider, reason: err.code });
+    throw err;
+  }
+}
+
 export const authApi = {
+  /** Native "Sign in with Apple". iOS only. */
+  signInWithApple(selectedRole?: UserRole) {
+    return socialSignIn('apple', getAppleCredential, selectedRole);
+  },
+
+  /** Native Google Sign-In. */
+  signInWithGoogle(selectedRole?: UserRole) {
+    return socialSignIn('google', getGoogleCredential, selectedRole);
+  },
+
   async signIn({ email, password }: SignInInput) {
     return guard(async () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -63,6 +147,7 @@ export const authApi = {
 
   async signOut() {
     return guard(async () => {
+      await signOutGoogle();
       await supabase.auth.signOut();
       analytics.track('sign_out');
       analytics.reset();

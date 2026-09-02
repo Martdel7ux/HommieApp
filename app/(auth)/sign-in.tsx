@@ -8,6 +8,7 @@ import { Logo } from '@/components/Brand/Logo';
 import { useTheme } from '@/theme';
 import { signInSchema, type SignInInput } from '@/features/auth/schemas';
 import { authApi } from '@/features/auth/api';
+import { SocialAuthButtons } from '@/features/auth/SocialAuthButtons';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
 
@@ -98,6 +99,8 @@ export default function SignIn() {
         </Pressable>
 
         <Button title="Sign in" loading={isSubmitting} onPress={handleSubmit(onSubmit)} />
+
+        <SocialAuthButtons onError={setSubmitError} />
 
         <View style={{ flex: 1 }} />
 

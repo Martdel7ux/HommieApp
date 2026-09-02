@@ -21,6 +21,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supportsTablet: false,
     bundleIdentifier: 'com.hommie.app',
     buildNumber: '1',
+    usesAppleSignIn: true,
     infoPlist: {
       NSPhotoLibraryUsageDescription:
         'Hommie needs access to your photos so you can add pictures to listings, your profile and marketplace items.',
@@ -47,6 +48,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     'expo-font',
     'expo-asset',
+    'expo-apple-authentication',
+    [
+      '@react-native-google-signin/google-signin',
+      {
+        // Reversed iOS OAuth client id (com.googleusercontent.apps.XXXX).
+        // Set EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME before an `eas build`; the
+        // placeholder only keeps `expo start` / config eval working without it.
+        iosUrlScheme:
+          process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME ??
+          'com.googleusercontent.apps.placeholder-not-configured',
+      },
+    ],
     [
       'expo-splash-screen',
       {
@@ -76,6 +89,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+    googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     analyticsEnabled: process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === 'true',
     environment: process.env.EXPO_PUBLIC_ENV ?? 'development',
     eas: {

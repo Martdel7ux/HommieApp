@@ -7,6 +7,8 @@ import Constants from 'expo-constants';
 type Extra = {
   supabaseUrl?: string;
   supabaseAnonKey?: string;
+  googleWebClientId?: string;
+  googleIosClientId?: string;
   analyticsEnabled?: boolean;
   environment?: string;
 };
@@ -26,6 +28,9 @@ function required(value: string | undefined, key: string): string {
 export const env = {
   supabaseUrl: required(extra.supabaseUrl, 'EXPO_PUBLIC_SUPABASE_URL'),
   supabaseAnonKey: required(extra.supabaseAnonKey, 'EXPO_PUBLIC_SUPABASE_ANON_KEY'),
+  // Optional: only needed for Google Sign-In. Absent = the Google button hides.
+  googleWebClientId: extra.googleWebClientId || undefined,
+  googleIosClientId: extra.googleIosClientId || undefined,
   analyticsEnabled: extra.analyticsEnabled === true,
   environment: (extra.environment ?? 'development') as 'development' | 'preview' | 'production',
   isProduction: extra.environment === 'production',

@@ -7,6 +7,7 @@ import { Screen, Text, Button, TextField, Banner } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { signUpSchema, type SignUpInput } from '@/features/auth/schemas';
 import { authApi } from '@/features/auth/api';
+import { SocialAuthButtons } from '@/features/auth/SocialAuthButtons';
 import { toAppError } from '@/services/errors';
 import type { UserRole } from '@/types/database';
 
@@ -63,6 +64,8 @@ export default function SignUp() {
         </View>
 
         {submitError ? <Banner tone="danger" message={submitError} /> : null}
+
+        <SocialAuthButtons role={role} onError={setSubmitError} label="or sign up with your email" />
 
         <Controller
           control={control}
