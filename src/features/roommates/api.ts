@@ -91,6 +91,32 @@ export const roommatesApi = {
     }, { scope: 'roommates.getDetail' });
   },
 
+  /** Create or update the signed-in student's own roommate preferences row. */
+  async upsertPreferences(
+    userId: string,
+    patch: {
+      age?: number | null;
+      preferred_city?: string | null;
+      university_id?: string | null;
+      budget_min?: number | null;
+      budget_max?: number | null;
+      move_in_from?: string | null;
+      sleep_schedule?: 'early_bird' | 'night_owl' | 'flexible' | null;
+      social_level?: 'homebody' | 'balanced' | 'very_social' | null;
+      cleanliness?: number | null;
+      smoking?: 'yes' | 'no' | 'outside_only' | 'no_preference';
+      pets?: 'yes' | 'no' | 'no_preference';
+      is_published?: boolean;
+    },
+  ) {
+    return guard(async () => {
+      const { error } = await supabase
+        .from('roommate_preferences')
+        .upsert({ user_id: userId, ...patch }, { onConflict: 'user_id' });
+      if (error) throw error;
+    }, { scope: 'roommates.upsertPreferences' });
+  },
+
   async toggleSave(viewerId: string, profileId: string, next: boolean) {
     return guard(async () => {
       if (next) {
