@@ -12,7 +12,7 @@ import type {
 const CARD_SELECT = `
   id, title, rent_month, deposit, bills_included, property_type, bedrooms, bathrooms,
   furnished, roommate_suitable, city, area, available_from, amenities, saves_count,
-  views_count, published_at, status, distance_to_campus_km,
+  views_count, published_at, status, distance_to_campus_km, approx_lat, approx_lng,
   images:accommodation_listing_images ( storage_path, position ),
   landlord:profiles!accommodation_listings_landlord_id_fkey (
     id, display_name, avatar_url,

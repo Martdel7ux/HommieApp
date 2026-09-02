@@ -12,6 +12,7 @@ import { useUnreadNotificationCount } from '@/features/notifications/hooks';
 import { accommodationApi } from '@/features/accommodation/api';
 import { useAccommodationSearch, useSavedListings } from '@/features/accommodation/hooks';
 import { ListingCard } from '@/features/accommodation/components/ListingCard';
+import { ListingMap } from '@/features/accommodation/components/ListingMap';
 import { FilterSheet } from '@/features/accommodation/components/FilterSheet';
 import { SearchBar, FilterChipsRow } from '@/features/accommodation/components/ExploreControls';
 import type { AccommodationFilters } from '@/features/accommodation/types';
@@ -157,13 +158,15 @@ export default function Explore() {
           <View style={{ paddingHorizontal: theme.layout.screenPadding, paddingTop: theme.spacing.md }}>
             {header}
           </View>
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: theme.spacing.xl }}>
-            <EmptyState
-              icon="map-outline"
-              title="Map view is coming soon"
-              message="We're wiring up an interactive map with approximate pins. Use the list for now."
-              actionLabel="Back to list"
-              onAction={() => setView('list')}
+          <View style={{ flex: 1, overflow: 'hidden' }}>
+            <ListingMap
+              listings={search.rows}
+              savedSet={savedSet}
+              onToggleSave={(id, next) => toggle(id, next)}
+              onOpen={(id) => {
+                analytics.track('listing_viewed', { listing_id: id, source: 'explore_map' });
+                router.push(`/accommodation/${id}`);
+              }}
             />
           </View>
         </View>

@@ -37,6 +37,8 @@ export interface AccommodationCard {
   published_at: string | null;
   status: ListingStatus;
   distance_to_campus_km: number | null;
+  approx_lat: number | null;
+  approx_lng: number | null;
   images: ListingImage[];
   landlord: ListingLandlord | null;
   nearest_university: { short_name: string | null; name: string } | null;
