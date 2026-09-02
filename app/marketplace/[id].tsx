@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, View, useWindowDimensions } from 'react-native';
+import { Alert, Modal, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -25,6 +25,96 @@ import { messagingApi } from '@/features/messaging/api';
 import { marketplaceConditionLabels, marketplaceCategoryLabels } from '@/config/labels';
 import { itemImages, priceLabel } from '@/features/marketplace/api';
 import { useMarketplaceItem, useSavedMarketplace } from '@/features/marketplace/hooks';
+import type { MarketplaceItemDetail } from '@/features/marketplace/types';
+
+function MessageSellerSheet({
+  visible,
+  item,
+  sending,
+  onClose,
+  onSend,
+}: {
+  visible: boolean;
+  item: MarketplaceItemDetail;
+  sending: boolean;
+  onClose: () => void;
+  onSend: (message: string) => void;
+}) {
+  const theme = useTheme();
+  const [message, setMessage] = useState(`Hi! Is "${item.title}" still available?`);
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={{ flex: 1, backgroundColor: theme.colors.overlay }} onPress={onClose} />
+      <SafeAreaView
+        edges={['bottom']}
+        style={{
+          backgroundColor: theme.colors.background,
+          borderTopLeftRadius: theme.radius.xl,
+          borderTopRightRadius: theme.radius.xl,
+        }}
+      >
+        <View style={{ padding: theme.spacing.lg, gap: theme.spacing.lg }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text variant="h3">Message {item.seller?.name ?? 'the seller'}</Text>
+            <Pressable onPress={onClose} hitSlop={8} accessibilityLabel="Close">
+              <Ionicons name="close" size={22} color={theme.colors.textSecondary} />
+            </Pressable>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: theme.spacing.md,
+              backgroundColor: theme.colors.surfaceAlt,
+              borderRadius: theme.radius.lg,
+              padding: theme.spacing.md,
+            }}
+          >
+            <Image
+              source={{ uri: itemImages(item.images)[0] }}
+              style={{ width: 44, height: 44, borderRadius: theme.radius.md, backgroundColor: theme.colors.primarySubtle }}
+              contentFit="cover"
+            />
+            <Text variant="label" numberOfLines={1} style={{ flex: 1 }}>
+              {item.title}
+            </Text>
+            <Text variant="label" color={theme.colors.primary}>
+              {priceLabel(item)}
+            </Text>
+          </View>
+
+          <TextInput
+            value={message}
+            onChangeText={setMessage}
+            multiline
+            maxLength={2000}
+            placeholder="Ask about condition, pickup, price…"
+            placeholderTextColor={theme.colors.textTertiary}
+            style={{
+              minHeight: 96,
+              backgroundColor: theme.colors.surfaceAlt,
+              borderRadius: theme.radius.lg,
+              padding: theme.spacing.lg,
+              fontSize: 15,
+              lineHeight: 21,
+              color: theme.colors.textPrimary,
+              textAlignVertical: 'top',
+            }}
+          />
+
+          <Button
+            title="Send message"
+            loading={sending}
+            disabled={message.trim().length < 2}
+            onPress={() => onSend(message.trim())}
+          />
+        </View>
+      </SafeAreaView>
+    </Modal>
+  );
+}
 
 export default function MarketplaceItem() {
   const theme = useTheme();
@@ -40,18 +130,23 @@ export default function MarketplaceItem() {
 
   const isMine = !!user && item.data?.seller?.id === user.id;
   const images = itemImages(item.data?.images);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const contact = useMutation({
-    mutationFn: () =>
-      messagingApi.startConversation(item.data!.seller!.id, {
+    mutationFn: async (message: string) => {
+      const conversationId = await messagingApi.startConversation(item.data!.seller!.id, {
         context: 'marketplace',
         marketplaceListingId: id,
-      }),
+      });
+      await messagingApi.sendMessage(conversationId, user!.id, message);
+      return conversationId;
+    },
     onSuccess: (conversationId) => {
       analytics.track('marketplace_seller_contact_started', { item_id: id });
+      setSheetOpen(false);
       router.push(`/messages/${conversationId}`);
     },
-    onError: (e) => Alert.alert('Could not start the chat', toAppError(e).message),
+    onError: (e) => Alert.alert('Could not send your message', toAppError(e).message),
   });
 
   const report = () => {
@@ -262,7 +357,8 @@ export default function MarketplaceItem() {
                 <Button
                   title="Message seller"
                   loading={contact.isPending}
-                  onPress={() => contact.mutate()}
+                  disabled={!item.data.seller}
+                  onPress={() => setSheetOpen(true)}
                   leftIcon={
                     <Ionicons name="chatbubble-outline" size={16} color={theme.colors.onPrimary} />
                   }
@@ -270,6 +366,16 @@ export default function MarketplaceItem() {
               )}
             </View>
           </SafeAreaView>
+
+          {sheetOpen && item.data.seller ? (
+            <MessageSellerSheet
+              visible={sheetOpen}
+              item={item.data}
+              sending={contact.isPending}
+              onClose={() => setSheetOpen(false)}
+              onSend={(message) => contact.mutate(message)}
+            />
+          ) : null}
         </>
       )}
     </View>
