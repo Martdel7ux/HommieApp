@@ -25,8 +25,9 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 ## Accounts, auth & security
 
 - ☐ Production Supabase project created; migrations pushed (`supabase db push`)
-- ◐ Apple + Google sign-in — code done; provider credentials + dashboard config
-      pending (`docs/SOCIAL_AUTH_SETUP.md`). Needs a dev build to test.
+- ◐ Apple + Google sign-in — code done + merged; provider credentials, DB
+      migration 0015 and dev-build testing **deferred until the Apple Developer +
+      Google Play accounts exist**. Runbook: `docs/SOCIAL_AUTH_SETUP.md`.
 - ☐ RLS enabled on **every** table; policies reviewed against `docs`/security rules
 - ☐ Storage buckets created with size limits + owner-path policies
 - ☐ Email templates (confirm, reset) branded in Supabase dashboard
