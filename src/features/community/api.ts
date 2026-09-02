@@ -1,9 +1,15 @@
 import { supabase, STORAGE_BUCKETS } from '@/lib/supabase';
 import { resolveImage, resolveAvatar } from '@/lib/images';
 import { guard } from '@/services/errors';
+import { uploadImage } from '@/lib/upload';
 import { PAGE_SIZE } from '@/config/constants';
 import type { CommunityCategory } from '@/types/database';
 import type { CommunityPost, PostComment } from './types';
+
+export interface NewPostPhoto {
+  uri: string;
+  mimeType?: string | null;
+}
 
 const POST_SELECT = `
   id, category, body, image_paths, likes_count, comments_count, created_at,
@@ -111,15 +117,26 @@ export const communityApi = {
     }, { scope: 'community.toggleLike' });
   },
 
-  async createPost(userId: string, input: { category: CommunityCategory; body: string; imagePaths?: string[] }) {
+  async createPost(
+    userId: string,
+    input: { category: CommunityCategory; body: string; photos?: NewPostPhoto[] },
+  ) {
     return guard(async () => {
+      const imagePaths: string[] = [];
+      for (const photo of input.photos ?? []) {
+        const path = await uploadImage(STORAGE_BUCKETS.communityImages, `${userId}`, photo.uri, {
+          contentType: photo.mimeType ?? 'image/jpeg',
+        });
+        imagePaths.push(path);
+      }
+
       const { data, error } = await supabase
         .from('community_posts')
         .insert({
           author_id: userId,
           category: input.category,
           body: input.body.trim(),
-          image_paths: input.imagePaths ?? [],
+          image_paths: imagePaths,
         })
         .select('id')
         .single();

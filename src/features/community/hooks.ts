@@ -10,7 +10,7 @@ import { qk } from '@/lib/queryClient';
 import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
-import { communityApi } from './api';
+import { communityApi, type NewPostPhoto } from './api';
 import type { CommunityPost } from './types';
 import type { CommunityCategory } from '@/types/database';
 
@@ -85,12 +85,12 @@ export function useCreatePost() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { category: CommunityCategory; body: string; imagePaths?: string[] }) =>
+    mutationFn: (input: { category: CommunityCategory; body: string; photos?: NewPostPhoto[] }) =>
       communityApi.createPost(user!.id, input),
     onSuccess: (_id, input) => {
       analytics.track('community_post_created', {
         category: input.category,
-        has_image: (input.imagePaths?.length ?? 0) > 0,
+        has_image: (input.photos?.length ?? 0) > 0,
       });
       queryClient.invalidateQueries({ queryKey: ['community'] });
     },
