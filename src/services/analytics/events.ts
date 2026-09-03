@@ -46,6 +46,14 @@ export interface AnalyticsEventMap {
   roommate_contact_started: { profile_id: string };
   roommate_profile_published: Record<string, never>;
 
+  // ---- jobs ----
+  jobs_search_performed: { query?: string; filters_count: number };
+  jobs_filter_applied: { filter: string };
+  job_viewed: { job_id: string; source: string };
+  job_saved: { job_id: string };
+  job_unsaved: { job_id: string };
+  job_apply_started: { job_id: string; method: 'url' | 'email' };
+
   // ---- community / events / marketplace ----
   community_post_created: { category: string; has_image: boolean };
   community_post_liked: { post_id: string };

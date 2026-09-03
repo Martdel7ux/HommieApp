@@ -482,4 +482,91 @@ insert into notifications (id, user_id, type, title, body, data, is_read, create
    '{}', true, now() - interval '4 days')
 on conflict (id) do nothing;
 
+-- ---------------------------------------------------------------------------
+-- Jobs board (admin-curated student opportunities)
+-- ---------------------------------------------------------------------------
+insert into jobs (id, title, company, location, work_mode, job_type, pay_min, pay_max, pay_period,
+  pay_note, student_friendly, verified, summary, description, responsibilities, requirements,
+  apply_url, apply_email, posted_by) values
+  ('a2000000-0000-0000-0000-000000000001',
+   'Social Media Intern', 'TechWave Startup', 'Nicosia', 'hybrid', 'internship',
+   400, null, 'month', null, true, false,
+   'Help a fast-growing Nicosia startup grow its student audience across Instagram and TikTok.',
+   'We are looking for a creative student to own our social channels two afternoons a week. You will plan a weekly content calendar, film and edit short videos, and report on what is working. Flexible around your class timetable, mostly remote with one day a week in our Engomi office.',
+   array['Plan and schedule 3-4 posts per week','Film and edit short-form video','Reply to comments and DMs','Share a simple weekly performance recap'],
+   array['Currently enrolled at a Cyprus university','Active on Instagram and TikTok','Basic video editing (CapCut or similar)','Available ~8 hours per week'],
+   null, 'careers@techwave.example', 'c0000000-0000-0000-0000-000000000001'),
+
+  ('a2000000-0000-0000-0000-000000000002',
+   'Student Ambassador', 'University Admissions', 'On-Campus', 'on_campus', 'part_time',
+   12, null, 'hour', null, true, true,
+   'Represent your university at open days and help prospective students find their way.',
+   'The Admissions Office is hiring current students to support open days, campus tours and the new-student welcome week. Great for building your CV and meeting people across faculties. Shifts are posted a month ahead so you can fit them around lectures.',
+   array['Give campus tours to prospective students and parents','Staff the welcome desk during open days','Answer questions about student life','Help set up and pack down events'],
+   array['Second year or above','Confident speaking to groups','Reliable and punctual','Available for at least 2 shifts per month'],
+   'https://apply.university.example/ambassador', null, 'c0000000-0000-0000-0000-000000000001'),
+
+  ('a2000000-0000-0000-0000-000000000003',
+   'Weekend Barista', 'Kala Coffee', 'Nicosia', 'on_site', 'part_time',
+   5, 6, 'hour', 'plus tips', true, false,
+   'Friendly neighbourhood coffee shop in the Old Town needs a weekend barista.',
+   'We are a small independent cafe a short walk from the city centre. Saturday and Sunday mornings, 7am to 1pm. Full training on the machine provided. A calm, busy shift with regulars who will learn your name.',
+   array['Prepare espresso drinks and filter coffee','Serve pastries and take payment','Keep the bar and seating area clean','Open or close the shop with a colleague'],
+   array['Weekend morning availability','Some customer-facing experience preferred','Basic Greek or English','Right to work in Cyprus'],
+   null, 'jobs@kalacoffee.example', 'c0000000-0000-0000-0000-000000000001'),
+
+  ('a2000000-0000-0000-0000-000000000004',
+   'Private Maths Tutor', 'Nicosia Learning Centre', 'Nicosia', 'hybrid', 'part_time',
+   15, 20, 'hour', null, true, true,
+   'Tutor secondary-school students in maths, one-to-one, afternoons and early evenings.',
+   'We match university students with school students who need support in maths and sciences. You choose your hours and how many students you take on. Sessions are a mix of in-person at our centre in Strovolos and online.',
+   array['Run 60-minute one-to-one sessions','Prepare short practice sets','Give parents a brief monthly update'],
+   array['Studying a STEM subject at university','Strong A-level or equivalent in maths','Patient and organised','Two references'],
+   'https://nlc.example/tutors', null, 'c0000000-0000-0000-0000-000000000001'),
+
+  ('a2000000-0000-0000-0000-000000000005',
+   'Junior Frontend Developer (Intern)', 'Meraki Labs', 'Anywhere', 'remote', 'internship',
+   800, 1000, 'month', null, true, true,
+   'Three-month paid remote internship working on a React Native product with a small team.',
+   'Meraki Labs builds mobile apps for clients across the EU. You will pair with a senior engineer, pick up real tickets, and ship to production in your first two weeks. Fully remote, with an optional co-working budget if you prefer an office.',
+   array['Build UI from Figma designs in React Native','Write and review pull requests','Join daily standup and weekly planning','Fix bugs reported by QA'],
+   array['Comfortable with JavaScript or TypeScript','Some React or React Native experience (projects count)','Able to commit 25-30 hours per week for 3 months','Good written English'],
+   'https://merakilabs.example/careers/frontend-intern', null, 'c0000000-0000-0000-0000-000000000001'),
+
+  ('a2000000-0000-0000-0000-000000000006',
+   'Event Staff - Concerts & Festivals', 'Islandwide Events', 'Limassol', 'on_site', 'seasonal',
+   8, null, 'hour', 'evening and weekend shifts', true, false,
+   'Casual event crew for the summer season - set-up, bar, box office and stewarding.',
+   'Join the pool of casual staff we call on for concerts, food festivals and sports events across Limassol and Larnaca through the summer. Pick up shifts that suit you in the app. Transport provided from Nicosia for larger events.',
+   array['Set up and break down event areas','Work the bar, entrance or information point','Help guests find their way','Follow the safety briefing'],
+   array['18 or over','Available some evenings and weekends May to September','On your feet for a full shift','Team player'],
+   null, 'crew@islandwide.example', 'c0000000-0000-0000-0000-000000000001'),
+
+  ('a2000000-0000-0000-0000-000000000007',
+   'Library Assistant', 'University of Nicosia', 'On-Campus', 'on_campus', 'part_time',
+   11, null, 'hour', null, true, true,
+   'Shelve, help students find resources and staff the front desk at the main library.',
+   'The library is hiring students for the autumn semester. Quiet, steady work with time to study on slower shifts. Rota is set at the start of term around your classes.',
+   array['Reshelve returned books','Help students use the catalogue and printers','Check items in and out','Keep study areas tidy'],
+   array['Enrolled at UNIC','Careful and organised','Available 10-12 hours per week','Comfortable with basic computer tasks'],
+   'https://unic.example/jobs/library-assistant', null, 'c0000000-0000-0000-0000-000000000001'),
+
+  ('a2000000-0000-0000-0000-000000000008',
+   'Delivery Rider', 'Wolt', 'Nicosia', 'on_site', 'contract',
+   null, null, 'hour', 'per-delivery plus tips', true, false,
+   'Deliver food by bike or scooter around Nicosia on a fully flexible schedule.',
+   'Work whenever you want with no fixed hours. Busiest around lunch and dinner. You will need your own bike or scooter and a smartphone. Weekly payouts.',
+   array['Accept delivery offers in the app','Collect orders from restaurants','Deliver to customers safely and on time'],
+   array['18 or over with the right to work in Cyprus','Own bike, e-bike or scooter','Smartphone with a data plan','Know the city or willing to learn'],
+   'https://wolt.example/couriers/nicosia', null, 'c0000000-0000-0000-0000-000000000001')
+on conflict (id) do update set
+  summary = excluded.summary,
+  description = excluded.description,
+  pay_min = excluded.pay_min,
+  pay_max = excluded.pay_max;
+
+insert into saved_jobs (user_id, job_id) values
+  ('a0000000-0000-0000-0000-000000000001', 'a2000000-0000-0000-0000-000000000002')
+on conflict do nothing;
+
 drop function _seed_user(uuid, text, text, jsonb);

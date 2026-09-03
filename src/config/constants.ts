@@ -20,6 +20,7 @@ export const PAGE_SIZE = {
   community: 15,
   marketplace: 12,
   roommates: 12,
+  jobs: 12,
   enquiries: 20,
 } as const;
 
@@ -82,6 +83,12 @@ export type MarketplaceCategory = (typeof MARKETPLACE_CATEGORIES)[number];
 
 export const MARKETPLACE_CONDITIONS = ['new', 'like_new', 'good', 'fair', 'for_parts'] as const;
 export type MarketplaceCondition = (typeof MARKETPLACE_CONDITIONS)[number];
+
+export const JOB_TYPES = ['part_time', 'internship', 'full_time', 'contract', 'seasonal'] as const;
+export type JobType = (typeof JOB_TYPES)[number];
+
+export const JOB_WORK_MODES = ['on_site', 'remote', 'hybrid', 'on_campus'] as const;
+export type JobWorkMode = (typeof JOB_WORK_MODES)[number];
 
 export const CONVERSATION_CONTEXTS = ['accommodation', 'roommate', 'marketplace', 'general'] as const;
 export type ConversationContext = (typeof CONVERSATION_CONTEXTS)[number];

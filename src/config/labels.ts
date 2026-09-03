@@ -8,6 +8,9 @@ import type {
   CommunityCategory,
   MarketplaceCategory,
   MarketplaceCondition,
+  JobType,
+  JobWorkMode,
+  JobPayPeriod,
 } from '@/types/database';
 
 export const studentStatusLabels: Record<StudentStatus, string> = {
@@ -73,6 +76,31 @@ export const marketplaceConditionLabels: Record<MarketplaceCondition, string> = 
   good: 'Good',
   fair: 'Fair',
   for_parts: 'For parts',
+};
+
+export const jobTypeLabels: Record<JobType, string> = {
+  part_time: 'Part-time',
+  internship: 'Internship',
+  full_time: 'Full-time',
+  contract: 'Contract',
+  seasonal: 'Seasonal',
+};
+
+export const jobWorkModeLabels: Record<JobWorkMode, string> = {
+  on_site: 'On-site',
+  remote: 'Remote',
+  hybrid: 'Hybrid',
+  on_campus: 'On-campus',
+};
+
+/** Compact suffix for a pay figure, e.g. "€12/hr", "€400/mo". */
+export const jobPayPeriodSuffix: Record<JobPayPeriod, string> = {
+  hour: '/hr',
+  day: '/day',
+  week: '/wk',
+  month: '/mo',
+  year: '/yr',
+  fixed: '',
 };
 
 export const amenityLabels: Record<string, string> = {

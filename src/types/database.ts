@@ -41,6 +41,10 @@ export type MarketplaceCategory =
   | 'transport'
   | 'other';
 export type MarketplaceCondition = 'new' | 'like_new' | 'good' | 'fair' | 'for_parts';
+export type JobType = 'part_time' | 'internship' | 'full_time' | 'contract' | 'seasonal';
+export type JobWorkMode = 'on_site' | 'remote' | 'hybrid' | 'on_campus';
+export type JobPayPeriod = 'hour' | 'day' | 'week' | 'month' | 'year' | 'fixed';
+export type JobStatus = 'draft' | 'active' | 'filled' | 'expired';
 export type ConversationContext = 'accommodation' | 'roommate' | 'marketplace' | 'general';
 export type ReportReason =
   | 'spam'
@@ -235,6 +239,34 @@ interface MarketplaceListingRow extends Timestamps {
   saves_count: number;
 }
 
+interface JobRow extends Timestamps {
+  id: string;
+  title: string;
+  company: string;
+  company_logo_url: string | null;
+  location: string;
+  work_mode: JobWorkMode;
+  job_type: JobType;
+  pay_min: number | null;
+  pay_max: number | null;
+  pay_period: JobPayPeriod | null;
+  pay_note: string | null;
+  student_friendly: boolean;
+  verified: boolean;
+  summary: string | null;
+  description: string | null;
+  responsibilities: string[];
+  requirements: string[];
+  apply_url: string | null;
+  apply_email: string | null;
+  status: JobStatus;
+  posted_by: string | null;
+  expires_on: string | null;
+  published_at: string | null;
+}
+
+type SavedJobRow = { user_id: string; job_id: string; created_at: string };
+
 interface ConversationRow {
   id: string;
   context: ConversationContext;
@@ -367,6 +399,8 @@ export interface Database {
       marketplace_listings: TableDef<MarketplaceListingRow>;
       marketplace_listing_images: TableDef<MarketplaceImageRow>;
       saved_marketplace_listings: TableDef<SimpleSave>;
+      jobs: TableDef<JobRow>;
+      saved_jobs: TableDef<SavedJobRow>;
       conversations: TableDef<ConversationRow>;
       conversation_participants: TableDef<ConversationParticipantRow>;
       messages: TableDef<MessageRow>;

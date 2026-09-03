@@ -110,7 +110,7 @@ export default function StudentHome() {
       variant: 'primary',
       onPress: () => {
         analytics.track('accommodation_search_performed', { filters_count: 0 });
-        router.push('/(student)/explore');
+        router.push('/accommodation');
       },
     },
     {
@@ -201,7 +201,7 @@ export default function StudentHome() {
           <SectionHeader
             title="Recommended for you"
             actionLabel="View all"
-            onAction={() => router.push('/(student)/explore')}
+            onAction={() => router.push('/accommodation')}
           />
           {recommended.isLoading ? (
             <CarouselSkeleton />
@@ -212,7 +212,7 @@ export default function StudentHome() {
                 title="No listings yet"
                 message="New places near you will show up here. Try browsing all listings."
                 actionLabel="Browse listings"
-                onAction={() => router.push('/(student)/explore')}
+                onAction={() => router.push('/accommodation')}
               />
             </Card>
           ) : (

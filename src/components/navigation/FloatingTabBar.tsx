@@ -24,7 +24,7 @@ interface TabBarProps {
 
 const ICONS: Record<string, [IoniconName, IoniconName]> = {
   home: ['home', 'home-outline'],
-  explore: ['search', 'search-outline'],
+  explore: ['compass', 'compass-outline'],
   messages: ['chatbubble', 'chatbubble-outline'],
   community: ['people', 'people-outline'],
 };
