@@ -492,9 +492,9 @@ insert into jobs (id, title, company, location, work_mode, job_type, pay_min, pa
    'Social Media Intern', 'TechWave Startup', 'Nicosia', 'hybrid', 'internship',
    400, null, 'month', null, true, false,
    'Help a fast-growing Nicosia startup grow its student audience across Instagram and TikTok.',
-   'We are looking for a creative student to own our social channels two afternoons a week. You will plan a weekly content calendar, film and edit short videos, and report on what is working. Flexible around your class timetable, mostly remote with one day a week in our Engomi office.',
+   E'We are looking for a creative and energetic Social Media Intern to join our growing team at TechWave Startup. In this role, you will be the voice of our brand across various social media platforms, helping us connect with our audience and build our online community.\n\nYou will be responsible for creating engaging content, managing our social media calendar, and interacting with our followers. This is an excellent opportunity for a student looking to gain hands-on experience in digital marketing in a fast-paced startup environment.',
    array['Plan and schedule 3-4 posts per week','Film and edit short-form video','Reply to comments and DMs','Share a simple weekly performance recap'],
-   array['Currently enrolled at a Cyprus university','Active on Instagram and TikTok','Basic video editing (CapCut or similar)','Available ~8 hours per week'],
+   array['Currently enrolled in a University degree program (Marketing, Communications, or related field preferred)','Highly creative with a good eye for visual design and trending content formats','Excellent written and verbal communication skills in English','Basic knowledge of graphic design tools (e.g., Canva, Figma) is a plus'],
    null, 'careers@techwave.example', 'c0000000-0000-0000-0000-000000000001'),
 
   ('a2000000-0000-0000-0000-000000000002',
@@ -562,8 +562,23 @@ insert into jobs (id, title, company, location, work_mode, job_type, pay_min, pa
 on conflict (id) do update set
   summary = excluded.summary,
   description = excluded.description,
+  responsibilities = excluded.responsibilities,
+  requirements = excluded.requirements,
   pay_min = excluded.pay_min,
   pay_max = excluded.pay_max;
+
+update jobs set contact_phone = case id
+  when 'a2000000-0000-0000-0000-000000000001' then '+357 22 456 780'
+  when 'a2000000-0000-0000-0000-000000000002' then '+357 22 841 002'
+  when 'a2000000-0000-0000-0000-000000000003' then '+357 99 512 340'
+  when 'a2000000-0000-0000-0000-000000000006' then '+357 25 771 900'
+  when 'a2000000-0000-0000-0000-000000000007' then '+357 22 841 700'
+end
+where id in (
+  'a2000000-0000-0000-0000-000000000001','a2000000-0000-0000-0000-000000000002',
+  'a2000000-0000-0000-0000-000000000003','a2000000-0000-0000-0000-000000000006',
+  'a2000000-0000-0000-0000-000000000007'
+);
 
 insert into saved_jobs (user_id, job_id) values
   ('a0000000-0000-0000-0000-000000000001', 'a2000000-0000-0000-0000-000000000002')

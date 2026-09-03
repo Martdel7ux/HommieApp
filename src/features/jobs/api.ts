@@ -9,7 +9,8 @@ const CARD_SELECT = `
   pay_min, pay_max, pay_period, pay_note, student_friendly, verified, summary, published_at
 `;
 
-const DETAIL_SELECT = `${CARD_SELECT}, description, responsibilities, requirements, apply_url, apply_email, expires_on`;
+const DETAIL_BASE = `${CARD_SELECT}, description, responsibilities, requirements, apply_url, apply_email, expires_on`;
+const DETAIL_SELECT = `${DETAIL_BASE}, contact_phone`;
 
 export const jobsApi = {
   async list(
@@ -42,11 +43,17 @@ export const jobsApi = {
 
   async get(id: string, userId: string): Promise<JobDetail> {
     return guard(async () => {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select(DETAIL_SELECT)
-        .eq('id', id)
-        .single<Omit<JobDetail, 'saved'>>();
+      let row = await supabase.from('jobs').select(DETAIL_SELECT).eq('id', id).single<Omit<JobDetail, 'saved'>>();
+      // Tolerate a database that hasn't run migration 0017 yet.
+      if (row.error && /contact_phone/i.test(row.error.message)) {
+        const fallback = await supabase
+          .from('jobs')
+          .select(DETAIL_BASE)
+          .eq('id', id)
+          .single<Omit<JobDetail, 'saved' | 'contact_phone'>>();
+        row = { ...fallback, data: fallback.data ? { ...fallback.data, contact_phone: null } : null } as typeof row;
+      }
+      const { data, error } = row;
       if (error) throw error;
 
       const { data: sv } = await supabase

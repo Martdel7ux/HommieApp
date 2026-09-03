@@ -34,6 +34,7 @@ export interface JobDetail extends JobCard {
   requirements: string[];
   apply_url: string | null;
   apply_email: string | null;
+  contact_phone: string | null;
   expires_on: string | null;
   saved: boolean;
 }
