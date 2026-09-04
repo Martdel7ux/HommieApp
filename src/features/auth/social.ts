@@ -17,7 +17,8 @@ export const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.
 
 /** Google needs a configured web client id; Apple is iOS-only and keyless. */
 export const googleSignInConfigured = !isExpoGo && !!env.googleWebClientId;
-export const appleSignInSupported = !isExpoGo && Platform.OS === 'ios';
+/** Apple is built but stays hidden until EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED=true. */
+export const appleSignInSupported = !isExpoGo && Platform.OS === 'ios' && env.appleSignInEnabled;
 export const socialAuthSupported = googleSignInConfigured || appleSignInSupported;
 
 export type SocialProvider = 'apple' | 'google';

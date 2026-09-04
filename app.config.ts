@@ -7,6 +7,10 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
  * and exposed via `expo.extra`. Never place service-role keys or other secrets here —
  * anything in `extra` ships inside the app bundle.
  */
+// Apple Sign-In is built but the native entitlement / plugin only go in once
+// the Apple Developer setup is done. Flip this on then.
+const appleSignInEnabled = process.env.EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED === 'true';
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Hommie',
@@ -21,7 +25,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supportsTablet: false,
     bundleIdentifier: 'com.hommie.app',
     buildNumber: '1',
-    usesAppleSignIn: true,
+    ...(appleSignInEnabled ? { usesAppleSignIn: true } : {}),
     infoPlist: {
       NSPhotoLibraryUsageDescription:
         'Hommie needs access to your photos so you can add pictures to listings, your profile and marketplace items.',
@@ -48,15 +52,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     'expo-font',
     'expo-asset',
-    'expo-apple-authentication',
+    ...(appleSignInEnabled ? ['expo-apple-authentication'] : []),
     [
       '@react-native-google-signin/google-signin',
       {
         // Reversed iOS OAuth client id (com.googleusercontent.apps.XXXX).
-        // Set EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME before an `eas build`; the
-        // placeholder only keeps `expo start` / config eval working without it.
+        // Set EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME before `npx expo run:ios`; the
+        // placeholder only keeps config eval working without it.
         iosUrlScheme:
-          process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME ??
+          process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME ||
           'com.googleusercontent.apps.placeholder-not-configured',
       },
     ],
@@ -91,6 +95,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    appleSignInEnabled,
     analyticsEnabled: process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === 'true',
     environment: process.env.EXPO_PUBLIC_ENV ?? 'development',
     eas: {

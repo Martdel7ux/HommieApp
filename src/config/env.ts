@@ -9,6 +9,7 @@ type Extra = {
   supabaseAnonKey?: string;
   googleWebClientId?: string;
   googleIosClientId?: string;
+  appleSignInEnabled?: boolean;
   analyticsEnabled?: boolean;
   environment?: string;
 };
@@ -31,6 +32,8 @@ export const env = {
   // Optional: only needed for Google Sign-In. Absent = the Google button hides.
   googleWebClientId: extra.googleWebClientId || undefined,
   googleIosClientId: extra.googleIosClientId || undefined,
+  // Apple Sign-In is built but off until the Apple Developer setup is done.
+  appleSignInEnabled: extra.appleSignInEnabled === true,
   analyticsEnabled: extra.analyticsEnabled === true,
   environment: (extra.environment ?? 'development') as 'development' | 'preview' | 'production',
   isProduction: extra.environment === 'production',
