@@ -112,7 +112,11 @@ generated client-secret JWT. Not needed now.
 1. Authentication → Providers → **Google** → on.
 2. **Client ID** = the **Web** client ID from 3b‑1.
 3. **Client Secret** = the **Web** client secret.
-4. **Skip nonce checks** → leave **OFF**.
+4. **Skip nonce checks** → turn **ON**. `@react-native-google-signin/google-signin`'s
+   classic `signIn()` (what `src/features/auth/social.ts` uses) has no way to
+   set or read a nonce, but Google's native iOS SDK embeds one in the ID token
+   anyway — with this off, Supabase rejects the token with "Passed nonce and
+   nonce in id_token should either both exist or not."
 5. Save.
 
 ### 3d. Put the values in `.env`
