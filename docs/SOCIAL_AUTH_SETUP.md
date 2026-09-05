@@ -99,12 +99,19 @@ generated client-secret JWT. Not needed now.
 - Application type **Android**
 - Name: `Hommie Android`
 - Package name: `com.hommie.app`
-- **SHA-1 certificate fingerprint**: the debug build uses your local debug
-  keystore. Get it with:
+- **SHA-1 certificate fingerprint**: get this from the keystore Gradle actually
+  signs the debug build with — **not** `~/.android/debug.keystore`. The React
+  Native/Expo template bundles its own `android/app/debug.keystore` and
+  `android/app/build.gradle`'s `signingConfigs.debug` points at that file, so
+  that's the cert Google needs to know about:
   ```
-  keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey \
+  keytool -list -v -keystore android/app/debug.keystore -alias androiddebugkey \
     -storepass android -keypass android | grep SHA1
   ```
+  Getting this wrong (e.g. using `~/.android/debug.keystore`'s SHA-1 instead)
+  is exactly what produces Google Sign-In's `DEVELOPER_ERROR` on Android — the
+  fix is adding the *correct* SHA-1 as a fingerprint on this client (Google
+  allows more than one per client, no need to delete a wrong one first).
   (For release/Play Store you'll add the Play App Signing SHA-1 later.)
 - Create. Nothing to copy — Google matches Android by package + SHA-1.
 
