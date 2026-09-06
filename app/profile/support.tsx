@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Linking, Pressable, View } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, Button } from '@/components/ui';
 import { useTheme } from '@/theme';
@@ -54,6 +54,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function SupportHelp() {
   const theme = useTheme();
+  const router = useRouter();
 
   return (
     <Screen scroll>
@@ -91,12 +92,12 @@ export default function SupportHelp() {
         </View>
 
         <View style={{ flexDirection: 'row', gap: theme.spacing.xl, justifyContent: 'center' }}>
-          <Pressable onPress={() => Linking.openURL('https://hommie.app/privacy')}>
+          <Pressable onPress={() => router.push({ pathname: '/legal', params: { doc: 'privacy' } })}>
             <Text variant="caption" color={theme.colors.primary}>
               Privacy Policy
             </Text>
           </Pressable>
-          <Pressable onPress={() => Linking.openURL('https://hommie.app/terms')}>
+          <Pressable onPress={() => router.push({ pathname: '/legal', params: { doc: 'terms' } })}>
             <Text variant="caption" color={theme.colors.primary}>
               Terms of Service
             </Text>

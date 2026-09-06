@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Screen, Text, Button, TextField, Banner } from '@/components/ui';
@@ -42,7 +43,21 @@ export default function SignIn() {
   return (
     <Screen keyboardAvoiding>
       <View style={{ flex: 1, gap: theme.spacing.lg }}>
-        <View style={{ gap: theme.spacing.md, marginTop: theme.spacing['3xl'] }}>
+        <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.xl }}>
+          {router.canGoBack() ? (
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 2 }}
+            >
+              <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
+              <Text variant="label" color={theme.colors.textSecondary}>
+                Back
+              </Text>
+            </Pressable>
+          ) : null}
           <Logo size={34} />
           <View style={{ gap: theme.spacing.xs }}>
             <Text variant="h1">Welcome back</Text>

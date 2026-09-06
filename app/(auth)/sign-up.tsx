@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Pressable, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Screen, Text, Button, TextField, Banner } from '@/components/ui';
@@ -54,13 +55,29 @@ export default function SignUp() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ gap: theme.spacing.xs, marginTop: theme.spacing.lg }}>
-          <Text variant="h1">Create your account</Text>
-          <Text muted>
-            {role === 'landlord'
-              ? 'List student-suitable properties and manage enquiries.'
-              : 'Find housing, roommates and student life in Cyprus.'}
-          </Text>
+        <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.md }}>
+          {router.canGoBack() ? (
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 2 }}
+            >
+              <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
+              <Text variant="label" color={theme.colors.textSecondary}>
+                Back
+              </Text>
+            </Pressable>
+          ) : null}
+          <View style={{ gap: theme.spacing.xs }}>
+            <Text variant="h1">Create your account</Text>
+            <Text muted>
+              {role === 'landlord'
+                ? 'List student-suitable properties and manage enquiries.'
+                : 'Find housing, roommates and student life in Cyprus.'}
+            </Text>
+          </View>
         </View>
 
         {submitError ? <Banner tone="danger" message={submitError} /> : null}
@@ -169,31 +186,49 @@ export default function SignUp() {
           control={control}
           name="acceptTerms"
           render={({ field }) => (
-            <Pressable
-              onPress={() => field.onChange(!field.value)}
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: !!field.value }}
-              style={{ flexDirection: 'row', gap: theme.spacing.sm, alignItems: 'flex-start' }}
-            >
-              <View
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 6,
-                  borderWidth: 2,
-                  borderColor: field.value ? theme.colors.primary : theme.colors.borderStrong,
-                  backgroundColor: field.value ? theme.colors.primary : 'transparent',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginTop: 1,
-                }}
+            <View style={{ flexDirection: 'row', gap: theme.spacing.sm, alignItems: 'flex-start' }}>
+              <Pressable
+                onPress={() => field.onChange(!field.value)}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: !!field.value }}
+                hitSlop={8}
               >
-                {field.value ? <Text color={theme.colors.onPrimary}>✓</Text> : null}
-              </View>
-              <Text variant="bodySm" muted style={{ flex: 1 }}>
-                I agree to Hommie&apos;s Terms of Service and Privacy Policy.
+                <View
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 6,
+                    borderWidth: 2,
+                    borderColor: field.value ? theme.colors.primary : theme.colors.borderStrong,
+                    backgroundColor: field.value ? theme.colors.primary : 'transparent',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: 1,
+                  }}
+                >
+                  {field.value ? <Text color={theme.colors.onPrimary}>✓</Text> : null}
+                </View>
+              </Pressable>
+              <Text variant="bodySm" muted style={{ flex: 1 }} onPress={() => field.onChange(!field.value)}>
+                I agree to Hommie&apos;s{' '}
+                <Text
+                  variant="bodySm"
+                  color={theme.colors.primary}
+                  onPress={() => router.push({ pathname: '/legal', params: { doc: 'terms' } })}
+                >
+                  Terms of Service
+                </Text>{' '}
+                and{' '}
+                <Text
+                  variant="bodySm"
+                  color={theme.colors.primary}
+                  onPress={() => router.push({ pathname: '/legal', params: { doc: 'privacy' } })}
+                >
+                  Privacy Policy
+                </Text>
+                .
               </Text>
-            </Pressable>
+            </View>
           )}
         />
         {errors.acceptTerms ? (

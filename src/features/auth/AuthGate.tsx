@@ -29,6 +29,10 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     const group = segments[0];
     const inAuth = group === '(auth)';
     const inOnboarding = group === 'onboarding';
+    // Screens reachable from anywhere, signed in or not (e.g. the Terms/Privacy
+    // link on the sign-up form).
+    const isPublic = group === 'legal';
+    if (isPublic) return;
 
     if (status === 'signed_out') {
       if (!inAuth) router.replace('/(auth)/welcome');
