@@ -4,14 +4,14 @@
  * bullets, `**bold**`, `---` dividers, blank-line paragraphs.
  *
  * TODO(legal): the Privacy Policy still has three placeholders to fill before
- * launch — [LEGAL ENTITY NAME], [REGISTERED ADDRESS], [PRIVACY EMAIL ADDRESS].
+ * launch: [LEGAL ENTITY NAME], [REGISTERED ADDRESS], [PRIVACY EMAIL ADDRESS].
  */
 
 export const LEGAL_LAST_UPDATED = 'October 11, 2026';
 
-export const TERMS_OF_SERVICE = `Welcome to **Hommie** 👋
+export const TERMS_OF_SERVICE = `Welcome to **Hommie**.
 
-Hommie is a platform built to make student living easier — helping you find places to live, discover roommates, connect with students, discover events, and take part in student communities.
+Hommie is a platform built to make student living easier. It helps you find places to live, discover roommates, connect with students, discover events, and take part in student communities.
 
 By creating an account or using Hommie, you agree to these Terms of Service.
 
@@ -252,7 +252,7 @@ It does **not** mean that we guarantee someone's:
 - Safety
 - Behaviour
 
-Verification is designed to provide an additional layer of confidence — not a guarantee.
+Verification is designed to provide an additional layer of confidence, not a guarantee.
 
 ---
 
@@ -576,7 +576,7 @@ We need certain information to provide the Hommie features you've asked to use.
 
 ### Your consent
 
-Sometimes we ask for your permission — for example, when accessing certain device permissions or sending certain marketing communications.
+Sometimes we ask for your permission. For example, when accessing certain device permissions or sending certain marketing communications.
 
 You can withdraw consent where applicable.
 

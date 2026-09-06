@@ -26,7 +26,7 @@ export default function Legal() {
         }}
       />
 
-      <View style={{ gap: theme.spacing.lg, paddingTop: theme.spacing.sm, paddingBottom: theme.spacing['4xl'] }}>
+      <View style={{ paddingTop: theme.spacing.sm, paddingBottom: theme.spacing['5xl'] }}>
         <SegmentedControl<Doc>
           options={[
             { value: 'terms', label: 'Terms of Service' },
@@ -36,9 +36,12 @@ export default function Legal() {
           onChange={setDoc}
         />
 
-        <Text variant="caption" muted>
-          Last updated {LEGAL_LAST_UPDATED}
-        </Text>
+        <View style={{ marginTop: theme.spacing.xl, marginBottom: theme.spacing.xl }}>
+          <Text variant="h2">{doc === 'terms' ? 'Terms of Service' : 'Privacy Policy'}</Text>
+          <Text variant="caption" muted style={{ marginTop: 2 }}>
+            Last updated {LEGAL_LAST_UPDATED}
+          </Text>
+        </View>
 
         <MarkdownLite content={doc === 'terms' ? TERMS_OF_SERVICE : PRIVACY_POLICY} />
       </View>
