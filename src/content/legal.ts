@@ -3,8 +3,9 @@
  * markdown-lite renderer. Plain markdown: `#`/`##`/`###` headings, `-`/`*`
  * bullets, `**bold**`, `---` dividers, blank-line paragraphs.
  *
- * TODO(legal): the Privacy Policy still has three placeholders to fill before
- * launch: [LEGAL ENTITY NAME], [REGISTERED ADDRESS], [PRIVACY EMAIL ADDRESS].
+ * TODO(legal): the Privacy Policy no longer names a legal entity or address.
+ * Add the registered entity / address back in section 1 before launch if
+ * required for GDPR.
  */
 
 export const LEGAL_LAST_UPDATED = 'October 11, 2026';
@@ -418,14 +419,6 @@ We've written this in plain language because privacy policies shouldn't feel lik
 
 ## 1. Who is Hommie?
 
-Hommie is operated by:
-
-**[LEGAL ENTITY NAME]**
-
-**Address:** [REGISTERED ADDRESS]
-
-**Email:** [PRIVACY EMAIL ADDRESS]
-
 Hommie is the organisation responsible for the personal information collected through the Hommie app and website, where applicable.
 
 ---
@@ -751,7 +744,7 @@ Depending on where you live, you may have rights including the right to:
 
 To exercise your rights, contact:
 
-**[PRIVACY EMAIL ADDRESS]**
+hello@hommieapp.com
 
 We may need to verify your identity before processing certain requests.
 
