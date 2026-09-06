@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, Pressable, ScrollView } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +9,7 @@ import { useTheme } from '@/theme';
 import { signUpSchema, type SignUpInput } from '@/features/auth/schemas';
 import { authApi } from '@/features/auth/api';
 import { SocialAuthButtons } from '@/features/auth/SocialAuthButtons';
+import { termsAccept } from '@/features/auth/termsAccept';
 import { toAppError } from '@/services/errors';
 import type { UserRole } from '@/types/database';
 
@@ -22,6 +23,7 @@ export default function SignUp() {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
@@ -37,6 +39,17 @@ export default function SignUp() {
       acceptTerms: false as unknown as true,
     },
   });
+
+  // If the user tapped "Accept & Continue" on the full Terms/Privacy screen,
+  // reflect that on the checkbox when we come back into focus.
+  useFocusEffect(
+    useCallback(() => {
+      if (termsAccept.get()) {
+        setValue('acceptTerms', true as unknown as true, { shouldValidate: true });
+        termsAccept.set(false);
+      }
+    }, [setValue]),
+  );
 
   const onSubmit = async (values: SignUpInput) => {
     setSubmitError(null);
@@ -214,7 +227,7 @@ export default function SignUp() {
                 <Text
                   variant="bodySm"
                   color={theme.colors.primary}
-                  onPress={() => router.push({ pathname: '/legal', params: { doc: 'terms' } })}
+                  onPress={() => router.push({ pathname: '/legal', params: { doc: 'terms', from: 'signup' } })}
                 >
                   Terms of Service
                 </Text>{' '}
@@ -222,7 +235,7 @@ export default function SignUp() {
                 <Text
                   variant="bodySm"
                   color={theme.colors.primary}
-                  onPress={() => router.push({ pathname: '/legal', params: { doc: 'privacy' } })}
+                  onPress={() => router.push({ pathname: '/legal', params: { doc: 'privacy', from: 'signup' } })}
                 >
                   Privacy Policy
                 </Text>
