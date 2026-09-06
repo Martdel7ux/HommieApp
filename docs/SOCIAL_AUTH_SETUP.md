@@ -60,10 +60,33 @@ That is all the native iOS flow needs from Apple.
    which we don't use (the Apple button is iOS-only).
 5. **Save**.
 
-### 2c. (Skip unless you later want Apple sign-in on Android or the web)
+### 2c. Turn the app-side flag on and rebuild
+The Apple button + native entitlement are gated off by default (Google needed no
+such gate). Once 2a + 2b are done:
+1. `.env` → `EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED=true`
+2. `npx expo prebuild -p ios --clean` (regenerates `ios/` with the
+   `usesAppleSignIn` entitlement + `expo-apple-authentication` plugin)
+3. Rebuild the iOS dev client — **via Xcode ▶ Run** (open `ios/Hommie.xcworkspace`;
+   the command-line build hits a codesign bug on this Intel Mac, see
+   [[hommie-social-auth]]).
+
+### 2d. Test
+Apple sign-in on the **iOS Simulator** only works if the simulator is signed into
+an Apple ID: Simulator → Settings app → "Sign in to your iPhone". Then open the
+app → Sign in → **Sign in with Apple**. Apple hands the name only on the *first*
+authorization for a given Apple ID; to re-test that, revoke at
+<https://account.apple.com> → Sign in with Apple → Hommie.
+
+### 2e. (Skip unless you later want Apple sign-in on Android or the web)
 Create a **Services ID** (`com.hommie.app.web`), a **Sign in with Apple Key**
 (download the `.p8` once), then fill Supabase's "Secret Key (for OAuth)" with the
-generated client-secret JWT. Not needed now.
+generated client-secret JWT. Not needed for the native iOS flow.
+
+---
+
+**Status:** app code is done + verified (tsc/eslint clean with the flag on,
+`app.config.ts` evaluates cleanly). Blocked only on a paid Apple Developer
+Program membership — 2a can't be done without it. Once enrolled, 2a→2d is ~15 min.
 
 ---
 
