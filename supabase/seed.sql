@@ -169,6 +169,13 @@ where id in (
 -- ---------------------------------------------------------------------------
 -- Landlord profiles
 -- ---------------------------------------------------------------------------
+update profiles set onboarding_completed = true
+where id in (
+  'b0000000-0000-0000-0000-000000000001',
+  'b0000000-0000-0000-0000-000000000002',
+  'b0000000-0000-0000-0000-000000000003'
+);
+
 update landlord_profiles set
   operating_areas = array['Engomi','Aglantzia','Strovolos'],
   description = 'Family landlord with a few well-kept flats near UNIC and UCY. Quick to respond.',

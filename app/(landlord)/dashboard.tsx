@@ -1,4 +1,6 @@
-import { View } from 'react-native';
+import { useEffect } from 'react';
+import { Pressable, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, Card, Button, Banner, LoadingState } from '@/components/ui';
@@ -6,34 +8,54 @@ import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import { qk } from '@/lib/queryClient';
+import { analytics } from '@/services/analytics';
 import { verificationLabels } from '@/config/labels';
 
-function Stat({ label, value }: { label: string; value: number | string }) {
+function Stat({
+  label,
+  value,
+  onPress,
+}: {
+  label: string;
+  value: number | string;
+  onPress?: () => void;
+}) {
   const theme = useTheme();
-  return (
-    <View
-      style={{
-        flexGrow: 1,
-        minWidth: '28%',
-        backgroundColor: theme.colors.surface,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        borderRadius: theme.radius.lg,
-        padding: theme.spacing.lg,
-        gap: 2,
-      }}
-    >
+  const body = (
+    <>
       <Text variant="h2">{value}</Text>
       <Text variant="caption" muted>
         {label}
       </Text>
-    </View>
+    </>
+  );
+  const style = {
+    flexGrow: 1,
+    minWidth: '28%' as const,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.lg,
+    gap: 2,
+  };
+  return onPress ? (
+    <Pressable style={style} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
+      {body}
+    </Pressable>
+  ) : (
+    <View style={style}>{body}</View>
   );
 }
 
 export default function LandlordDashboard() {
   const theme = useTheme();
+  const router = useRouter();
   const { landlordProfile } = useAuth();
+
+  useEffect(() => {
+    analytics.track('landlord_dashboard_viewed');
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: qk.landlordDashboard,
@@ -69,12 +91,24 @@ export default function LandlordDashboard() {
         ) : null}
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
-          <Stat label="Active listings" value={data?.active_listings ?? 0} />
-          <Stat label="Unread enquiries" value={data?.unread_enquiries ?? 0} />
+          <Stat
+            label="Active listings"
+            value={data?.active_listings ?? 0}
+            onPress={() => router.push('/(landlord)/listings')}
+          />
+          <Stat
+            label="Unread enquiries"
+            value={data?.unread_enquiries ?? 0}
+            onPress={() => router.push('/(landlord)/enquiries')}
+          />
           <Stat label="Total views" value={data?.total_views ?? 0} />
           <Stat label="Total saves" value={data?.total_saves ?? 0} />
           <Stat label="Enquiries" value={data?.total_enquiries ?? 0} />
-          <Stat label="Drafts" value={data?.draft_listings ?? 0} />
+          <Stat
+            label="Drafts"
+            value={data?.draft_listings ?? 0}
+            onPress={() => router.push('/(landlord)/listings')}
+          />
         </View>
 
         <Card>
@@ -101,17 +135,9 @@ export default function LandlordDashboard() {
           <Button
             title="Create Listing"
             style={{ marginTop: theme.spacing.md }}
-            onPress={() => {
-              /* wired to the creation flow in Phase 2 */
-            }}
+            onPress={() => router.push('/listing/new')}
           />
         </Card>
-
-        <Banner
-          tone="info"
-          title="More on the way"
-          message="Listing management, the enquiry inbox and performance charts land in the next update."
-        />
       </View>
     </Screen>
   );

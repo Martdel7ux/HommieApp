@@ -55,4 +55,5 @@ export const qk = {
   unreadNotifications: ['notifications', 'unread-count'] as const,
   landlordDashboard: ['landlord-dashboard'] as const,
   landlordListings: (userId: string) => ['landlord-listings', userId] as const,
+  landlordListing: (id: string) => ['landlord-listing', id] as const,
 };
