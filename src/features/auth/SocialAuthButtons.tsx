@@ -6,6 +6,7 @@ import { Text } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { toAppError } from '@/services/errors';
 import type { UserRole } from '@/types/database';
+import { useAuth } from './AuthProvider';
 import { authApi } from './api';
 import {
   appleSignInSupported,
@@ -26,6 +27,9 @@ interface Props {
 export function SocialAuthButtons({ role, onError, label = 'or continue with' }: Props) {
   const theme = useTheme();
   const [busy, setBusy] = useState<SocialProvider | null>(null);
+  // `refreshProfile` is stable (it reads the session from the client, not React
+  // state), so it's safe to close over directly.
+  const { refreshProfile } = useAuth();
 
   if (!socialAuthSupported) return null;
 
@@ -35,7 +39,12 @@ export function SocialAuthButtons({ role, onError, label = 'or continue with' }:
     onError?.('');
     try {
       await fn();
-      // On success AuthGate handles navigation once the session lands.
+      // A brand-new "I'm a Landlord" social sign-up switched the profile role
+      // server-side (apply_selected_role) after the SIGNED_IN event already
+      // loaded it as 'student' — re-read it so AuthGate routes to the right
+      // onboarding. Harmless for every other case.
+      await refreshProfile();
+      // AuthGate handles navigation from here.
     } catch (e) {
       if (!(e instanceof SocialCancelledError)) onError?.(toAppError(e).message);
     } finally {

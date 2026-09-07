@@ -32,20 +32,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [landlordProfile, setLandlordProfile] = useState<LandlordProfile | null>(null);
   const loadingProfileFor = useRef<string | null>(null);
+  // Monotonic guard: a slower in-flight load must never overwrite a newer one
+  // (e.g. the onAuthStateChange load racing a post-`apply_selected_role` refresh
+  // during a social landlord sign-up).
+  const loadSeq = useRef(0);
 
   const loadProfile = useCallback(async (userId: string) => {
     if (loadingProfileFor.current === userId) return;
     loadingProfileFor.current = userId;
+    const seq = ++loadSeq.current;
     try {
       const { data: p, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
       if (error) throw error;
-      setProfile(p);
+      let lp: LandlordProfile | null = null;
       if (p?.role === 'landlord') {
-        const { data: lp } = await supabase.from('landlord_profiles').select('*').eq('id', userId).maybeSingle();
-        setLandlordProfile(lp);
-      } else {
-        setLandlordProfile(null);
+        ({ data: lp } = await supabase.from('landlord_profiles').select('*').eq('id', userId).maybeSingle());
       }
+      if (seq !== loadSeq.current) return; // a newer load has superseded this one
+      setProfile(p);
+      setLandlordProfile(lp);
       if (p) {
         analytics.identify(userId, { role: p.role, onboarding_completed: p.onboarding_completed });
         analytics.register({ role: p.role });
@@ -92,11 +97,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadProfile, queryClient]);
 
   const refreshProfile = useCallback(async () => {
-    if (session?.user) {
+    // Read the session straight from the client so this works even when React
+    // state hasn't caught up yet (e.g. right after a social sign-in resolves).
+    const { data } = await supabase.auth.getSession();
+    const uid = data.session?.user?.id;
+    if (uid) {
       loadingProfileFor.current = null;
-      await loadProfile(session.user.id);
+      await loadProfile(uid);
     }
-  }, [session, loadProfile]);
+  }, [loadProfile]);
 
   const value = useMemo<AuthState>(() => {
     const user = session?.user ?? null;
