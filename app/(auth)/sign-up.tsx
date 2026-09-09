@@ -4,7 +4,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Screen, Text, Button, TextField, Banner } from '@/components/ui';
+import { Screen, Text, Button, TextField, Banner, SegmentedControl } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { signUpSchema, type SignUpInput } from '@/features/auth/schemas';
 import { authApi } from '@/features/auth/api';
@@ -17,7 +17,7 @@ export default function SignUp() {
   const theme = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{ role?: string }>();
-  const role: UserRole = params.role === 'landlord' ? 'landlord' : 'student';
+  const [role, setRole] = useState<UserRole>(params.role === 'landlord' ? 'landlord' : 'student');
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
@@ -33,12 +33,18 @@ export default function SignUp() {
       password: '',
       confirmPassword: '',
       firstName: '',
+      lastName: '',
       contactName: '',
       businessName: '',
       phone: '',
       acceptTerms: false as unknown as true,
     },
   });
+
+  const pickRole = (next: UserRole) => {
+    setRole(next);
+    setValue('role', next, { shouldValidate: false });
+  };
 
   // If the user tapped "Accept & Continue" on the full Terms/Privacy screen,
   // reflect that on the checkbox when we come back into focus.
@@ -91,27 +97,55 @@ export default function SignUp() {
                 : 'Find housing, roommates and student life in Cyprus.'}
             </Text>
           </View>
+
+          <SegmentedControl<UserRole>
+            options={[
+              { value: 'student', label: "I'm a student" },
+              { value: 'landlord', label: "I'm a landlord" },
+            ]}
+            value={role}
+            onChange={pickRole}
+          />
         </View>
 
         {submitError ? <Banner tone="danger" message={submitError} /> : null}
 
         <SocialAuthButtons role={role} onError={setSubmitError} label="or sign up with your email" />
 
-        <Controller
-          control={control}
-          name="firstName"
-          render={({ field }) => (
-            <TextField
-              label={role === 'landlord' ? 'Your first name' : 'First name'}
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-              autoCapitalize="words"
-              textContentType="givenName"
-              error={errors.firstName?.message}
-            />
-          )}
-        />
+        <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
+          <Controller
+            control={control}
+            name="firstName"
+            render={({ field }) => (
+              <TextField
+                containerStyle={{ flex: 1 }}
+                label={role === 'landlord' ? 'Your first name' : 'First name'}
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                autoCapitalize="words"
+                textContentType="givenName"
+                error={errors.firstName?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="lastName"
+            render={({ field }) => (
+              <TextField
+                containerStyle={{ flex: 1 }}
+                label={role === 'landlord' ? 'Your last name' : 'Last name'}
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                autoCapitalize="words"
+                textContentType="familyName"
+                error={errors.lastName?.message}
+              />
+            )}
+          />
+        </View>
 
         {role === 'landlord' ? (
           <>

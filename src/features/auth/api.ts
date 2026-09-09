@@ -110,7 +110,8 @@ export const authApi = {
           data: {
             role: input.role,
             first_name: input.firstName,
-            contact_name: input.contactName ?? input.firstName,
+            last_name: input.lastName,
+            contact_name: input.contactName ?? `${input.firstName} ${input.lastName}`.trim(),
             business_name: input.businessName,
             phone: input.phone,
           },

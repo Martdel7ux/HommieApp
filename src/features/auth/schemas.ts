@@ -24,6 +24,7 @@ export const signUpSchema = z
     password: passwordSchema,
     confirmPassword: z.string(),
     firstName: z.string().trim().min(1, 'This field is required').max(60),
+    lastName: z.string().trim().min(1, 'This field is required').max(60),
     // landlord only
     contactName: z.string().trim().max(120).optional(),
     businessName: z.string().trim().max(120).optional(),

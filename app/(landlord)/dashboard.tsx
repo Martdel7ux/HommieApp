@@ -3,13 +3,15 @@ import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, Card, Button, Banner, LoadingState } from '@/components/ui';
+import { Screen, Text, Card, Button, Banner, LoadingState, ScreenHeader } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import { qk } from '@/lib/queryClient';
 import { analytics } from '@/services/analytics';
 import { verificationLabels } from '@/config/labels';
+import { useUnreadConversationCount } from '@/features/messaging/hooks';
+import { useUnreadNotificationCount } from '@/features/notifications/hooks';
 
 function Stat({
   label,
@@ -51,7 +53,9 @@ function Stat({
 export default function LandlordDashboard() {
   const theme = useTheme();
   const router = useRouter();
-  const { landlordProfile } = useAuth();
+  const { profile, landlordProfile } = useAuth();
+  const unreadMessages = useUnreadConversationCount();
+  const unreadNotifications = useUnreadNotificationCount();
 
   useEffect(() => {
     analytics.track('landlord_dashboard_viewed');
@@ -69,13 +73,23 @@ export default function LandlordDashboard() {
   if (isLoading) return <Screen><LoadingState /></Screen>;
 
   return (
-    <Screen scroll>
+    <Screen scroll edges={['top']}>
       <View style={{ gap: theme.spacing.xl }}>
-        <View style={{ marginTop: theme.spacing.sm }}>
-          <Text variant="bodySm" muted>
-            Welcome back
-          </Text>
-          <Text variant="h1">{landlordProfile?.business_name || landlordProfile?.contact_name || 'Dashboard'}</Text>
+        <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.xs }}>
+          <ScreenHeader
+            left={null}
+            avatarUrl={profile?.avatar_url}
+            name={profile?.first_name}
+            hasNotifications={(unreadNotifications.data ?? 0) > 0}
+            onOpenNotifications={() => router.push('/notifications')}
+            onOpenProfile={() => router.push('/(landlord)/profile')}
+          />
+          <View>
+            <Text variant="bodySm" muted>
+              Welcome back
+            </Text>
+            <Text variant="h1">{landlordProfile?.business_name || landlordProfile?.contact_name || 'Dashboard'}</Text>
+          </View>
         </View>
 
         {landlordProfile && landlordProfile.verification !== 'verified' ? (
@@ -97,13 +111,17 @@ export default function LandlordDashboard() {
             onPress={() => router.push('/(landlord)/listings')}
           />
           <Stat
-            label="Unread enquiries"
-            value={data?.unread_enquiries ?? 0}
-            onPress={() => router.push('/(landlord)/enquiries')}
+            label="Unread messages"
+            value={unreadMessages.data ?? 0}
+            onPress={() => router.push('/(landlord)/messages')}
           />
           <Stat label="Total views" value={data?.total_views ?? 0} />
           <Stat label="Total saves" value={data?.total_saves ?? 0} />
-          <Stat label="Enquiries" value={data?.total_enquiries ?? 0} />
+          <Stat
+            label="Enquiries"
+            value={data?.total_enquiries ?? 0}
+            onPress={() => router.push('/(landlord)/messages')}
+          />
           <Stat
             label="Drafts"
             value={data?.draft_listings ?? 0}

@@ -107,9 +107,12 @@ export function useThread(conversationId: string) {
   useEffect(() => {
     if (marked.current || !conversationId || query.isLoading) return;
     marked.current = true;
+    messagingApi.markEnquiryReadByConversation(conversationId);
     messagingApi.markRead(conversationId).then(() => {
       queryClient.invalidateQueries({ queryKey: qk.conversations });
       queryClient.invalidateQueries({ queryKey: qk.unreadConversations });
+      queryClient.invalidateQueries({ queryKey: qk.enquiries });
+      queryClient.invalidateQueries({ queryKey: qk.landlordDashboard });
     });
   }, [conversationId, query.isLoading, queryClient]);
 

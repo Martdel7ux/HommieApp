@@ -119,7 +119,7 @@ export default function SignIn() {
 
         <View style={{ flex: 1 }} />
 
-        <Pressable onPress={() => router.replace('/(auth)/welcome')} style={{ alignSelf: 'center', padding: theme.spacing.sm }}>
+        <Pressable onPress={() => router.replace('/(auth)/sign-up')} style={{ alignSelf: 'center', padding: theme.spacing.sm }}>
           <Text variant="label" color={theme.colors.primary}>
             New to Hommie? Create an account
           </Text>

@@ -120,6 +120,20 @@ export const messagingApi = {
     }, { scope: 'messaging.markRead' });
   },
 
+  /**
+   * Clear the "new enquiry" flag once the landlord has opened the thread.
+   * Enquiries are just conversations now, so opening one is acknowledging it.
+   * The RLS filter (`landlord_id = auth.uid()`) makes this a no-op for anyone
+   * who isn't the listing's landlord.
+   */
+  async markEnquiryReadByConversation(conversationId: string) {
+    try {
+      await supabase.from('enquiries').update({ is_read: true }).eq('conversation_id', conversationId);
+    } catch {
+      // best-effort — not every conversation has an enquiry behind it
+    }
+  },
+
   async getConversation(conversationId: string, userId: string): Promise<ConversationDetail> {
     return guard(async () => {
       const { data, error } = await supabase

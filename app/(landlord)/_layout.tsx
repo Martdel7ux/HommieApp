@@ -27,17 +27,11 @@ export default function LandlordTabsLayout() {
         options={{ title: 'Listings', tabBarIcon: ({ color, size }) => <Ionicons name="business-outline" color={color} size={size} /> }}
       />
       <Tabs.Screen
-        name="enquiries"
-        options={{ title: 'Enquiries', tabBarIcon: ({ color, size }) => <Ionicons name="mail-outline" color={color} size={size} /> }}
-      />
-      <Tabs.Screen
         name="messages"
         options={{ title: 'Messages', tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble-outline" color={color} size={size} /> }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" color={color} size={size} /> }}
-      />
+      {/* Reachable from the avatar in the top bar, not a tab. */}
+      <Tabs.Screen name="profile" options={{ href: null }} />
     </Tabs>
   );
 }
