@@ -50,3 +50,9 @@ secure_password_change = true
 
 [analytics]
 enabled = false
+
+# Background "Welcome to Hommie" email. Triggered by a Database Webhook on
+# auth.users INSERT. Sends via Resend and is a no-op until RESEND_API_KEY is
+# set. See docs/WELCOME_EMAIL_SETUP.md.
+[functions.welcome-email]
+verify_jwt = false
