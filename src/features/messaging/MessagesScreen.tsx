@@ -35,14 +35,13 @@ export function MessagesScreen({ role }: { role: 'student' | 'landlord' }) {
   const header = (
     <View style={{ gap: theme.spacing.lg, paddingBottom: theme.spacing.md }}>
       <ScreenHeader
+        left={<Text variant="h1">Messages</Text>}
         avatarUrl={profile?.avatar_url}
         name={profile?.first_name}
         hasNotifications={(unreadNotifications.data ?? 0) > 0}
         onOpenNotifications={() => router.push('/notifications')}
         onOpenProfile={() => router.push(profilePath)}
       />
-
-      <Text variant="h1">Messages</Text>
 
       <View
         style={{

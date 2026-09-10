@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -90,13 +90,14 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
             const [on, off] = ICONS[route.name];
             const color = focused ? theme.colors.primary : theme.colors.textSecondary;
             const showBadge = route.name === 'messages' && unreadCount > 0;
+            const label = descriptors[route.key]?.options.title ?? route.name;
 
             return (
               <Pressable
                 key={route.key}
                 accessibilityRole="button"
                 accessibilityState={{ selected: focused }}
-                accessibilityLabel={descriptors[route.key]?.options.title ?? route.name}
+                accessibilityLabel={label}
                 onPress={() => {
                   const event = navigation.emit({
                     type: 'tabPress',
@@ -109,29 +110,41 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
               >
                 <View
                   style={{
-                    width: 56,
-                    height: 34,
-                    borderRadius: 17,
+                    minWidth: 56,
+                    paddingHorizontal: focused ? 12 : 0,
+                    paddingVertical: focused ? 5 : 8,
+                    borderRadius: 16,
                     alignItems: 'center',
                     justifyContent: 'center',
+                    gap: 2,
                     backgroundColor: focused ? theme.colors.primarySubtle : 'transparent',
                   }}
                 >
-                  <Ionicons name={focused ? on : off} size={22} color={color} />
-                  {showBadge ? (
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: 3,
-                        right: 12,
-                        width: 9,
-                        height: 9,
-                        borderRadius: 5,
-                        backgroundColor: theme.colors.danger,
-                        borderWidth: 1.5,
-                        borderColor: theme.colors.surface,
-                      }}
-                    />
+                  <View>
+                    <Ionicons name={focused ? on : off} size={22} color={color} />
+                    {showBadge ? (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: -2,
+                          right: -5,
+                          width: 9,
+                          height: 9,
+                          borderRadius: 5,
+                          backgroundColor: theme.colors.danger,
+                          borderWidth: 1.5,
+                          borderColor: focused ? theme.colors.primarySubtle : theme.colors.surface,
+                        }}
+                      />
+                    ) : null}
+                  </View>
+                  {focused ? (
+                    <Text
+                      numberOfLines={1}
+                      style={{ fontSize: 11, fontWeight: '700', color: theme.colors.primary }}
+                    >
+                      {label}
+                    </Text>
                   ) : null}
                 </View>
               </Pressable>

@@ -4,7 +4,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, Button, Avatar, EmptyState, ErrorState } from '@/components/ui';
-import { Logo } from '@/components/Brand/Logo';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks';
@@ -43,7 +42,7 @@ export default function Community() {
   const header = (
     <View style={{ gap: theme.spacing.md, paddingBottom: theme.spacing.md }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Logo size={26} />
+        <Text variant="h1">Community</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
           <Pressable
             onPress={() => setSearchOpen((s) => !s)}
