@@ -10,6 +10,7 @@ import { AuthProvider } from '@/features/auth/AuthProvider';
 import { analytics, consoleAnalyticsProvider } from '@/services/analytics';
 import { AuthGate } from '@/features/auth/AuthGate';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { PushBootstrap } from '@/components/PushBootstrap';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -33,6 +34,7 @@ export default function RootLayout() {
                     contentStyle: { backgroundColor: theme.colors.background },
                   }}
                 />
+                <PushBootstrap />
               </AuthGate>
             </AuthProvider>
           </PersistQueryClientProvider>

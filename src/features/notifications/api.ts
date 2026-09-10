@@ -53,22 +53,36 @@ export const notificationsApi = {
   },
 };
 
-/** Where a notification should take you when tapped (null = no destination). */
-export function notificationRoute(n: AppNotification): string | null {
-  switch (n.type) {
+/**
+ * Where a notification should take you when tapped (null = no destination).
+ * Shared by the in-app list and the push-notification tap handler.
+ */
+export function routeForNotification(
+  type: NotificationType | string | undefined,
+  data: Record<string, string | undefined>,
+): string | null {
+  switch (type) {
     case 'message':
     case 'enquiry':
-      return n.data.conversation_id ? `/messages/${n.data.conversation_id}` : null;
+      return data.conversation_id
+        ? `/messages/${data.conversation_id}`
+        : data.listing_id
+          ? `/listing/${data.listing_id}`
+          : null;
     case 'event_reminder':
-      return n.data.event_id ? `/events/${n.data.event_id}` : null;
+      return data.event_id ? `/events/${data.event_id}` : null;
     case 'community_reply':
     case 'community_like':
-      return n.data.post_id ? `/community/${n.data.post_id}` : null;
+      return data.post_id ? `/community/${data.post_id}` : null;
     case 'listing_saved':
-      return n.data.listing_id ? `/accommodation/${n.data.listing_id}` : null;
+      return data.listing_id ? `/accommodation/${data.listing_id}` : null;
     case 'roommate_saved':
-      return n.data.profile_id ? `/roommates/${n.data.profile_id}` : null;
+      return data.profile_id ? `/roommates/${data.profile_id}` : null;
     default:
       return null;
   }
+}
+
+export function notificationRoute(n: AppNotification): string | null {
+  return routeForNotification(n.type, n.data);
 }

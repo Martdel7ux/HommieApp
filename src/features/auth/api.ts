@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { guard, toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
 import { logger } from '@/services/logger';
+import { unregisterPushToken } from '@/features/notifications/push';
 import {
   getAppleCredential,
   getGoogleCredential,
@@ -148,6 +149,7 @@ export const authApi = {
 
   async signOut() {
     return guard(async () => {
+      await unregisterPushToken().catch(() => undefined);
       await signOutGoogle();
       await supabase.auth.signOut();
       analytics.track('sign_out');

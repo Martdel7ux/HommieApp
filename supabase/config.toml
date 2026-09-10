@@ -56,3 +56,9 @@ enabled = false
 # set. See docs/WELCOME_EMAIL_SETUP.md.
 [functions.welcome-email]
 verify_jwt = false
+
+# Push notifications. Triggered by a Database Webhook on notifications INSERT;
+# sends to the user's devices via the Expo push API, respecting notification_prefs.
+# See docs/PUSH_NOTIFICATIONS_SETUP.md.
+[functions.push-notify]
+verify_jwt = false

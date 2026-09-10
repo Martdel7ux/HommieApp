@@ -1,11 +1,16 @@
-import { useState } from 'react';
-import { Switch, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Linking, Switch, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { Screen, Text, Button, Banner } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { profileApi } from '@/features/profile/api';
 import { toAppError } from '@/services/errors';
+import {
+  getPushPermissionStatus,
+  requestPushPermission,
+  registerPushToken,
+} from '@/features/notifications/push';
 import {
   DEFAULT_NOTIFICATION_PREFS,
   NOTIFICATION_ROWS,
@@ -68,10 +73,26 @@ export default function NotificationSettings() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [osDenied, setOsDenied] = useState(false);
+
+  useEffect(() => {
+    getPushPermissionStatus()
+      .then((s) => setOsDenied(s === 'denied'))
+      .catch(() => undefined);
+  }, []);
 
   const set = (k: keyof NotificationPrefs, v: boolean) => {
     setSaved(false);
     setPrefs((p) => ({ ...p, [k]: v }));
+    if (k === 'push' && v) {
+      // Ask the OS the moment they opt in, not only after Save.
+      requestPushPermission()
+        .then(async (granted) => {
+          setOsDenied(!granted);
+          if (granted && user) await registerPushToken(user.id);
+        })
+        .catch(() => undefined);
+    }
   };
 
   const save = async () => {
@@ -105,6 +126,22 @@ export default function NotificationSettings() {
       />
       <View style={{ gap: theme.spacing.lg, paddingTop: theme.spacing.md }}>
         {error ? <Banner tone="danger" message={error} /> : null}
+
+        {prefs.push && osDenied ? (
+          <View style={{ gap: theme.spacing.sm }}>
+            <Banner
+              tone="warning"
+              title="Notifications are off in Settings"
+              message="Turn them on for Hommie in your device settings to actually receive push alerts."
+            />
+            <Button
+              title="Open Settings"
+              variant="secondary"
+              fullWidth={false}
+              onPress={() => Linking.openSettings()}
+            />
+          </View>
+        ) : null}
 
         <View style={{ backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, paddingHorizontal: theme.spacing.lg, borderWidth: 1, borderColor: theme.colors.border }}>
           <ToggleRow
