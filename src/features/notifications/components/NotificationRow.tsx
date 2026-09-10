@@ -33,6 +33,8 @@ export function NotificationRow({
   const theme = useTheme();
   const v = visualFor(theme, notification.type);
   const unread = !notification.isRead;
+  // System / announcement notices (e.g. "Welcome to Hommie") read as plain text.
+  const showIcon = notification.type !== 'system';
 
   return (
     <Pressable
@@ -51,18 +53,20 @@ export function NotificationRow({
         ...(unread ? theme.shadows.sm : {}),
       })}
     >
-      <View
-        style={{
-          width: 42,
-          height: 42,
-          borderRadius: 21,
-          backgroundColor: v.bg,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Ionicons name={v.icon} size={19} color={v.fg} />
-      </View>
+      {showIcon ? (
+        <View
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: 21,
+            backgroundColor: v.bg,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Ionicons name={v.icon} size={19} color={v.fg} />
+        </View>
+      ) : null}
 
       <View style={{ flex: 1, gap: 2 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
