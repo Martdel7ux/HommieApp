@@ -112,8 +112,8 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
                   style={{
                     minWidth: 56,
                     paddingHorizontal: focused ? 12 : 0,
-                    paddingVertical: focused ? 5 : 8,
-                    borderRadius: 16,
+                    paddingVertical: focused ? 7 : 8,
+                    borderRadius: theme.radius.pill,
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 2,
