@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
 /**
@@ -10,6 +11,13 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 // Apple Sign-In is built but the native entitlement / plugin only go in once
 // the Apple Developer setup is done. Flip this on then.
 const appleSignInEnabled = process.env.EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED === 'true';
+
+// Android push (FCM). Drop the file Firebase gives you at the repo root; the
+// config picks it up automatically. Without it, Android builds still work —
+// they just can't receive push. See docs/PUSH_NOTIFICATIONS_SETUP.md.
+const googleServicesFile = existsSync('./google-services.json')
+  ? './google-services.json'
+  : undefined;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -37,6 +45,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: 'com.hommie.app',
     versionCode: 1,
+    ...(googleServicesFile ? { googleServicesFile } : {}),
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#FFFFFF',

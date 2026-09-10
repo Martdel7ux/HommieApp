@@ -45,6 +45,13 @@ yarn-error.*
 .env.local
 .env.*.local
 
+# firebase / FCM (Android push). google-services.json is client config but we
+# keep it out of git; EAS pulls it from a secret file (see docs). The
+# service-account key is a real secret — never commit it.
+google-services.json
+*-firebase-adminsdk-*.json
+fcm-service-account*.json
+
 # supabase
 supabase/.branches
 supabase/.temp

@@ -28,40 +28,91 @@ merged.
 
 Expo Go **cannot** get a push token (removed in SDK 53). Use the dev build.
 
+**Doing Android first?** Steps 1, 3, 4, 5, 6, 7 — skip step 2 (iOS). Android
+needs no Apple account.
+
 ---
 
-## 1. EAS project
+## 1. EAS project (shared by iOS + Android)
+
+You'll need a free **Expo account** (expo.dev). Then:
 
 ```
 cd ~/Desktop/hommieapp
-npm i -g eas-cli && eas login
-eas init                       # creates the project, writes the id
+npm i -g eas-cli
+eas login
+eas init          # pick / create the "hommie" project; writes the project id
 ```
 
-`eas init` prints a project id — put it in `.env` as `EAS_PROJECT_ID=...`
-(`app.config.ts` already reads it into `extra.eas.projectId`). Rebuild the dev
-client so the value is baked in.
+Put the id it prints into `.env`:
 
-## 2. iOS credentials (blocked on Apple Developer membership)
+```
+EAS_PROJECT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+`app.config.ts` already reads it into `extra.eas.projectId`, which
+`getExpoPushTokenAsync` needs. Rebuild the dev client afterwards so it's baked in.
+
+## 2. iOS credentials — *skip if doing Android only*
+
+Blocked on the paid Apple Developer Program membership.
 
 ```
 eas credentials -p ios
 # → "Push Notifications: Manage your Apple Push Notifications Key"
-# → Let EAS create / upload the APNs key (.p8)
+# → let EAS create + upload the APNs key (.p8)
 ```
 
-Then rebuild: `eas build -p ios --profile development` (or the local Xcode build).
+Rebuild: `eas build -p ios --profile development` (or the local Xcode build).
 
-## 3. Android credentials
+## 3. Android — Firebase + FCM
 
-1. Firebase console → add a project (or reuse the Google Cloud one) → add an
-   Android app with package `com.hommie.app`.
-2. Download **`google-services.json`** → put it at the repo root; add to
-   `app.config.ts` android config: `"googleServicesFile": "./google-services.json"`.
-3. Project settings → Service accounts → **Generate new private key** → save the JSON.
-4. `eas credentials -p android` → "Google Service Account" → "Manage your FCM V1
-   service account key" → upload that JSON.
-5. Rebuild: `eas build -p android --profile development`.
+You already have a **Google Cloud project** from the Google Sign-In setup
+(client id `94071834566-…`). Firebase attaches to that same project — you don't
+need a new one.
+
+### 3a. Add Firebase to the project
+
+1. <https://console.firebase.google.com> → **Add project** → on the first screen,
+   the dropdown lets you **pick your existing Google Cloud project** (the one
+   with the `94071834566` clients). Select it → continue → (Analytics optional,
+   can disable) → Create.
+
+### 3b. Register the Android app
+
+1. In the project, **Add app → Android**.
+2. **Android package name:** `com.hommie.app`
+3. **Debug signing certificate SHA-1** (optional here, but paste it):
+   `5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25`
+   (this project's bundled `android/app/debug.keystore`; get it fresh with
+   `keytool -list -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android`)
+4. **Download `google-services.json`** → drop it at the **repo root**
+   (`~/Desktop/hommieapp/google-services.json`). It's gitignored;
+   `app.config.ts` auto-detects it and wires `android.googleServicesFile`.
+   For EAS cloud builds also run:
+   `eas secret:create --name GOOGLE_SERVICES_JSON --type file --value ./google-services.json`
+   (or commit it — it's client config, low-risk on a private repo).
+
+### 3c. FCM service-account key → Expo
+
+1. Firebase → **Project settings → Service accounts → Generate new private key**
+   → downloads a `*-firebase-adminsdk-*.json` (gitignored; keep it safe — this
+   one *is* a secret).
+2. Upload it to Expo:
+   ```
+   eas credentials -p android
+   # → "Google Service Account"
+   #   → "Manage your Google Service Account Key for Push Notifications (FCM V1)"
+   #   → "Set up a Google Service Account Key" → point at that JSON
+   ```
+
+### 3d. Build
+
+```
+eas build -p android --profile development      # cloud APK
+eas build:run -p android --latest              # install on an emulator/device
+```
+or locally: `npx expo prebuild -p android --clean && npx expo run:android`.
 
 ## 4. Deploy the send function
 
