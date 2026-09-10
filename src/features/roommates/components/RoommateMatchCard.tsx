@@ -21,13 +21,17 @@ export function RoommateMatchCard({
   const name = p?.first_name ?? p?.display_name ?? 'Student';
   const level = p?.study_level ? studyLevelLabels[p.study_level] : undefined;
   const subtitle = matchSubtitle(match, level);
-  const score = match.compatibility.score;
+  const { score, pending } = match.compatibility;
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${name}, ${score}% estimated match. ${match.compatibility.reasons.join(', ')}`}
+      accessibilityLabel={
+        pending
+          ? `${name}, calculating match`
+          : `${name}, ${score}% estimated match. ${match.compatibility.reasons.join(', ')}`
+      }
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
@@ -83,7 +87,7 @@ export function RoommateMatchCard({
         }}
       >
         <Text style={{ fontSize: 17, fontWeight: '800' }} color={theme.colors.primarySubtleInk}>
-          {score}%
+          {pending ? '··' : `${score}%`}
         </Text>
         <Text variant="overline" color={theme.colors.primarySubtleInk}>
           Match

@@ -63,6 +63,8 @@ export interface RoommateProfileDetail {
 export interface Compatibility {
   score: number;
   reasons: string[];
+  /** true while the viewer's own data is still loading — show a placeholder, not the number. */
+  pending?: boolean;
 }
 
 export interface RoommateMatch extends RoommateProfileCard {

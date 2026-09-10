@@ -11,7 +11,8 @@ import { qk } from '@/lib/queryClient';
 import { accommodationApi } from '@/features/accommodation/api';
 import { ListingCard } from '@/features/accommodation/components/ListingCard';
 import { roommatesApi } from '@/features/roommates/api';
-import { estimateCompatibility } from '@/features/roommates/compatibility';
+import { buildCompatInput, estimateCompatibility } from '@/features/roommates/compatibility';
+import { useMyRoommatePrefs } from '@/features/roommates/hooks';
 import { RoommateMatchCard } from '@/features/roommates/components/RoommateMatchCard';
 import type { RoommateMatch } from '@/features/roommates/types';
 import { eventsApi } from '@/features/events/api';
@@ -80,13 +81,21 @@ export default function StudentHome() {
     enabled: !!user,
   });
 
+  const myPrefs = useMyRoommatePrefs();
   const matches: RoommateMatch[] = useMemo(() => {
     const rows = roommates.data?.rows ?? [];
+    const ready = !!profile && !myPrefs.isLoading;
+    const input = buildCompatInput(profile, myPrefs.data);
     return rows
-      .map((r) => ({ ...r, compatibility: estimateCompatibility(profile, r) }))
+      .map((r) => ({
+        ...r,
+        compatibility: ready
+          ? estimateCompatibility(input, r)
+          : { score: 0, reasons: [], pending: true },
+      }))
       .sort((a, b) => b.compatibility.score - a.compatibility.score)
       .slice(0, 3);
-  }, [roommates.data, profile]);
+  }, [roommates.data, profile, myPrefs.data, myPrefs.isLoading]);
 
   const onRefresh = useCallback(async () => {
     await Promise.all([

@@ -30,9 +30,12 @@ export default function PersonalInformation() {
     setSaving(true);
     setError(null);
     try {
+      const first = firstName.trim();
+      const last = lastName.trim();
       await profileApi.updateProfile(user.id, {
-        first_name: firstName.trim(),
-        last_name: lastName.trim() || null,
+        first_name: first,
+        last_name: last || null,
+        display_name: [first, last].filter(Boolean).join(' ') || first,
         phone: phone.trim() || null,
         bio: bio.trim() || null,
       });

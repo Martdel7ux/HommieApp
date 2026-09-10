@@ -53,6 +53,7 @@ export default function PostDetail() {
         options={{
           headerShown: true,
           title: 'Post',
+          headerBackButtonDisplayMode: 'minimal',
           headerStyle: { backgroundColor: theme.colors.background },
           headerShadowVisible: false,
           headerTintColor: theme.colors.textPrimary,

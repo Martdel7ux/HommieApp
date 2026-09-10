@@ -69,13 +69,17 @@ export function RoommateBrowseCard({
   const context = [uni, level].filter(Boolean).join('  •  ');
   const budget = match.budget_max ?? match.budget_min;
   const tags = displayTags(match);
-  const score = match.compatibility.score;
+  const { score, pending } = match.compatibility;
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${name}. ${score}% estimated match. ${match.compatibility.reasons.join(', ')}`}
+      accessibilityLabel={
+        pending || score === 0
+          ? name
+          : `${name}. ${score}% estimated match. ${match.compatibility.reasons.join(', ')}`
+      }
       style={({ pressed }) => ({ borderRadius: theme.radius.xl, opacity: pressed ? 0.97 : 1, ...theme.shadows.sm })}
     >
       <View

@@ -5,12 +5,26 @@ import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
 import { roommatesApi } from './api';
-import { estimateCompatibility } from './compatibility';
+import { buildCompatInput, estimateCompatibility } from './compatibility';
 import type { Compatibility, RoommateFilters, RoommateMatch, RoommateProfileDetail } from './types';
+
+const PENDING: Compatibility = { score: 0, reasons: [], pending: true };
+
+/** The viewer's own roommate preferences (published or not) — used for scoring. */
+export function useMyRoommatePrefs() {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['roommate-prefs-mine', user?.id],
+    queryFn: () => roommatesApi.getMine(user!.id),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+}
 
 /** Browse published roommate profiles, scored + sorted against the viewer. */
 export function useRoommateBrowse(filters: RoommateFilters) {
   const { user, profile } = useAuth();
+  const myPrefs = useMyRoommatePrefs();
 
   const query = useInfiniteQuery({
     queryKey: qk.roommates(filters),
@@ -30,12 +44,23 @@ export function useRoommateBrowse(filters: RoommateFilters) {
     },
   });
 
+  // Score only once the viewer's own data has settled, so the number doesn't
+  // render low and then jump.
+  const ready = !!profile && !myPrefs.isLoading;
+  const input = useMemo(
+    () => buildCompatInput(profile, myPrefs.data),
+    [profile, myPrefs.data],
+  );
+
   const matches = useMemo<RoommateMatch[]>(() => {
     const rows = query.data?.pages.flatMap((p) => p.rows) ?? [];
-    const scored = rows.map((r) => ({ ...r, compatibility: estimateCompatibility(profile, r) }));
-    if (filters.sort && filters.sort !== 'match') return scored;
+    const scored = rows.map((r) => ({
+      ...r,
+      compatibility: ready ? estimateCompatibility(input, r) : PENDING,
+    }));
+    if (!ready || (filters.sort && filters.sort !== 'match')) return scored;
     return scored.sort((a, b) => b.compatibility.score - a.compatibility.score);
-  }, [query.data, profile, filters.sort]);
+  }, [query.data, input, ready, filters.sort]);
 
   const total = query.data?.pages[0]?.count ?? null;
 
@@ -49,16 +74,23 @@ export interface RoommateProfileWithMatch extends RoommateProfileDetail {
 /** A single published roommate profile, scored against the viewer. */
 export function useRoommateProfile(userId: string) {
   const { user, profile } = useAuth();
+  const myPrefs = useMyRoommatePrefs();
   const query = useQuery({
     queryKey: qk.roommate(userId),
     queryFn: () => roommatesApi.getDetail(userId, user!.id),
     enabled: !!user && !!userId,
   });
 
+  const ready = !!profile && !myPrefs.isLoading;
+  const input = useMemo(() => buildCompatInput(profile, myPrefs.data), [profile, myPrefs.data]);
+
   const data = useMemo<RoommateProfileWithMatch | null>(() => {
     if (!query.data) return null;
-    return { ...query.data, compatibility: estimateCompatibility(profile, query.data) };
-  }, [query.data, profile]);
+    return {
+      ...query.data,
+      compatibility: ready ? estimateCompatibility(input, query.data) : PENDING,
+    };
+  }, [query.data, input, ready]);
 
   return { ...query, data };
 }
