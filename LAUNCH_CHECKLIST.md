@@ -41,9 +41,13 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 ## Notifications
 
 - ☐ Expo push credentials configured (APNs key, FCM key) via `eas credentials`
-- ☐ `push_tokens` registration + permission prompt wired
-- ☐ In-app notifications for messages & enquiries verified
-- ☐ Notification deep links land on the right screen
+      — blocked on the Apple Developer membership (iOS) + a Firebase project (Android)
+- ☑ `push_tokens` registration + permission prompt wired (2026-09-10, commit 084a877)
+- ☑ Notification deep links land on the right screen (`routeForNotification` +
+      `PushBootstrap`)
+- ◐ `push-notify` edge function written; needs `eas init` + deploy + a Database
+      Webhook on `notifications` INSERT. Runbook: `docs/PUSH_NOTIFICATIONS_SETUP.md`
+- ☐ In-app notifications for messages & enquiries verified end-to-end on a build
 
 ## Analytics & monitoring
 
