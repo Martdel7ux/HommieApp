@@ -59,7 +59,7 @@ export function Button({
       style={({ pressed }) => [
         {
           height: heights[size],
-          borderRadius: theme.radius.md,
+          borderRadius: theme.radius.pill,
           backgroundColor: p.bg,
           borderWidth: p.border ? 1 : 0,
           borderColor: p.border,

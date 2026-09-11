@@ -120,7 +120,7 @@ function SocialButton({
       onPress={onPress}
       style={({ pressed }) => ({
         height: 48,
-        borderRadius: theme.radius.md,
+        borderRadius: theme.radius.pill,
         backgroundColor: background,
         borderWidth: 1,
         borderColor: border,
