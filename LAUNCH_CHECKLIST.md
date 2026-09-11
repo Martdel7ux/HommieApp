@@ -25,9 +25,9 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 ## Accounts, auth & security
 
 - ☐ Production Supabase project created; migrations pushed (`supabase db push`)
-- ◐ Apple + Google sign-in — code done + merged; provider credentials, DB
-      migration 0015 and dev-build testing **deferred until the Apple Developer +
-      Google Play accounts exist**. Runbook: `docs/SOCIAL_AUTH_SETUP.md`.
+- ◐ **Google sign-in — done**, confirmed working end-to-end on iOS + Android dev
+      builds (migration 0015 applied). **Apple sign-in still blocked** on the
+      paid Apple Developer Program membership. Runbook: `docs/SOCIAL_AUTH_SETUP.md`.
 - ☐ RLS enabled on **every** table; policies reviewed against `docs`/security rules
 - ☐ Storage buckets created with size limits + owner-path policies
 - ☐ Email templates (confirm, reset) branded in Supabase dashboard
@@ -40,14 +40,18 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 
 ## Notifications
 
-- ☐ Expo push credentials configured (APNs key, FCM key) via `eas credentials`
-      — blocked on the Apple Developer membership (iOS) + a Firebase project (Android)
-- ☑ `push_tokens` registration + permission prompt wired (2026-09-10, commit 084a877)
+- ◐ Expo push credentials — **Android (FCM) done** 2026-09-10 (Firebase project
+      `hommie-ee589`, key uploaded to expo.dev); **iOS (APNs) still blocked** on
+      the paid Apple Developer Program membership
+- ☑ `push_tokens` registration + permission prompt wired (commit 084a877)
 - ☑ Notification deep links land on the right screen (`routeForNotification` +
       `PushBootstrap`)
-- ◐ `push-notify` edge function written; needs `eas init` + deploy + a Database
-      Webhook on `notifications` INSERT. Runbook: `docs/PUSH_NOTIFICATIONS_SETUP.md`
-- ☐ In-app notifications for messages & enquiries verified end-to-end on a build
+- ☑ `push-notify` edge function deployed + Database Webhook (`pg_net` trigger,
+      migration 0020) live on the hosted project. Verified end-to-end via a
+      direct DB insert → `200 {"sent":1}`. Runbook: `docs/PUSH_NOTIFICATIONS_SETUP.md`
+- ☐ Real push delivery on a **physical Android device** not yet confirmed
+      (emulators can't get a real push token — `Device.isDevice` is false there)
+- ☐ iOS push — blocked on the APNs key (same Apple Developer blocker as above)
 
 ## Analytics & monitoring
 
