@@ -19,11 +19,15 @@
     },
     "production": {
       "channel": "production",
-      "autoIncrement": true,
-      "env": { "EXPO_PUBLIC_ENV": "production" }
+      "env": { "EXPO_PUBLIC_ENV": "production" },
+      "ios": { "credentialsSource": "local" }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6811326854"
+      }
+    }
   }
 }

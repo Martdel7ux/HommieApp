@@ -72,8 +72,12 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 - ☐ Android: Play Console app, data safety form, screenshots, description
 - ☐ Privacy Policy + Terms of Service URLs live and linked in-app
 - ☐ Age rating / content rating questionnaires completed
-- ☐ `eas build --profile production --platform all` succeeds
-- ☐ `eas submit` to TestFlight + Play internal testing
+- ◐ `eas build --profile production --platform ios --local` succeeds (2026-09-12,
+      manual cert/profile — see [[hommie-testflight-distribution]]); Android
+      production build not yet done
+- ◐ `eas submit` — **iOS done** 2026-09-12, submitted to App Store Connect
+      (App ID `6811326854`), processing on Apple's servers; Play internal
+      testing not yet done
 - ☐ Beta feedback round completed; blocking bugs fixed
 
 ## Launch day
