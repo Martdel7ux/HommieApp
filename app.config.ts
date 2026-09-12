@@ -23,6 +23,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Hommie',
   slug: 'hommie',
+  owner: 'marttindelas-team',
   scheme: 'hommie',
   version: '1.0.0',
   orientation: 'portrait',
@@ -108,7 +109,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     analyticsEnabled: process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === 'true',
     environment: process.env.EXPO_PUBLIC_ENV ?? 'development',
     eas: {
-      projectId: process.env.EAS_PROJECT_ID,
+      // EAS-CLI statically scans this file for a literal id and can't
+      // auto-write it back (dynamic config) — keep it hardcoded, override
+      // via env only if the project ever changes.
+      projectId: process.env.EAS_PROJECT_ID ?? 'a22dd431-4d03-4155-967e-66d56b42bff3',
     },
   },
 });

@@ -177,18 +177,6 @@ export default function StudentHome() {
         {completion < 100 ? (
           <Card onPress={() => router.push('/profile')} accessibilityLabel="Complete your profile">
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-              <View
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 19,
-                  backgroundColor: theme.colors.primarySubtle,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Ionicons name="sparkles" size={18} color={theme.colors.primary} />
-              </View>
               <View style={{ flex: 1 }}>
                 <Text variant="h3" style={{ fontSize: 15 }}>
                   Complete your profile
