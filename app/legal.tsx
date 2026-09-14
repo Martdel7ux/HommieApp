@@ -9,6 +9,7 @@ import { useTheme } from '@/theme';
 import { LegalDocument, parseLegalDoc } from '@/components/legal/LegalDocument';
 import { termsAccept } from '@/features/auth/termsAccept';
 import { TERMS_OF_SERVICE, PRIVACY_POLICY, LEGAL_LAST_UPDATED } from '@/content/legal';
+import { SUPPORT_EMAIL } from '@/config/constants';
 
 type Doc = 'privacy' | 'terms';
 
@@ -24,8 +25,6 @@ const META: Record<Doc, { title: string; subtitle: string; contactLead: string }
     contactLead: 'Questions about these terms?',
   },
 };
-
-const CONTACT_EMAIL = 'hello@hommieapp.com';
 
 export default function Legal() {
   const params = useLocalSearchParams<{ doc?: string; from?: string }>();
@@ -216,7 +215,7 @@ function LegalScreen({ initialDoc, fromSignup }: { initialDoc: Doc; fromSignup: 
                 {meta.contactLead}
               </Text>
               <Text variant="bodySm" weight="600" color={theme.colors.primary}>
-                {CONTACT_EMAIL}
+                {SUPPORT_EMAIL}
               </Text>
             </View>
           </View>
@@ -225,7 +224,7 @@ function LegalScreen({ initialDoc, fromSignup }: { initialDoc: Doc; fromSignup: 
             variant="secondary"
             onPress={() =>
               Linking.openURL(
-                `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Hommie ${meta.title}`)}`,
+                `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Hommie ${meta.title}`)}`,
               ).catch(() => undefined)
             }
             leftIcon={<Ionicons name="send" size={15} color={theme.colors.primaryPressed} />}
