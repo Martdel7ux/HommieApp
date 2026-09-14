@@ -1,7 +1,7 @@
 /** App-wide constants and enums shared by the client and (conceptually) the DB. */
 
 export const APP_NAME = 'Hommie';
-export const SUPPORT_EMAIL = 'support@hommie.app';
+export const SUPPORT_EMAIL = 'support@hommieapp.com';
 export const LAUNCH_DATE = '2026-10-11';
 
 export const IMAGE_UPLOAD = {

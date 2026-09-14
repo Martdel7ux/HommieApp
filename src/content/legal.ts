@@ -396,7 +396,7 @@ Our **Privacy Policy** explains what information we collect, why we collect it, 
 If you have questions about these Terms, contact us:
 
 **Hommie**
-hello@hommieapp.com
+support@hommieapp.com
 
 hommieapp.com
 
@@ -744,7 +744,7 @@ Depending on where you live, you may have rights including the right to:
 
 To exercise your rights, contact:
 
-hello@hommieapp.com
+support@hommieapp.com
 
 We may need to verify your identity before processing certain requests.
 
@@ -867,7 +867,7 @@ Hommie is not intended for children below the minimum age required to use the Se
 
 If you believe that a child has provided personal information to Hommie in circumstances where this is not permitted, please contact us.
 
-hello@hommieapp.com
+support@hommieapp.com
 
 ---
 
@@ -889,7 +889,7 @@ Have a privacy question?
 
 We're here to help.
 
-contact hello@hommieapp.com
+contact support@hommieapp.com
 
 **Website:** hommieapp.com
 

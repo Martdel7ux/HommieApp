@@ -75,15 +75,17 @@ Status legend: ☐ not started · ◐ in progress · ☑ done
 - ◐ `eas build --profile production --platform ios --local` succeeds (2026-09-12,
       manual cert/profile — see [[hommie-testflight-distribution]]); Android
       production build not yet done
-- ◐ `eas submit` — **iOS done** 2026-09-12, submitted to App Store Connect
-      (App ID `6811326854`), processing on Apple's servers; Play internal
-      testing not yet done
-- ☐ Beta feedback round completed; blocking bugs fixed
+- ☑ `eas submit` iOS — **confirmed working end-to-end 2026-09-14**: build 2
+      installed via TestFlight and opened successfully on a real iPhone
+      (build 1 crashed on launch — missing EAS production env vars, fixed,
+      see [[hommie-testflight-distribution]]). Play internal testing not yet done
+- ◐ Beta feedback round started 2026-09-14: 1 blocking bug found + fixed
+      (production build crashed on launch — missing EAS env vars)
 
 ## Launch day
 
 - ☐ Production `.env` / EAS secrets double-checked
 - ☐ DB backups / PITR enabled on Supabase
-- ☐ Support inbox (`support@hommie.app`) monitored
+- ◐ Support inbox `support@hommieapp.com` created (Google Workspace); actual monitoring cadence TBD
 - ☐ Rollback plan: previous build kept; OTA update channel ready
 - ☐ Post-launch monitoring dashboard open (errors, sign-ups, crashes)
