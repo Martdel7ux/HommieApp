@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
 import { messagingApi } from '@/features/messaging/api';
 import { accommodationApi } from './api';
+import { landlordProfileApi } from './landlordProfileApi';
 import type { AccommodationDetail, AccommodationFilters, AccommodationCard } from './types';
 
 export function useListing(id: string) {
@@ -23,6 +24,14 @@ export function useListing(id: string) {
   }, [id]);
 
   return query;
+}
+
+export function useLandlordProfile(landlordId: string) {
+  return useQuery({
+    queryKey: qk.landlordProfile(landlordId),
+    queryFn: () => landlordProfileApi.get(landlordId),
+    enabled: !!landlordId,
+  });
 }
 
 export function useSimilarListings(listing: AccommodationDetail | undefined) {

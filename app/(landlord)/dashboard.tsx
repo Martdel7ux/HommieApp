@@ -120,7 +120,7 @@ export default function LandlordDashboard() {
           <Stat
             label="Enquiries"
             value={data?.total_enquiries ?? 0}
-            onPress={() => router.push('/(landlord)/messages')}
+            onPress={() => router.push('/(landlord)/leads')}
           />
           <Stat
             label="Drafts"

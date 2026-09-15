@@ -56,4 +56,5 @@ export const qk = {
   landlordDashboard: ['landlord-dashboard'] as const,
   landlordListings: (userId: string) => ['landlord-listings', userId] as const,
   landlordListing: (id: string) => ['landlord-listing', id] as const,
+  landlordProfile: (id: string) => ['landlord-profile', id] as const,
 };

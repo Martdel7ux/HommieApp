@@ -38,6 +38,8 @@ export interface AnalyticsEventMap {
   listing_contact_started: { listing_id: string };
   enquiry_sent: { listing_id: string };
   listing_reported: { listing_id: string; reason: string };
+  landlord_profile_viewed: { landlord_id: string };
+  landlord_profile_contact_started: { landlord_id: string };
 
   // ---- roommates ----
   roommate_search_performed: { filters_count: number };

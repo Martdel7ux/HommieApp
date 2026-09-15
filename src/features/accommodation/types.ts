@@ -104,9 +104,26 @@ export interface AccommodationFilters {
   roommateSuitable?: boolean;
   availableFrom?: string;
   sort?: AccommodationSort;
+  landlordId?: string;
 }
 
 export interface AccommodationPage {
   rows: AccommodationCard[];
   count: number | null;
+}
+
+/** Public-facing landlord profile — used by the student-facing landlord page. */
+export interface LandlordProfileDetail {
+  id: string;
+  first_name: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  landlord_profile: {
+    business_name: string | null;
+    contact_name: string | null;
+    description: string | null;
+    operating_areas: string[];
+    verification: VerificationStatus;
+  } | null;
+  activeListingCount: number;
 }

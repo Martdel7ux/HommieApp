@@ -6,6 +6,7 @@ import { useTheme } from '@/theme';
 import { Text } from '@/components/ui';
 import { propertyTypeLabels, amenityLabels } from '@/config/labels';
 import { coverImage, locationLabel } from '../api';
+import { landlordDisplayName } from '../landlordDisplay';
 import type { AccommodationCard } from '../types';
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
   saved?: boolean;
   onPress?: () => void;
   onToggleSave?: () => void;
+  onPressLandlord?: () => void;
   layout?: 'carousel' | 'list';
 }
 
@@ -92,11 +94,19 @@ function SaveButton({ saved, onPress }: { saved?: boolean; onPress: () => void }
   );
 }
 
-export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'carousel' }: Props) {
+export function ListingCard({
+  listing,
+  saved,
+  onPress,
+  onToggleSave,
+  onPressLandlord,
+  layout = 'carousel',
+}: Props) {
   const theme = useTheme();
   const uri = coverImage(listing);
   const verified = listing.landlord?.landlord_profile?.verification === 'verified';
   const carousel = layout === 'carousel';
+  const landlordName = listing.landlord ? landlordDisplayName(listing.landlord) : null;
 
   const price = (
     <Text style={{ fontSize: carousel ? 15 : 19, fontWeight: '800' }} color={theme.colors.primary}>
@@ -196,6 +206,24 @@ export function ListingCard({ listing, saved, onPress, onToggleSave, layout = 'c
                 {locationLabel(listing)}
               </Text>
             </View>
+
+            {landlordName ? (
+              <Pressable
+                onPress={onPressLandlord}
+                disabled={!onPressLandlord}
+                hitSlop={4}
+                accessibilityRole={onPressLandlord ? 'button' : undefined}
+                accessibilityLabel={`Listed by ${landlordName}`}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+              >
+                <Text variant="caption" muted numberOfLines={1}>
+                  Listed by{' '}
+                  <Text variant="caption" color={onPressLandlord ? theme.colors.primary : theme.colors.textTertiary}>
+                    {landlordName}
+                  </Text>
+                </Text>
+              </Pressable>
+            ) : null}
 
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 2 }}>
               {featureChips(listing).map((c) => (

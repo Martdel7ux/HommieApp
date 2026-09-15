@@ -14,6 +14,7 @@ import { analytics } from '@/services/analytics';
 import { resolveImage } from '@/lib/images';
 import { amenityLabels } from '@/config/labels';
 import { useListing, useSimilarListings, useSendEnquiry } from '@/features/accommodation/hooks';
+import { landlordDisplayName } from '@/features/accommodation/landlordDisplay';
 import type { AccommodationCard, AccommodationDetail } from '@/features/accommodation/types';
 
 const AMENITY_ICON: Record<string, [typeof Ionicons | typeof MaterialCommunityIcons, string]> = {
@@ -251,12 +252,7 @@ export default function ListingDetail() {
     : [];
   const uniName = d?.nearest_university?.name ?? d?.nearest_university?.short_name ?? null;
   const walk = walkMinutes(d?.distance_to_campus_km);
-  const landlordName =
-    d?.landlord?.first_name ??
-    d?.landlord?.landlord_profile?.contact_name ??
-    d?.landlord?.landlord_profile?.business_name ??
-    d?.landlord?.display_name ??
-    'Landlord';
+  const landlordName = landlordDisplayName(d?.landlord ?? null);
   const verified = d?.landlord?.landlord_profile?.verification === 'verified';
 
   return (
@@ -473,7 +469,10 @@ export default function ListingDetail() {
               {d.landlord ? (
                 <View style={{ gap: theme.spacing.md }}>
                   <Text variant="h3">Listed by</Text>
-                  <View
+                  <Pressable
+                    onPress={() => router.push(`/landlord/${d.landlord!.id}`)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`View ${landlordName}'s profile`}
                     style={{
                       flexDirection: 'row',
                       alignItems: 'center',
@@ -513,7 +512,7 @@ export default function ListingDetail() {
                     >
                       <Ionicons name="chatbubble-outline" size={18} color={theme.colors.primary} />
                     </Pressable>
-                  </View>
+                  </Pressable>
                 </View>
               ) : null}
 

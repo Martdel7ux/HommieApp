@@ -32,6 +32,8 @@ export default function LandlordTabsLayout() {
       />
       {/* Reachable from the avatar in the top bar, not a tab. */}
       <Tabs.Screen name="profile" options={{ href: null }} />
+      {/* Reachable from the dashboard's Enquiries tile, not a tab. */}
+      <Tabs.Screen name="leads" options={{ href: null }} />
     </Tabs>
   );
 }

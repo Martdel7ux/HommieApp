@@ -47,6 +47,7 @@ export const accommodationApi = {
       if (filters.billsIncluded) q = q.eq('bills_included', true);
       if (filters.roommateSuitable) q = q.eq('roommate_suitable', true);
       if (filters.availableFrom) q = q.lte('available_from', filters.availableFrom);
+      if (filters.landlordId) q = q.eq('landlord_id', filters.landlordId);
 
       const limit = opts.limit ?? PAGE_SIZE.listings;
       const offset = opts.offset ?? 0;

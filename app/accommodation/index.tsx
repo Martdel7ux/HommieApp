@@ -215,6 +215,9 @@ export default function AccommodationSearch() {
                 analytics.track('listing_viewed', { listing_id: item.id, source: 'accommodation' });
                 router.push(`/accommodation/${item.id}`);
               }}
+              onPressLandlord={
+                item.landlord ? () => router.push(`/landlord/${item.landlord!.id}`) : undefined
+              }
             />
           )}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.lg }} />}
