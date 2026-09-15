@@ -15,6 +15,7 @@
   "exclude": [
     "node_modules",
     "supabase/functions",
-    "app.config.ts"
+    "app.config.ts",
+    "admin-web"
   ]
 }
