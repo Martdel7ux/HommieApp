@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.replace('/review');
+      if (data.session) router.replace('/dashboard');
     });
   }, [router]);
 
@@ -27,14 +27,14 @@ export default function LoginPage() {
       setError(error.message);
       return;
     }
-    router.replace('/review');
+    router.replace('/dashboard');
   };
 
   return (
     <div className="page">
       <div className="card">
         <h1>Hommie Admin</h1>
-        <p className="muted">Sign in to review pending listings.</p>
+        <p className="muted">Sign in to manage Hommie.</p>
         <form onSubmit={submit}>
           <label htmlFor="email">Email</label>
           <input

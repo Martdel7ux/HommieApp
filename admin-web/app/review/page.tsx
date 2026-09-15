@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { landlordDisplayName, pendingListings, reviewListing, type PendingListing } from '@/lib/listings';
@@ -63,6 +64,10 @@ export default function ReviewPage() {
           Sign out
         </button>
       </div>
+
+      <Link href="/dashboard" className="link-button" style={{ display: 'inline-block', marginBottom: 16 }}>
+        ← Dashboard
+      </Link>
 
       {error ? <p className="error">{error}</p> : null}
 

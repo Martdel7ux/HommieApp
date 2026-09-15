@@ -125,3 +125,72 @@ button {
   padding: 0;
   cursor: pointer;
 }
+
+.page-wide {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+select,
+textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid #d8d8de;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fff;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row > * {
+  flex: 1;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.checkbox-row input {
+  width: auto;
+}
+
+.checkbox-row label {
+  margin: 0;
+}
+
+.success {
+  color: #067647;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.dashboard-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #e6e6ea;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  text-decoration: none;
+  color: #16161a;
+}
+
+.dashboard-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
