@@ -61,3 +61,7 @@ supabase/.temp
 # testing
 coverage/
 hommie-upload-keystore.txt
+
+# admin-web (Next.js)
+admin-web/.next/
+admin-web/next-env.d.ts

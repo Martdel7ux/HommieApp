@@ -25,7 +25,7 @@ export type StudyLevel =
   | 'phd'
   | 'erasmus_exchange';
 export type PropertyType = 'studio' | 'apartment' | 'house' | 'shared_room' | 'private_room';
-export type ListingStatus = 'draft' | 'active' | 'paused' | 'rented' | 'archived';
+export type ListingStatus = 'draft' | 'pending_review' | 'active' | 'paused' | 'rented' | 'archived';
 export type VerificationStatus = 'unverified' | 'submitted' | 'verified';
 export type CommunityCategory =
   | 'housing_help'

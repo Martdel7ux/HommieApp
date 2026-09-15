@@ -46,7 +46,9 @@ function Stat({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; la
 function statusActions(status: ListingStatus): { label: string; next: ListingStatus; variant?: 'primary' | 'secondary' | 'danger' }[] {
   switch (status) {
     case 'draft':
-      return [{ label: 'Publish listing', next: 'active' }];
+      return [{ label: 'Submit for review', next: 'pending_review' }];
+    case 'pending_review':
+      return [];
     case 'active':
       return [
         { label: 'Pause listing', next: 'paused', variant: 'secondary' },
@@ -144,6 +146,12 @@ export default function ManageListing() {
           <Stat icon="heart-outline" label="Saves" value={l.saves_count} />
           <Stat icon="mail-outline" label="Enquiries" value={l.enquiries_count} />
         </View>
+
+        {l.status === 'pending_review' ? (
+          <Text variant="bodySm" muted>
+            Waiting on Hommie to review this listing before it goes live.
+          </Text>
+        ) : null}
 
         <View style={{ gap: theme.spacing.sm }}>
           {statusActions(l.status).map((a) => (

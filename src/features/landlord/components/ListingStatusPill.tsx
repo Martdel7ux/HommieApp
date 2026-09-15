@@ -4,6 +4,7 @@ import type { ListingStatus } from '@/types/database';
 
 const TONE: Record<ListingStatus, React.ComponentProps<typeof Badge>['tone']> = {
   draft: 'neutral',
+  pending_review: 'info',
   active: 'success',
   paused: 'warning',
   rented: 'info',

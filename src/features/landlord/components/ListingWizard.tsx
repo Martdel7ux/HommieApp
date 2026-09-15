@@ -546,7 +546,7 @@ export function ListingWizard({
                 onPress={() => submit(false)}
               />
               <Button
-                title="Publish"
+                title="Submit for Review"
                 style={{ flex: 1 }}
                 loading={save.isPending}
                 onPress={() => submit(true)}

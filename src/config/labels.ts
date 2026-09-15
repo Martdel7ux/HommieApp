@@ -41,6 +41,7 @@ export const propertyTypeLabels: Record<PropertyType, string> = {
 
 export const listingStatusLabels: Record<ListingStatus, string> = {
   draft: 'Draft',
+  pending_review: 'In review',
   active: 'Active',
   paused: 'Paused',
   rented: 'Rented',

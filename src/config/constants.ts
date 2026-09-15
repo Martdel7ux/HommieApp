@@ -56,7 +56,7 @@ export const PROPERTY_TYPES = [
 ] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
-export const LISTING_STATUS = ['draft', 'active', 'paused', 'rented', 'archived'] as const;
+export const LISTING_STATUS = ['draft', 'pending_review', 'active', 'paused', 'rented', 'archived'] as const;
 export type ListingStatus = (typeof LISTING_STATUS)[number];
 
 export const VERIFICATION_STATUS = ['unverified', 'submitted', 'verified'] as const;

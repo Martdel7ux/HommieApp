@@ -103,7 +103,7 @@ export const landlordApi = {
     }, { scope: 'landlord.getListing' });
   },
 
-  /** Insert a listing (draft or active) + upload its photos. Returns the new id. */
+  /** Insert a listing (draft or submitted for review) + upload its photos. Returns the new id. */
   async createListing(
     userId: string,
     draft: ListingDraft,
@@ -114,7 +114,7 @@ export const landlordApi = {
         .from('accommodation_listings')
         .insert({
           landlord_id: userId,
-          status: opts.publish ? 'active' : 'draft',
+          status: opts.publish ? 'pending_review' : 'draft',
           ...draftToPayload(draft),
         })
         .select('id')
@@ -134,7 +134,7 @@ export const landlordApi = {
   ): Promise<void> {
     return guard(async () => {
       const patch: Record<string, unknown> = draftToPayload(draft);
-      if (opts.publish) patch.status = 'active';
+      if (opts.publish) patch.status = 'pending_review';
       const { error } = await supabase.from('accommodation_listings').update(patch).eq('id', id);
       if (error) throw error;
       await syncPhotos(id, userId, draft.photos);

@@ -10,11 +10,12 @@ import { useMyListings } from '@/features/landlord/hooks';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks';
 import type { ListingStatus } from '@/types/database';
 
-type Filter = 'all' | 'active' | 'draft' | 'paused' | 'rented';
+type Filter = 'all' | 'active' | 'pending_review' | 'draft' | 'paused' | 'rented';
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'active', label: 'Active' },
+  { value: 'pending_review', label: 'In review' },
   { value: 'draft', label: 'Drafts' },
   { value: 'paused', label: 'Paused' },
   { value: 'rented', label: 'Rented' },
