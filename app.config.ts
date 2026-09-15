@@ -62,6 +62,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     'expo-font',
     'expo-asset',
+    '@react-native-community/datetimepicker',
     ...(appleSignInEnabled ? ['expo-apple-authentication'] : []),
     [
       '@react-native-google-signin/google-signin',

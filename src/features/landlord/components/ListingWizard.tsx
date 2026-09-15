@@ -6,7 +6,8 @@ import * as ImagePicker from 'expo-image-picker';
 import MapView, { Marker } from 'react-native-maps';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, Button, TextField, Select, ChipGroup, Banner } from '@/components/ui';
+import { parseISO } from 'date-fns';
+import { Screen, Text, Button, TextField, DateField, Select, ChipGroup, Banner } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { qk } from '@/lib/queryClient';
 import { profileApi } from '@/features/profile/api';
@@ -16,7 +17,7 @@ import { AMENITIES, CYPRUS_AREAS, CYPRUS_CITIES, IMAGE_UPLOAD } from '@/config/c
 import { amenityLabels, enumOptions, propertyTypeLabels } from '@/config/labels';
 import type { PropertyType } from '@/types/database';
 import { useSaveListing } from '../hooks';
-import { stepValid, isValidOptionalDate } from '../listingForm';
+import { stepValid } from '../listingForm';
 import type { DraftPhoto, ListingDraft } from '../types';
 
 const STEPS = ['Basics', 'Place & rooms', 'Location', 'Photos', 'Review'] as const;
@@ -419,22 +420,24 @@ export function ListingWizard({
               </Field>
 
               <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
-                <TextField
-                  containerStyle={{ flex: 1 }}
-                  label="Available from"
-                  placeholder="YYYY-MM-DD"
-                  value={draft.available_from}
-                  onChangeText={(v) => set('available_from', v)}
-                  error={isValidOptionalDate(draft.available_from) ? undefined : 'YYYY-MM-DD'}
-                />
-                <TextField
-                  containerStyle={{ flex: 1 }}
-                  label="Available to (optional)"
-                  placeholder="YYYY-MM-DD"
-                  value={draft.available_to}
-                  onChangeText={(v) => set('available_to', v)}
-                  error={isValidOptionalDate(draft.available_to) ? undefined : 'YYYY-MM-DD'}
-                />
+                <View style={{ flex: 1 }}>
+                  <DateField
+                    label="Available from"
+                    placeholder="Select date"
+                    value={draft.available_from}
+                    onChange={(v) => set('available_from', v)}
+                    minimumDate={new Date()}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <DateField
+                    label="Available to (optional)"
+                    placeholder="Select date"
+                    value={draft.available_to}
+                    onChange={(v) => set('available_to', v)}
+                    minimumDate={draft.available_from ? parseISO(draft.available_from) : new Date()}
+                  />
+                </View>
               </View>
             </>
           )}

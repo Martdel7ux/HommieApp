@@ -4,6 +4,8 @@ export { Button } from './Button';
 export type { ButtonProps } from './Button';
 export { TextField } from './TextField';
 export type { TextFieldProps } from './TextField';
+export { DateField } from './DateField';
+export type { DateFieldProps } from './DateField';
 export { Screen } from './Screen';
 export { Card } from './Card';
 export { Badge } from './Badge';
