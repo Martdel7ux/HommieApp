@@ -55,32 +55,29 @@ export default function RoommatesBrowse() {
     },
   });
 
-  const chips = useMemo(
-    () => [
-      {
-        key: 'university',
-        label: filters.universityId ? 'University ✓' : 'University',
-        active: !!filters.universityId,
-      },
-      {
-        key: 'budget',
-        label: filters.budgetMax != null ? `≤ €${filters.budgetMax}` : 'Budget',
-        active: filters.budgetMax != null,
-      },
-      { key: 'area', label: filters.area ?? 'Area', active: !!filters.area },
-      {
+  const patch = (p: Partial<RoommateFilters>) => setFilters((f) => ({ ...f, ...p }));
+
+  const chips = useMemo(() => {
+    const list: { key: string; label: string; onRemove: () => void }[] = [];
+    if (filters.universityId) list.push({ key: 'university', label: 'University', onRemove: () => patch({ universityId: undefined }) });
+    if (filters.budgetMax != null) list.push({ key: 'budget', label: `≤ €${filters.budgetMax}`, onRemove: () => patch({ budgetMax: undefined }) });
+    if (filters.area) list.push({ key: 'area', label: filters.area, onRemove: () => patch({ area: undefined }) });
+    if (filters.studentAudience) {
+      list.push({
         key: 'studentAudience',
-        label: filters.studentAudience ? (filters.studentAudience === 'erasmus' ? 'Erasmus' : 'Full-time') : 'Audience',
-        active: !!filters.studentAudience,
-      },
-      {
+        label: filters.studentAudience === 'erasmus' ? 'Erasmus' : 'Full-time',
+        onRemove: () => patch({ studentAudience: undefined }),
+      });
+    }
+    if (filters.housingStatus) {
+      list.push({
         key: 'housingStatus',
-        label: filters.housingStatus ? (filters.housingStatus === 'has_flat' ? 'Has a flat' : 'Needs a flat') : 'Housing',
-        active: !!filters.housingStatus,
-      },
-    ],
-    [filters],
-  );
+        label: filters.housingStatus === 'has_flat' ? 'Has a flat' : 'Looking for a flat',
+        onRemove: () => patch({ housingStatus: undefined }),
+      });
+    }
+    return list;
+  }, [filters]);
 
   const header = (
     <View style={{ gap: theme.spacing.lg, paddingBottom: theme.spacing.md }}>
@@ -92,33 +89,47 @@ export default function RoommatesBrowse() {
         style={{ marginHorizontal: -theme.layout.screenPadding }}
         contentContainerStyle={{ paddingHorizontal: theme.layout.screenPadding, gap: theme.spacing.sm }}
       >
+        <Pressable
+          onPress={() => setSheetOpen(true)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+            borderRadius: theme.radius.pill,
+            paddingHorizontal: theme.spacing.md,
+            paddingVertical: 7,
+          }}
+        >
+          <Ionicons name="options-outline" size={13} color={theme.colors.textSecondary} />
+          <Text variant="label" color={theme.colors.textSecondary}>
+            {chips.length ? 'Edit' : 'Filter'}
+          </Text>
+        </Pressable>
+
         {chips.map((c) => (
           <Pressable
             key={c.key}
-            onPress={() => setSheetOpen(true)}
+            onPress={c.onRemove}
+            accessibilityRole="button"
+            accessibilityLabel={`Remove filter ${c.label}`}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               gap: 5,
-              backgroundColor: c.active ? theme.colors.primary : theme.colors.surface,
-              borderWidth: 1,
-              borderColor: c.active ? theme.colors.primary : theme.colors.border,
+              backgroundColor: theme.colors.primary,
               borderRadius: theme.radius.pill,
-              paddingHorizontal: theme.spacing.lg,
-              paddingVertical: 8,
+              paddingLeft: theme.spacing.md,
+              paddingRight: theme.spacing.sm,
+              paddingVertical: 7,
             }}
           >
-            <Text
-              variant="label"
-              color={c.active ? theme.colors.onPrimary : theme.colors.textSecondary}
-            >
+            <Text variant="label" color={theme.colors.onPrimary}>
               {c.label}
             </Text>
-            <Ionicons
-              name="chevron-down"
-              size={13}
-              color={c.active ? theme.colors.onPrimary : theme.colors.textTertiary}
-            />
+            <Ionicons name="close" size={13} color={theme.colors.onPrimary} />
           </Pressable>
         ))}
       </ScrollView>

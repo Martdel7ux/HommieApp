@@ -114,6 +114,13 @@ function activeChips(f: AccommodationFilters, patch: (p: AccommodationFilters) =
     });
   }
   if (f.minBedrooms) chips.push({ key: 'beds', label: `${f.minBedrooms}+ beds`, onRemove: () => patch({ minBedrooms: undefined }) });
+  if (f.studentAudience) {
+    chips.push({
+      key: 'audience',
+      label: f.studentAudience === 'erasmus' ? 'Erasmus' : 'Full-time',
+      onRemove: () => patch({ studentAudience: undefined }),
+    });
+  }
   if (f.furnished) chips.push({ key: 'furn', label: 'Furnished', onRemove: () => patch({ furnished: undefined }) });
   if (f.billsIncluded) chips.push({ key: 'bills', label: 'Bills incl.', onRemove: () => patch({ billsIncluded: undefined }) });
   if (f.roommateSuitable) chips.push({ key: 'share', label: 'For sharing', onRemove: () => patch({ roommateSuitable: undefined }) });
