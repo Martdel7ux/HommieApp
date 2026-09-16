@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Image } from 'expo-image';
 import { useTheme } from '@/theme';
+import { resolveAvatar } from '@/lib/images';
 import { Text } from './Text';
 
 export function Avatar({
@@ -14,6 +15,7 @@ export function Avatar({
   size?: number;
 }) {
   const theme = useTheme();
+  const resolvedUri = resolveAvatar(uri);
   const initials = (name ?? '?')
     .split(' ')
     .map((p) => p.charAt(0))
@@ -33,8 +35,13 @@ export function Avatar({
         overflow: 'hidden',
       }}
     >
-      {uri ? (
-        <Image source={{ uri }} style={{ width: size, height: size }} contentFit="cover" transition={150} />
+      {resolvedUri ? (
+        <Image
+          source={{ uri: resolvedUri }}
+          style={{ width: size, height: size }}
+          contentFit="cover"
+          transition={150}
+        />
       ) : (
         <Text variant="label" color={theme.colors.primaryPressed} style={{ fontSize: size * 0.36 }}>
           {initials}
