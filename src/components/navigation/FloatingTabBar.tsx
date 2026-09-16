@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/theme';
 import { useUnreadConversationCount } from '@/features/messaging/hooks';
@@ -24,20 +25,40 @@ interface TabBarProps {
 
 const ICONS: Record<string, [IoniconName, IoniconName]> = {
   home: ['home', 'home-outline'],
-  explore: ['briefcase', 'briefcase-outline'],
   messages: ['chatbubble', 'chatbubble-outline'],
-  community: ['people', 'people-outline'],
+  community: ['newspaper', 'newspaper-outline'],
 };
+
+const SEARCH_ICON: [IoniconName, IoniconName] = ['search', 'search-outline'];
+
+/** A rendered tab is either a real tab-navigator route, or a static action
+ * that pushes to a screen outside this tab group (e.g. accommodation
+ * search, which lives on the root stack so it can show its own header). */
+type TabEntry =
+  | { kind: 'route'; key: string; name: string }
+  | { kind: 'action'; key: string; label: string; onPress: () => void };
 
 const PILL_HEIGHT = 62;
 const RADIUS = PILL_HEIGHT / 2;
 
 export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const unread = useUnreadConversationCount();
   const unreadCount = unread.data ?? 0;
 
-  const routes = state.routes.filter((r) => ICONS[r.name]);
+  const routeByName = (name: string) => state.routes.find((r) => r.name === name && ICONS[r.name]);
+  const home = routeByName('home');
+  const messages = routeByName('messages');
+  const community = routeByName('community');
+
+  const entries: TabEntry[] = [
+    home && { kind: 'route', key: home.key, name: home.name },
+    { kind: 'action', key: 'search', label: 'Search', onPress: () => router.push('/accommodation') },
+    messages && { kind: 'route', key: messages.key, name: messages.name },
+    community && { kind: 'route', key: community.key, name: community.name },
+  ].filter((e): e is TabEntry => !!e);
+
   const activeKey = state.routes[state.index]?.key;
   const gap = Math.max(insets.bottom - 6, 14);
 
@@ -85,26 +106,30 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
             borderColor: theme.colors.border,
           }}
         >
-          {routes.map((route) => {
-            const focused = route.key === activeKey;
-            const [on, off] = ICONS[route.name];
+          {entries.map((entry) => {
+            const focused = entry.kind === 'route' && entry.key === activeKey;
+            const [on, off] = entry.kind === 'route' ? ICONS[entry.name] : SEARCH_ICON;
             const color = focused ? theme.colors.primary : theme.colors.textSecondary;
-            const showBadge = route.name === 'messages' && unreadCount > 0;
-            const label = descriptors[route.key]?.options.title ?? route.name;
+            const showBadge = entry.kind === 'route' && entry.name === 'messages' && unreadCount > 0;
+            const label = entry.kind === 'route' ? (descriptors[entry.key]?.options.title ?? entry.name) : entry.label;
 
             return (
               <Pressable
-                key={route.key}
+                key={entry.key}
                 accessibilityRole="button"
                 accessibilityState={{ selected: focused }}
                 accessibilityLabel={label}
                 onPress={() => {
+                  if (entry.kind === 'action') {
+                    entry.onPress();
+                    return;
+                  }
                   const event = navigation.emit({
                     type: 'tabPress',
-                    target: route.key,
+                    target: entry.key,
                     canPreventDefault: true,
                   });
-                  if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+                  if (!focused && !event.defaultPrevented) navigation.navigate(entry.name);
                 }}
                 style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
               >

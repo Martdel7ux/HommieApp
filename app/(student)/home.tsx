@@ -51,6 +51,7 @@ export default function StudentHome() {
   const { user, profile } = useAuth();
   const city = profile?.city ?? null;
   const [verifyDismissed, setVerifyDismissed] = useState(false);
+  const [profileDismissed, setProfileDismissed] = useState(false);
 
   const unread = useUnreadNotificationCount();
 
@@ -170,25 +171,19 @@ export default function StudentHome() {
               {greeting()}, {profile?.first_name ?? 'there'}
             </Text>
             <Text variant="bodyLg" muted>
-              Let&apos;s find your perfect space in Cyprus.
+              What would you like to do today?
             </Text>
           </View>
         </View>
 
-        {completion < 100 ? (
-          <Card onPress={() => router.push('/profile')} accessibilityLabel="Complete your profile">
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-              <View style={{ flex: 1 }}>
-                <Text variant="h3" style={{ fontSize: 15 }}>
-                  Complete your profile
-                </Text>
-                <Text variant="bodySm" muted>
-                  {completion}% done. Better roommate matches and recommendations.
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={theme.colors.textTertiary} />
-            </View>
-          </Card>
+        {completion < 100 && !profileDismissed ? (
+          <Banner
+            tone="info"
+            title="Complete your profile"
+            message={`${completion}% done. Better roommate matches and recommendations.`}
+            onPress={() => router.push('/profile')}
+            onDismiss={() => setProfileDismissed(true)}
+          />
         ) : null}
 
         {profile?.verification === 'unverified' && !verifyDismissed ? (
