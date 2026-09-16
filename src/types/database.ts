@@ -356,6 +356,13 @@ interface ReportRow {
   created_at: string;
 }
 
+interface BlockedUserRow {
+  id: string;
+  blocker_id: string;
+  blocked_id: string;
+  created_at: string;
+}
+
 interface PushTokenRow {
   id: string;
   user_id: string;
@@ -430,6 +437,7 @@ export interface Database {
       enquiries: TableDef<EnquiryRow>;
       notifications: TableDef<NotificationRow>;
       reports: TableDef<ReportRow>;
+      blocked_users: TableDef<BlockedUserRow>;
       push_tokens: TableDef<PushTokenRow>;
     };
     Views: {

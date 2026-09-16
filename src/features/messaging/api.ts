@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { resolveAvatar, resolveImage } from '@/lib/images';
 import { guard } from '@/services/errors';
-import { PAGE_SIZE } from '@/config/constants';
+import { PAGE_SIZE, type ReportReason } from '@/config/constants';
+import type { UserRole, VerificationStatus } from '@/types/database';
 import type { ChatMessage, ConversationDetail, ConversationSummary } from './types';
 
 /** Raw shape of the participant->conversation embed. */
@@ -148,7 +149,10 @@ export const messagingApi = {
           marketplace_listing:marketplace_listings ( id, title, price ),
           participants:conversation_participants (
             user_id, last_read_at,
-            profile:profiles ( id, first_name, display_name, avatar_url )
+            profile:profiles (
+              id, first_name, display_name, avatar_url, role, verification,
+              landlord_profile:landlord_profiles ( verification )
+            )
           )
         `,
         )
@@ -174,6 +178,9 @@ export const messagingApi = {
               first_name: string | null;
               display_name: string | null;
               avatar_url: string | null;
+              role: UserRole;
+              verification: VerificationStatus;
+              landlord_profile: { verification: VerificationStatus } | null;
             } | null;
           }[];
         }>();
@@ -193,6 +200,11 @@ export const messagingApi = {
               id: op.id,
               name: op.first_name ?? op.display_name ?? 'Hommie user',
               avatarUrl: resolveAvatar(op.avatar_url) ?? null,
+              role: op.role,
+              verified:
+                op.role === 'student'
+                  ? op.verification === 'verified'
+                  : op.landlord_profile?.verification === 'verified',
             }
           : null,
         otherLastReadAt: otherRow?.last_read_at ?? null,
@@ -252,5 +264,31 @@ export const messagingApi = {
       if (error) throw error;
       return { id: data.id, senderId: data.sender_id, body: data.body, createdAt: data.created_at };
     }, { scope: 'messaging.sendMessage' });
+  },
+
+  /** Blocks the other user and archives this conversation out of the blocker's own inbox. */
+  async blockUser(blockerId: string, blockedId: string, conversationId: string): Promise<void> {
+    return guard(async () => {
+      const { error: blockError } = await supabase
+        .from('blocked_users')
+        .insert({ blocker_id: blockerId, blocked_id: blockedId });
+      if (blockError && blockError.code !== '23505') throw blockError;
+
+      const { error: archiveError } = await supabase
+        .from('conversation_participants')
+        .update({ archived: true })
+        .eq('conversation_id', conversationId)
+        .eq('user_id', blockerId);
+      if (archiveError) throw archiveError;
+    }, { scope: 'messaging.blockUser' });
+  },
+
+  async reportUser(reporterId: string, subjectId: string, reason: ReportReason): Promise<void> {
+    return guard(async () => {
+      const { error } = await supabase
+        .from('reports')
+        .insert({ reporter_id: reporterId, subject_type: 'user', subject_id: subjectId, reason });
+      if (error && error.code !== '23505') throw error;
+    }, { scope: 'messaging.reportUser' });
   },
 };

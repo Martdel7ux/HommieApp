@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -15,11 +16,16 @@ import { useTheme } from '@/theme';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { dayLabel } from '@/lib/datetime';
+import { toAppError } from '@/services/errors';
+import { REPORT_REASONS } from '@/config/constants';
 import { useConversation, useThread } from '@/features/messaging/thread';
+import { messagingApi } from '@/features/messaging/api';
 import { MessageBubble } from '@/features/messaging/components/MessageBubble';
 import { ContextCard } from '@/features/messaging/components/ContextCard';
 import { MessageComposer } from '@/features/messaging/components/MessageComposer';
 import type { ChatMessage } from '@/features/messaging/types';
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function sameDay(a: string, b: string) {
   return new Date(a).toDateString() === new Date(b).toDateString();
@@ -86,6 +92,61 @@ export default function ConversationThread() {
 
   const other = convo.data?.other;
 
+  const viewProfile = () => {
+    if (!other) return;
+    router.push(other.role === 'landlord' ? `/landlord/${other.id}` : `/roommates/${other.id}`);
+  };
+
+  const openMenu = () => {
+    if (!other) return;
+    Alert.alert(other.name, undefined, [
+      { text: 'View profile', onPress: viewProfile },
+      {
+        text: 'Report user',
+        onPress: () =>
+          Alert.alert('Report user', 'Why are you reporting this person?', [
+            ...REPORT_REASONS.map((reason) => ({
+              text: cap(reason.replace(/_/g, ' ')),
+              onPress: async () => {
+                try {
+                  await messagingApi.reportUser(user!.id, other.id, reason);
+                  Alert.alert('Thanks', "We've received your report and will take a look.");
+                } catch (e) {
+                  Alert.alert('Something went wrong', toAppError(e).message);
+                }
+              },
+            })),
+            { text: 'Cancel', style: 'cancel' as const },
+          ]),
+      },
+      {
+        text: 'Block user',
+        style: 'destructive',
+        onPress: () =>
+          Alert.alert(
+            'Block this person?',
+            "They won't be able to message you again, and this chat will be removed from your inbox.",
+            [
+              {
+                text: 'Block',
+                style: 'destructive',
+                onPress: async () => {
+                  try {
+                    await messagingApi.blockUser(user!.id, other.id, id);
+                    router.back();
+                  } catch (e) {
+                    Alert.alert('Could not block this user', toAppError(e).message);
+                  }
+                },
+              },
+              { text: 'Cancel', style: 'cancel' as const },
+            ],
+          ),
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -108,20 +169,31 @@ export default function ConversationThread() {
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Back" style={{ padding: 4 }}>
           <Ionicons name="arrow-back" size={24} color={theme.colors.textPrimary} />
         </Pressable>
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Text variant="h3" numberOfLines={1} style={{ fontSize: 17 }}>
-              {other?.name ?? 'Conversation'}
-            </Text>
-            <Ionicons name="checkmark-circle" size={15} color={theme.colors.verifiedBadge} />
+        <Pressable
+          onPress={viewProfile}
+          style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}
+          accessibilityLabel={`View ${other?.name ?? 'profile'}`}
+        >
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Text variant="h3" numberOfLines={1} style={{ fontSize: 17 }}>
+                {other?.name ?? 'Conversation'}
+              </Text>
+              {other?.verified ? (
+                <Ionicons name="checkmark-circle" size={15} color={theme.colors.verifiedBadge} />
+              ) : null}
+            </View>
+            {convo.data?.contextCard ? (
+              <Text variant="caption" muted numberOfLines={1}>
+                {convo.data.contextCard.title}
+              </Text>
+            ) : null}
           </View>
-          {convo.data?.contextCard ? (
-            <Text variant="caption" muted numberOfLines={1}>
-              {convo.data.contextCard.title}
-            </Text>
-          ) : null}
-        </View>
-        <Avatar uri={other?.avatarUrl} name={other?.name} size={38} />
+          <Avatar uri={other?.avatarUrl} name={other?.name} size={38} />
+        </Pressable>
+        <Pressable onPress={openMenu} hitSlop={10} accessibilityLabel="Conversation options" style={{ padding: 4 }}>
+          <Ionicons name="ellipsis-vertical" size={20} color={theme.colors.textPrimary} />
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView

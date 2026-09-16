@@ -1,4 +1,4 @@
-import type { ConversationContext } from '@/types/database';
+import type { ConversationContext, UserRole } from '@/types/database';
 
 export interface ChatMessage {
   id: string;
@@ -14,7 +14,7 @@ export interface ConversationDetail {
   context: ConversationContext;
   createdBy: string;
   /** the OTHER participant */
-  other: { id: string; name: string; avatarUrl: string | null } | null;
+  other: { id: string; name: string; avatarUrl: string | null; role: UserRole; verified: boolean } | null;
   /** the other participant's last_read_at — drives read receipts */
   otherLastReadAt: string | null;
   contextCard:

@@ -28,6 +28,7 @@ const FRIENDLY: Record<string, string> = {
   'network': 'No connection. Check your internet and try again.',
   '23505': 'That already exists.',
   '42501': 'You do not have permission to do that.',
+  'B0001': "You can't message this person.",
 };
 
 export function toAppError(error: unknown, fallback = 'Something went wrong. Please try again.'): AppError {
