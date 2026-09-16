@@ -10,7 +10,7 @@ import type {
 } from './types';
 
 const CARD_SELECT = `
-  id, title, rent_month, deposit, bills_included, property_type, bedrooms, bathrooms,
+  id, title, rent_month, deposit, bills_included, property_type, student_audience, bedrooms, bathrooms,
   furnished, roommate_suitable, city, area, available_from, amenities, saves_count,
   views_count, published_at, status, distance_to_campus_km, approx_lat, approx_lng,
   images:accommodation_listing_images ( storage_path, position ),
@@ -40,6 +40,7 @@ export const accommodationApi = {
       if (filters.area) q = q.eq('area', filters.area);
       if (filters.universityId) q = q.eq('nearest_university_id', filters.universityId);
       if (filters.propertyTypes?.length) q = q.in('property_type', filters.propertyTypes);
+      if (filters.studentAudience) q = q.in('student_audience', [filters.studentAudience, 'both']);
       if (filters.rentMin != null) q = q.gte('rent_month', filters.rentMin);
       if (filters.rentMax != null) q = q.lte('rent_month', filters.rentMax);
       if (filters.minBedrooms != null) q = q.gte('bedrooms', filters.minBedrooms);
@@ -74,7 +75,7 @@ export const accommodationApi = {
         .select(
           `
           id, title, description, rent_month, deposit, bills_included, bills_note, property_type,
-          bedrooms, bathrooms, furnished, roommate_suitable, max_occupants, city, area, address_line,
+          student_audience, bedrooms, bathrooms, furnished, roommate_suitable, max_occupants, city, area, address_line,
           approx_lat, approx_lng, available_from, available_to, amenities, saves_count, views_count,
           status, distance_to_campus_km, nearest_university_id,
           images:accommodation_listing_images ( storage_path, position ),

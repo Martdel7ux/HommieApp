@@ -13,13 +13,13 @@ import type {
 } from './types';
 
 const CARD_SELECT = `
-  id, title, status, property_type, rent_month, city, area,
+  id, title, status, property_type, student_audience, rent_month, city, area,
   views_count, saves_count, enquiries_count, updated_at,
   images:accommodation_listing_images ( storage_path, position )
 `;
 
 const FULL_SELECT = `
-  id, title, status, property_type, rent_month, city, area,
+  id, title, status, property_type, student_audience, rent_month, city, area,
   views_count, saves_count, enquiries_count, updated_at,
   description, deposit, bills_included, bills_note, bedrooms, bathrooms,
   furnished, roommate_suitable, max_occupants, address_line, approx_lat, approx_lng,

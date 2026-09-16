@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { Alert, Pressable, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +13,8 @@ import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
-import { supabase } from '@/lib/supabase';
+import { supabase, STORAGE_BUCKETS } from '@/lib/supabase';
+import { resolveImage } from '@/lib/images';
 import { messagingApi } from '@/features/messaging/api';
 import { studyLevelLabels } from '@/config/labels';
 import { useRoommateProfile, useSaveRoommate } from '@/features/roommates/hooks';
@@ -125,6 +127,7 @@ export default function RoommateProfile() {
   const query = useRoommateProfile(id);
   const save = useSaveRoommate(id);
   const p = query.data;
+  const [flatImgIndex, setFlatImgIndex] = useState(0);
 
   const message = useMutation({
     mutationFn: () => messagingApi.startConversation(id, { context: 'roommate', roommateProfileId: id }),
@@ -344,6 +347,47 @@ export default function RoommateProfile() {
                     </View>
                   ))}
                 </View>
+              </Card>
+            ) : null}
+
+            {p.housing_status === 'has_flat' && p.flat_photos.length ? (
+              <Card>
+                <CardHeading icon="images-outline" title="Their flat" />
+                <ScrollView
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  onMomentumScrollEnd={(e) =>
+                    setFlatImgIndex(
+                      Math.round(e.nativeEvent.contentOffset.x / (width - theme.layout.screenPadding * 2)),
+                    )
+                  }
+                >
+                  {[...p.flat_photos]
+                    .sort((a, b) => a.position - b.position)
+                    .map((ph) => (
+                      <Image
+                        key={ph.storage_path}
+                        source={{ uri: resolveImage(ph.storage_path, STORAGE_BUCKETS.roommateFlatImages) ?? '' }}
+                        style={{
+                          width: width - theme.layout.screenPadding * 2,
+                          height: 190,
+                          borderRadius: theme.radius.lg,
+                          backgroundColor: theme.colors.primarySubtle,
+                        }}
+                        contentFit="cover"
+                        transition={150}
+                      />
+                    ))}
+                </ScrollView>
+                {p.flat_photos.length > 1 ? (
+                  <Text variant="caption" muted align="center">
+                    {flatImgIndex + 1} / {p.flat_photos.length}
+                  </Text>
+                ) : null}
+                {p.flat_rent_month != null ? (
+                  <PrefRow icon="key-outline" label={`Rent: €${p.flat_rent_month}/mo`} />
+                ) : null}
               </Card>
             ) : null}
 

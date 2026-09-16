@@ -1,17 +1,23 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Switch, View } from 'react-native';
+import { Alert, Pressable, Switch, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, Button, TextField, ChipGroup, Banner, LoadingState } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { qk } from '@/lib/queryClient';
+import { resolveImage } from '@/lib/images';
+import { STORAGE_BUCKETS } from '@/lib/supabase';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
-import { CYPRUS_AREAS } from '@/config/constants';
+import { CYPRUS_AREAS, IMAGE_UPLOAD } from '@/config/constants';
 import { roommatesApi, type RoommatePrefPatch } from '@/features/roommates/api';
+import type { DraftFlatPhoto } from '@/features/roommates/types';
 import {
   SLEEP_OPTS,
   SOCIAL_OPTS,
@@ -20,9 +26,13 @@ import {
   PETS_OPTS,
   GUESTS_OPTS,
   GENDER_PREF_OPTS,
+  STUDENT_AUDIENCE_OPTS,
+  HOUSING_STATUS_OPTS,
   LIFESTYLE_TAGS,
   tagLabel,
 } from '@/features/roommates/options';
+
+const MAX_FLAT_PHOTOS = IMAGE_UPLOAD.maxRoommateFlatImages;
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   const theme = useTheme();
@@ -79,6 +89,10 @@ export default function EditRoommateProfile() {
   const [genderPref, setGenderPref] = useState<string>('no_preference');
   const [tags, setTags] = useState<string[]>([]);
   const [published, setPublished] = useState(false);
+  const [studentAudience, setStudentAudience] = useState<string>('both');
+  const [housingStatus, setHousingStatus] = useState<string | null>(null);
+  const [flatRent, setFlatRent] = useState('');
+  const [flatPhotos, setFlatPhotos] = useState<DraftFlatPhoto[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -101,8 +115,40 @@ export default function EditRoommateProfile() {
     setGenderPref(p?.gender_preference ?? 'no_preference');
     setTags(p?.lifestyle_tags ?? profile?.interests ?? []);
     setPublished(p?.is_published ?? false);
+    setStudentAudience(p?.student_audience ?? 'both');
+    setHousingStatus(p?.housing_status ?? null);
+    setFlatRent(p?.flat_rent_month != null ? String(p.flat_rent_month) : '');
+    setFlatPhotos(
+      (p?.flat_photos ?? [])
+        .slice()
+        .sort((a, b) => a.position - b.position)
+        .map((ph) => ({
+          uri: resolveImage(ph.storage_path, STORAGE_BUCKETS.roommateFlatImages) ?? ph.storage_path,
+          existing: { id: ph.id, storagePath: ph.storage_path },
+        })),
+    );
     setReady(true);
   }
+
+  const pickFlatPhotos = async () => {
+    if (flatPhotos.length >= MAX_FLAT_PHOTOS) return;
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Photos permission needed', 'Enable photo access in Settings to add pictures.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: MAX_FLAT_PHOTOS - flatPhotos.length,
+      quality: IMAGE_UPLOAD.compressQuality,
+    });
+    if (result.canceled) return;
+    const added: DraftFlatPhoto[] = result.assets.map((a) => ({ uri: a.uri, mimeType: a.mimeType }));
+    setFlatPhotos((prev) => [...prev, ...added].slice(0, MAX_FLAT_PHOTOS));
+  };
+
+  const removeFlatPhoto = (i: number) => setFlatPhotos((prev) => prev.filter((_, idx) => idx !== i));
 
   const datesOk = dateOk(moveFrom) && dateOk(moveTo);
 
@@ -130,8 +176,15 @@ export default function EditRoommateProfile() {
         gender_preference: genderPref as RoommatePrefPatch['gender_preference'],
         lifestyle_tags: tags,
         is_published: published,
+        student_audience: studentAudience as RoommatePrefPatch['student_audience'],
+        housing_status: (housingStatus as RoommatePrefPatch['housing_status']) ?? null,
+        flat_rent_month: housingStatus === 'has_flat' && flatRent ? Number(flatRent) : null,
       };
-      await roommatesApi.upsertPreferences(user.id, patch);
+      await roommatesApi.upsertPreferences(
+        user.id,
+        patch,
+        housingStatus === 'has_flat' ? flatPhotos : [],
+      );
       if (published) analytics.track('roommate_profile_published');
       await queryClient.invalidateQueries({ queryKey: ['roommates'] });
       await queryClient.invalidateQueries({ queryKey: qk.roommate(user.id) });
@@ -200,6 +253,84 @@ export default function EditRoommateProfile() {
                 onChange={(v) => setAreas(v as string[])}
               />
             </Field>
+
+            <Field label="Who are you?" hint="Erasmus, full-time, or both — helps other students find you">
+              <ChipGroup
+                options={opts(STUDENT_AUDIENCE_OPTS)}
+                value={studentAudience}
+                onChange={one((v) => setStudentAudience(v ?? 'both'))}
+              />
+            </Field>
+
+            <Field label="Do you already have a flat?" hint="Optional — helps us show you to the right people">
+              <ChipGroup options={opts(HOUSING_STATUS_OPTS)} value={housingStatus} onChange={one(setHousingStatus)} />
+            </Field>
+
+            {housingStatus === 'has_flat' ? (
+              <>
+                <Field label="Rent for your flat (€ / month)">
+                  <TextField
+                    keyboardType="number-pad"
+                    value={flatRent}
+                    onChangeText={(v) => setFlatRent(v.replace(/[^0-9]/g, ''))}
+                    placeholder="e.g. 450"
+                  />
+                </Field>
+                <Field label="Photos of your flat" hint={`Up to ${MAX_FLAT_PHOTOS} photos`}>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.md }}>
+                    {flatPhotos.map((photo, i) => (
+                      <View key={photo.uri} style={{ width: 104, height: 104 }}>
+                        <Image
+                          source={{ uri: photo.uri }}
+                          style={{ width: '100%', height: '100%', borderRadius: theme.radius.md }}
+                          contentFit="cover"
+                        />
+                        <Pressable
+                          onPress={() => removeFlatPhoto(i)}
+                          hitSlop={6}
+                          accessibilityLabel="Remove photo"
+                          style={{
+                            position: 'absolute',
+                            top: -6,
+                            right: -6,
+                            width: 22,
+                            height: 22,
+                            borderRadius: 11,
+                            backgroundColor: theme.colors.textPrimary,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Ionicons name="close" size={14} color={theme.colors.surface} />
+                        </Pressable>
+                      </View>
+                    ))}
+                    {flatPhotos.length < MAX_FLAT_PHOTOS ? (
+                      <Pressable
+                        onPress={pickFlatPhotos}
+                        accessibilityLabel="Add photos"
+                        style={{
+                          width: 104,
+                          height: 104,
+                          borderRadius: theme.radius.md,
+                          borderWidth: 1.5,
+                          borderStyle: 'dashed',
+                          borderColor: theme.colors.borderStrong,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        <Ionicons name="image-outline" size={22} color={theme.colors.primary} />
+                        <Text variant="caption" color={theme.colors.textSecondary}>
+                          Add
+                        </Text>
+                      </Pressable>
+                    ) : null}
+                  </View>
+                </Field>
+              </>
+            ) : null}
 
             <Field label="Budget (€ / month)">
               <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>

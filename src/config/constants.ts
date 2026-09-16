@@ -9,6 +9,7 @@ export const IMAGE_UPLOAD = {
   maxListingImages: 10,
   maxMarketplaceImages: 6,
   maxCommunityImages: 4,
+  maxRoommateFlatImages: 6,
   compressQuality: 0.7,
   maxDimension: 1600,
 } as const;
@@ -61,6 +62,12 @@ export type ListingStatus = (typeof LISTING_STATUS)[number];
 
 export const VERIFICATION_STATUS = ['unverified', 'submitted', 'verified'] as const;
 export type VerificationStatus = (typeof VERIFICATION_STATUS)[number];
+
+export const STUDENT_AUDIENCES = ['erasmus', 'full_time', 'both'] as const;
+export type StudentAudience = (typeof STUDENT_AUDIENCES)[number];
+
+export const HOUSING_STATUSES = ['has_flat', 'needs_flat'] as const;
+export type HousingStatus = (typeof HOUSING_STATUSES)[number];
 
 export const COMMUNITY_CATEGORIES = [
   'housing_help',

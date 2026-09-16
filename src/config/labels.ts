@@ -5,6 +5,7 @@ import type {
   PropertyType,
   ListingStatus,
   VerificationStatus,
+  StudentAudience,
   CommunityCategory,
   MarketplaceCategory,
   MarketplaceCondition,
@@ -52,6 +53,12 @@ export const verificationLabels: Record<VerificationStatus, string> = {
   unverified: 'Unverified',
   submitted: 'Verification submitted',
   verified: 'Hommie Verified',
+};
+
+export const studentAudienceLabels: Record<StudentAudience, string> = {
+  erasmus: 'Erasmus',
+  full_time: 'Full-time',
+  both: 'Erasmus & Full-time',
 };
 
 export const communityCategoryLabels: Record<CommunityCategory, string> = {

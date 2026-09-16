@@ -14,8 +14,8 @@ import { profileApi } from '@/features/profile/api';
 import { analytics } from '@/services/analytics';
 import { toAppError } from '@/services/errors';
 import { AMENITIES, CYPRUS_AREAS, CYPRUS_CITIES, IMAGE_UPLOAD } from '@/config/constants';
-import { amenityLabels, enumOptions, propertyTypeLabels } from '@/config/labels';
-import type { PropertyType } from '@/types/database';
+import { amenityLabels, enumOptions, propertyTypeLabels, studentAudienceLabels } from '@/config/labels';
+import type { PropertyType, StudentAudience } from '@/types/database';
 import { useSaveListing } from '../hooks';
 import { stepValid } from '../listingForm';
 import type { DraftPhoto, ListingDraft } from '../types';
@@ -259,6 +259,13 @@ export function ListingWizard({
                   options={enumOptions(propertyTypeLabels)}
                   value={draft.property_type}
                   onChange={(v) => set('property_type', v as PropertyType)}
+                />
+              </Field>
+              <Field label="Who is this for?" hint="Erasmus students, full-time/degree students, or both">
+                <ChipGroup<StudentAudience>
+                  options={enumOptions(studentAudienceLabels)}
+                  value={draft.student_audience}
+                  onChange={(v) => set('student_audience', v as StudentAudience)}
                 />
               </Field>
               <TextField
@@ -567,6 +574,7 @@ function ReviewStep({ draft }: { draft: ListingDraft }) {
   const rows: [string, string][] = [
     ['Title', draft.title || '—'],
     ['Type', draft.property_type ? propertyTypeLabels[draft.property_type] : '—'],
+    ['Who for', studentAudienceLabels[draft.student_audience]],
     ['Rent', draft.rent_month ? `€${draft.rent_month}/month` : '—'],
     ['Deposit', draft.deposit ? `€${draft.deposit}` : '—'],
     ['Bills included', draft.bills_included ? 'Yes' : 'No'],

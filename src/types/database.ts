@@ -27,6 +27,8 @@ export type StudyLevel =
 export type PropertyType = 'studio' | 'apartment' | 'house' | 'shared_room' | 'private_room';
 export type ListingStatus = 'draft' | 'pending_review' | 'active' | 'paused' | 'rented' | 'archived';
 export type VerificationStatus = 'unverified' | 'submitted' | 'verified';
+export type StudentAudience = 'erasmus' | 'full_time' | 'both';
+export type HousingStatus = 'has_flat' | 'needs_flat';
 export type CommunityCategory =
   | 'housing_help'
   | 'new_in_cyprus'
@@ -130,6 +132,7 @@ interface AccommodationListingRow extends Timestamps {
   title: string;
   description: string | null;
   property_type: PropertyType;
+  student_audience: StudentAudience;
   status: ListingStatus;
   rent_month: number;
   deposit: number | null;
@@ -188,6 +191,19 @@ interface RoommatePreferenceRow extends Timestamps {
   guests_frequency: 'rarely' | 'sometimes' | 'often' | null;
   gender_preference: 'same' | 'any' | 'no_preference';
   lifestyle_tags: string[];
+  student_audience: StudentAudience;
+  housing_status: HousingStatus | null;
+  flat_rent_month: number | null;
+}
+
+interface RoommateFlatPhotoRow {
+  id: string;
+  user_id: string;
+  storage_path: string;
+  width: number | null;
+  height: number | null;
+  position: number;
+  created_at: string;
 }
 
 interface CommunityPostRow extends Timestamps {
@@ -396,6 +412,7 @@ export interface Database {
       accommodation_listing_images: TableDef<AccommodationImageRow>;
       saved_accommodation_listings: TableDef<SimpleSave>;
       roommate_preferences: TableDef<RoommatePreferenceRow>;
+      roommate_flat_photos: TableDef<RoommateFlatPhotoRow>;
       saved_roommate_profiles: TableDef<SavedRoommateRow>;
       community_posts: TableDef<CommunityPostRow>;
       community_comments: TableDef<CommunityCommentRow>;

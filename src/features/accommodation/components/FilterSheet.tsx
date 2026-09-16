@@ -23,6 +23,11 @@ const BEDROOM_OPTIONS = [
   { value: '3', label: '3+' },
 ];
 
+const STUDENT_AUDIENCE_FILTER_OPTIONS = [
+  { value: 'erasmus', label: 'Erasmus' },
+  { value: 'full_time', label: 'Full-time' },
+];
+
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   const theme = useTheme();
   return (
@@ -165,6 +170,16 @@ export function FilterSheet({
               options={enumOptions(propertyTypeLabels)}
               value={draft.propertyTypes ?? []}
               onChange={(v) => set('propertyTypes', (v as typeof PROPERTY_TYPES[number][]).length ? (v as never) : undefined)}
+            />
+          </Row>
+
+          <Row label="Student audience">
+            <ChipGroup
+              options={STUDENT_AUDIENCE_FILTER_OPTIONS}
+              value={draft.studentAudience ?? null}
+              onChange={(v) =>
+                set('studentAudience', v === draft.studentAudience ? undefined : (v as 'erasmus' | 'full_time'))
+              }
             />
           </Row>
 

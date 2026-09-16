@@ -1,5 +1,5 @@
 import type { ListingImage } from '@/features/accommodation/types';
-import type { ListingStatus, PropertyType } from '@/types/database';
+import type { ListingStatus, PropertyType, StudentAudience } from '@/types/database';
 
 /** A local photo not yet uploaded, or an already-stored one keyed by its path. */
 export interface DraftPhoto {
@@ -16,6 +16,7 @@ export interface LandlordListingCard {
   title: string;
   status: ListingStatus;
   property_type: PropertyType;
+  student_audience: StudentAudience;
   rent_month: number;
   city: string;
   area: string;
@@ -75,6 +76,7 @@ export interface ListingDraft {
   title: string;
   description: string;
   property_type: PropertyType | null;
+  student_audience: StudentAudience;
 
   rent_month: string;
   deposit: string;
@@ -107,6 +109,7 @@ export const emptyDraft: ListingDraft = {
   title: '',
   description: '',
   property_type: null,
+  student_audience: 'both',
   rent_month: '',
   deposit: '',
   bills_included: false,

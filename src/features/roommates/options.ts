@@ -42,6 +42,17 @@ export const GENDER_PREF_OPTS = [
   { value: 'any', label: 'Any' },
 ] as const;
 
+export const STUDENT_AUDIENCE_OPTS = [
+  { value: 'erasmus', label: 'Erasmus' },
+  { value: 'full_time', label: 'Full-time' },
+  { value: 'both', label: 'Erasmus & Full-time' },
+] as const;
+
+export const HOUSING_STATUS_OPTS = [
+  { value: 'has_flat', label: 'I have a flat' },
+  { value: 'needs_flat', label: 'Looking for a flat' },
+] as const;
+
 export const LIFESTYLE_TAGS = [
   'non_smoker', 'clean', 'studious', 'quiet', 'sociable', 'pet_lover', 'cook',
   'vegetarian', 'vegan', 'gym', 'early_riser', 'gamer', 'music_lover',

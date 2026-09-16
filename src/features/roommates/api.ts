@@ -1,7 +1,10 @@
-import { supabase } from '@/lib/supabase';
+import { supabase, STORAGE_BUCKETS } from '@/lib/supabase';
+import { uploadImage } from '@/lib/upload';
 import { guard } from '@/services/errors';
 import { PAGE_SIZE } from '@/config/constants';
+import type { StudentAudience, HousingStatus } from '@/types/database';
 import type {
+  DraftFlatPhoto,
   RoommateFilters,
   RoommatePage,
   RoommateProfileCard,
@@ -28,12 +31,17 @@ export interface RoommatePrefPatch {
   gender_preference?: 'same' | 'any' | 'no_preference';
   lifestyle_tags?: string[];
   is_published?: boolean;
+  student_audience?: StudentAudience;
+  housing_status?: HousingStatus | null;
+  flat_rent_month?: number | null;
 }
 
 const DETAIL_SELECT = `
   user_id, is_published, headline, about, age, preferred_city, preferred_areas, budget_min, budget_max,
   move_in_from, move_in_to, smoking, pets, cleanliness, sleep_schedule, social_level,
   guests_frequency, gender_preference, lifestyle_tags, university_id,
+  student_audience, housing_status, flat_rent_month,
+  flat_photos:roommate_flat_photos ( id, storage_path, position ),
   profile:profiles!roommate_preferences_user_id_fkey (
     id, first_name, last_name, display_name, avatar_url, study_level, interests
   ),
@@ -43,11 +51,59 @@ const DETAIL_SELECT = `
 const CARD_SELECT = `
   user_id, headline, about, age, preferred_city, preferred_areas, budget_min, budget_max,
   move_in_from, smoking, sleep_schedule, social_level, cleanliness, lifestyle_tags,
+  student_audience, housing_status,
   profile:profiles!roommate_preferences_user_id_fkey (
     id, first_name, last_name, display_name, avatar_url, study_level
   ),
   university:universities ( name, short_name )
 `;
+
+async function syncFlatPhotos(userId: string, photos: DraftFlatPhoto[]) {
+  const keptIds = new Set(
+    photos.map((p) => p.existing?.id).filter((id): id is string => !!id),
+  );
+  const { data: current } = await supabase
+    .from('roommate_flat_photos')
+    .select('id, storage_path')
+    .eq('user_id', userId);
+
+  const removed = (current ?? []).filter((r) => !keptIds.has(r.id));
+  if (removed.length) {
+    await supabase
+      .from('roommate_flat_photos')
+      .delete()
+      .in(
+        'id',
+        removed.map((r) => r.id),
+      );
+    const paths = removed
+      .map((r) => r.storage_path)
+      .filter((p) => !/^https?:\/\//i.test(p));
+    if (paths.length) {
+      await supabase.storage.from(STORAGE_BUCKETS.roommateFlatImages).remove(paths).catch(() => undefined);
+    }
+  }
+
+  for (let i = 0; i < photos.length; i++) {
+    const photo = photos[i];
+    if (photo.existing) {
+      await supabase
+        .from('roommate_flat_photos')
+        .update({ position: i })
+        .eq('id', photo.existing.id);
+      continue;
+    }
+    const path = await uploadImage(
+      STORAGE_BUCKETS.roommateFlatImages,
+      `${userId}/flat`,
+      photo.uri,
+      { contentType: photo.mimeType ?? 'image/jpeg' },
+    );
+    await supabase
+      .from('roommate_flat_photos')
+      .insert({ user_id: userId, storage_path: path, position: i });
+  }
+}
 
 export const roommatesApi = {
   async list(
@@ -64,6 +120,8 @@ export const roommatesApi = {
       if (filters.universityId) q = q.eq('university_id', filters.universityId);
       if (filters.budgetMax != null) q = q.lte('budget_min', filters.budgetMax);
       if (filters.area) q = q.contains('preferred_areas', [filters.area]);
+      if (filters.studentAudience) q = q.in('student_audience', [filters.studentAudience, 'both']);
+      if (filters.housingStatus) q = q.eq('housing_status', filters.housingStatus);
 
       if (filters.sort === 'budget_low') q = q.order('budget_min', { ascending: true, nullsFirst: false });
       else q = q.order('updated_at', { ascending: false });
@@ -126,13 +184,16 @@ export const roommatesApi = {
     }, { scope: 'roommates.getMine' });
   },
 
-  /** Create or update the signed-in student's own roommate preferences row. */
-  async upsertPreferences(userId: string, patch: RoommatePrefPatch) {
+  /** Create or update the signed-in student's own roommate preferences row.
+   * Pass `photos` (even `[]`) to also sync the "has a flat" photo gallery —
+   * omit it entirely for saves that don't touch photos. */
+  async upsertPreferences(userId: string, patch: RoommatePrefPatch, photos?: DraftFlatPhoto[]) {
     return guard(async () => {
       const { error } = await supabase
         .from('roommate_preferences')
         .upsert({ user_id: userId, ...patch }, { onConflict: 'user_id' });
       if (error) throw error;
+      if (photos !== undefined) await syncFlatPhotos(userId, photos);
     }, { scope: 'roommates.upsertPreferences' });
   },
 

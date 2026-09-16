@@ -20,6 +20,8 @@ function countActive(f: RoommateFilters): number {
   if (f.universityId) n++;
   if (f.budgetMax != null) n++;
   if (f.area) n++;
+  if (f.studentAudience) n++;
+  if (f.housingStatus) n++;
   return n;
 }
 
@@ -66,6 +68,16 @@ export default function RoommatesBrowse() {
         active: filters.budgetMax != null,
       },
       { key: 'area', label: filters.area ?? 'Area', active: !!filters.area },
+      {
+        key: 'studentAudience',
+        label: filters.studentAudience ? (filters.studentAudience === 'erasmus' ? 'Erasmus' : 'Full-time') : 'Audience',
+        active: !!filters.studentAudience,
+      },
+      {
+        key: 'housingStatus',
+        label: filters.housingStatus ? (filters.housingStatus === 'has_flat' ? 'Has a flat' : 'Needs a flat') : 'Housing',
+        active: !!filters.housingStatus,
+      },
     ],
     [filters],
   );

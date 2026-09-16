@@ -1,4 +1,13 @@
-import type { StudyLevel } from '@/types/database';
+import type { StudyLevel, StudentAudience, HousingStatus } from '@/types/database';
+
+/** A local flat photo not yet uploaded, or an already-stored one keyed by its path. */
+export interface DraftFlatPhoto {
+  /** Local `file://` uri (new) or a resolved https url (existing). */
+  uri: string;
+  mimeType?: string | null;
+  /** Set when the photo already exists in storage — its object path + row id. */
+  existing?: { id: string; storagePath: string };
+}
 
 export interface RoommateProfileCard {
   user_id: string;
@@ -15,6 +24,8 @@ export interface RoommateProfileCard {
   social_level: 'homebody' | 'balanced' | 'very_social' | null;
   cleanliness: number | null;
   lifestyle_tags: string[];
+  student_audience: StudentAudience;
+  housing_status: HousingStatus | null;
   profile: {
     id: string;
     first_name: string | null;
@@ -47,6 +58,10 @@ export interface RoommateProfileDetail {
   gender_preference: 'same' | 'any' | 'no_preference';
   lifestyle_tags: string[];
   university_id: string | null;
+  student_audience: StudentAudience;
+  housing_status: HousingStatus | null;
+  flat_rent_month: number | null;
+  flat_photos: { id: string; storage_path: string; position: number }[];
   profile: {
     id: string;
     first_name: string | null;
@@ -78,6 +93,8 @@ export interface RoommateFilters {
   budgetMax?: number;
   area?: string;
   sort?: RoommateSort;
+  studentAudience?: 'erasmus' | 'full_time';
+  housingStatus?: HousingStatus;
 }
 
 export interface RoommatePage {

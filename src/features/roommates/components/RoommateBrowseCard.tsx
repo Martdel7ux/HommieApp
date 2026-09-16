@@ -35,6 +35,8 @@ function prettyTag(tag: string): string {
 
 function displayTags(r: RoommateMatch): string[] {
   const tags: string[] = [];
+  if (r.housing_status === 'has_flat') tags.push('Has a flat');
+  else if (r.housing_status === 'needs_flat') tags.push('Looking for a flat');
   if (r.sleep_schedule === 'early_bird') tags.push('Early Bird');
   else if (r.sleep_schedule === 'night_owl') tags.push('Night Owl');
   if (r.smoking === 'no') tags.push('Non-smoker');

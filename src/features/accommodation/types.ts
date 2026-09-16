@@ -2,6 +2,7 @@ import type {
   PropertyType,
   ListingStatus,
   VerificationStatus,
+  StudentAudience,
 } from '@/types/database';
 
 export interface ListingImage {
@@ -24,6 +25,7 @@ export interface AccommodationCard {
   deposit: number | null;
   bills_included: boolean;
   property_type: PropertyType;
+  student_audience: StudentAudience;
   bedrooms: number;
   bathrooms: number;
   furnished: boolean;
@@ -64,6 +66,7 @@ export interface AccommodationDetail {
   bills_included: boolean;
   bills_note: string | null;
   property_type: PropertyType;
+  student_audience: StudentAudience;
   bedrooms: number;
   bathrooms: number;
   furnished: boolean;
@@ -96,6 +99,7 @@ export interface AccommodationFilters {
   area?: string;
   universityId?: string;
   propertyTypes?: PropertyType[];
+  studentAudience?: 'erasmus' | 'full_time';
   rentMin?: number;
   rentMax?: number;
   minBedrooms?: number;

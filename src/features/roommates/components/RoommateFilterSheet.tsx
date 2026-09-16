@@ -9,12 +9,23 @@ import { Text, Button, TextField, ChipGroup, Select } from '@/components/ui';
 import { qk } from '@/lib/queryClient';
 import { CYPRUS_AREAS } from '@/config/constants';
 import { profileApi } from '@/features/profile/api';
+import type { HousingStatus } from '@/types/database';
 import type { RoommateFilters, RoommateSort } from '../types';
 
 const SORT_OPTIONS: { value: RoommateSort; label: string }[] = [
   { value: 'match', label: 'Best match' },
   { value: 'newest', label: 'Newest' },
   { value: 'budget_low', label: 'Lowest budget' },
+];
+
+const STUDENT_AUDIENCE_FILTER_OPTIONS = [
+  { value: 'erasmus', label: 'Erasmus' },
+  { value: 'full_time', label: 'Full-time' },
+];
+
+const HOUSING_STATUS_FILTER_OPTIONS = [
+  { value: 'has_flat', label: 'Has a flat' },
+  { value: 'needs_flat', label: 'Looking for a flat' },
 ];
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -135,6 +146,26 @@ export function RoommateFilterSheet({
               ]}
               value={draft.area ?? ''}
               onChange={(v) => set('area', v || undefined)}
+            />
+          </Row>
+
+          <Row label="Student audience">
+            <ChipGroup
+              options={STUDENT_AUDIENCE_FILTER_OPTIONS}
+              value={draft.studentAudience ?? null}
+              onChange={(v) =>
+                set('studentAudience', v === draft.studentAudience ? undefined : (v as 'erasmus' | 'full_time'))
+              }
+            />
+          </Row>
+
+          <Row label="Housing status">
+            <ChipGroup
+              options={HOUSING_STATUS_FILTER_OPTIONS}
+              value={draft.housingStatus ?? null}
+              onChange={(v) =>
+                set('housingStatus', v === draft.housingStatus ? undefined : (v as HousingStatus))
+              }
             />
           </Row>
         </ScrollView>

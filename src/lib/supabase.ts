@@ -42,6 +42,7 @@ export const STORAGE_BUCKETS = {
   marketplaceImages: 'marketplace-images',
   communityImages: 'community-images',
   verificationDocs: 'verification-docs',
+  roommateFlatImages: 'roommate-flat-images',
 } as const;
 
 export type StorageBucket = (typeof STORAGE_BUCKETS)[keyof typeof STORAGE_BUCKETS];
