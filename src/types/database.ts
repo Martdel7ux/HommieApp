@@ -90,6 +90,11 @@ interface ProfileRow extends Timestamps {
   is_active: boolean;
   is_admin: boolean;
   deletion_requested_at: string | null;
+  verification: VerificationStatus;
+  verification_submitted_at: string | null;
+  verified_at: string | null;
+  verified_by: string | null;
+  verification_doc_path: string | null;
 }
 
 interface LandlordProfileRow extends Timestamps {

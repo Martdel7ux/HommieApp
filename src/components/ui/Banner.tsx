@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme';
 import { Text } from './Text';
@@ -17,10 +17,14 @@ export function Banner({
   tone = 'info',
   title,
   message,
+  onPress,
+  onDismiss,
 }: {
   tone?: Tone;
   title?: string;
   message: string;
+  onPress?: () => void;
+  onDismiss?: () => void;
 }) {
   const theme = useTheme();
   const bg = {
@@ -36,7 +40,7 @@ export function Banner({
     danger: theme.colors.danger,
   }[tone];
 
-  return (
+  const content = (
     <View
       accessibilityRole="alert"
       style={{
@@ -58,6 +62,24 @@ export function Banner({
           {message}
         </Text>
       </View>
+      {onDismiss ? (
+        <Pressable
+          onPress={onDismiss}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Dismiss"
+        >
+          <Ionicons name="close" size={18} color={fg} />
+        </Pressable>
+      ) : null}
     </View>
+  );
+
+  return onPress ? (
+    <Pressable onPress={onPress} accessibilityRole="button">
+      {content}
+    </Pressable>
+  ) : (
+    content
   );
 }

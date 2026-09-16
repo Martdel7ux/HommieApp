@@ -114,6 +114,9 @@ export function ProfileScreen() {
   const router = useRouter();
   const { profile, landlordProfile, role, user, refreshProfile } = useAuth();
   const isStudent = role !== 'landlord';
+  const isVerified = isStudent
+    ? profile?.verification === 'verified'
+    : landlordProfile?.verification === 'verified';
 
   const [pendingPhoto, setPendingPhoto] = useState<{ uri: string; mimeType?: string | null } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -250,7 +253,7 @@ export function ProfileScreen() {
               <Text variant="body" muted>
                 {subtitle}
               </Text>
-              {(isStudent || landlordProfile?.verification === 'verified') && (
+              {isVerified && (
                 <MaterialCommunityIcons name="check-decagram" size={16} color={theme.colors.success} />
               )}
             </View>
@@ -269,7 +272,7 @@ export function ProfileScreen() {
             icon={mci('school-outline')}
             label={isStudent ? 'University Verification' : 'Business Verification'}
             subtitle={isStudent ? 'Manage your student status' : 'Manage your landlord verification'}
-            verified={isStudent || landlordProfile?.verification === 'verified'}
+            verified={isVerified}
             onPress={() =>
               isStudent ? router.push('/profile/verification') : soon('Landlord verification arrives with the next update.')()
             }

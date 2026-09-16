@@ -289,6 +289,10 @@ a.stat-tile:hover {
   --accent: #db2777;
   --accent-bg: #fce8f3;
 }
+.stat-tile.accent-purple {
+  --accent: #9333ea;
+  --accent-bg: #f3e8fd;
+}
 
 .action-grid {
   display: grid;

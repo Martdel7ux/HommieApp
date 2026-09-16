@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Screen, Text, Button, Select, ChipGroup, Banner } from '@/components/ui';
+import { Screen, Text, Button, Select, ChipGroup, Banner, Card } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { profileApi } from '@/features/profile/api';
 import { qk } from '@/lib/queryClient';
 import { toAppError } from '@/services/errors';
-import { studentStatusLabels, studyLevelLabels, enumOptions } from '@/config/labels';
+import { studentStatusLabels, studyLevelLabels, verificationLabels, enumOptions } from '@/config/labels';
 import type { StudentStatus, StudyLevel } from '@/types/database';
 
 export default function UniversityVerification() {
@@ -22,6 +23,55 @@ export default function UniversityVerification() {
   const [status, setStatus] = useState<StudentStatus | null>(profile?.student_status ?? null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const verification = profile?.verification ?? 'unverified';
+
+  const pickAndSubmit = async (source: 'camera' | 'library') => {
+    if (!user) return;
+    const perm =
+      source === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(
+        source === 'camera' ? 'Camera permission needed' : 'Photos permission needed',
+        'Enable access in Settings to upload your student ID.',
+      );
+      return;
+    }
+    const options: ImagePicker.ImagePickerOptions = {
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [16, 10],
+      quality: 0.8,
+    };
+    const result =
+      source === 'camera'
+        ? await ImagePicker.launchCameraAsync(options)
+        : await ImagePicker.launchImageLibraryAsync(options);
+    if (result.canceled) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      await profileApi.submitVerification(user.id, result.assets[0].uri, result.assets[0].mimeType);
+      await refreshProfile();
+      Alert.alert('Submitted', "We're checking your student ID — this usually takes 1–2 business days.");
+    } catch (e) {
+      setError(toAppError(e).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const onUploadPress = () => {
+    Alert.alert('Upload student ID', 'Choose how to add your ID photo.', [
+      { text: 'Take Photo', onPress: () => pickAndSubmit('camera') },
+      { text: 'Choose from Library', onPress: () => pickAndSubmit('library') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
 
   const { data: universities } = useQuery({
     queryKey: qk.universities,
@@ -68,26 +118,55 @@ export default function UniversityVerification() {
       <View style={{ gap: theme.spacing.lg, paddingTop: theme.spacing.md }}>
         {error ? <Banner tone="danger" message={error} /> : null}
 
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.spacing.md,
-            backgroundColor: theme.colors.successSubtle,
-            borderRadius: theme.radius.lg,
-            padding: theme.spacing.lg,
-          }}
-        >
-          <MaterialCommunityIcons name="check-decagram" size={24} color={theme.colors.success} />
-          <View style={{ flex: 1 }}>
-            <Text variant="h3" style={{ fontSize: 15 }}>
-              Verified student
-            </Text>
-            <Text variant="caption" muted>
-              Your account was verified with your student email. Keep your details up to date below.
-            </Text>
+        {verification === 'verified' ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: theme.spacing.md,
+              backgroundColor: theme.colors.successSubtle,
+              borderRadius: theme.radius.lg,
+              padding: theme.spacing.lg,
+            }}
+          >
+            <MaterialCommunityIcons name="check-decagram" size={24} color={theme.colors.success} />
+            <View style={{ flex: 1 }}>
+              <Text variant="h3" style={{ fontSize: 15 }}>
+                {verificationLabels.verified}
+              </Text>
+              <Text variant="caption" muted>
+                Your student ID has been approved. Keep your details up to date below.
+              </Text>
+            </View>
           </View>
-        </View>
+        ) : (
+          <Banner
+            tone={verification === 'submitted' ? 'info' : 'warning'}
+            title={verificationLabels[verification]}
+            message={
+              verification === 'submitted'
+                ? "We're checking your student ID — this usually takes 1–2 business days."
+                : 'Upload a photo of your student ID to get the Hommie Verified badge.'
+            }
+          />
+        )}
+
+        {verification !== 'verified' ? (
+          <Card onPress={onUploadPress} accessibilityLabel="Upload student ID">
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
+              <MaterialCommunityIcons name="card-account-details-outline" size={24} color={theme.colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text variant="h3" style={{ fontSize: 15 }}>
+                  {verification === 'submitted' ? 'Re-upload student ID' : 'Upload student ID'}
+                </Text>
+                <Text variant="bodySm" muted>
+                  Take a photo or choose one from your library.
+                </Text>
+              </View>
+              {uploading ? <Text variant="bodySm" muted>Uploading…</Text> : null}
+            </View>
+          </Card>
+        ) : null}
 
         <Select
           label="University"

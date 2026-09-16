@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase';
+import { supabase, STORAGE_BUCKETS } from '@/lib/supabase';
+import { uploadImage } from '@/lib/upload';
 import { guard } from '@/services/errors';
 import type { Tables } from '@/types/database';
 
@@ -46,5 +47,21 @@ export const profileApi = {
 
   async completeOnboarding(userId: string) {
     return this.updateProfile(userId, { onboarding_completed: true });
+  },
+
+  async submitVerification(userId: string, localUri: string, mimeType?: string | null) {
+    return guard(async () => {
+      const path = await uploadImage(STORAGE_BUCKETS.verificationDocs, userId, localUri, {
+        contentType: mimeType ?? 'image/jpeg',
+      });
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ verification: 'submitted', verification_doc_path: path })
+        .eq('id', userId)
+        .select('*')
+        .single();
+      if (error) throw error;
+      return data;
+    }, { scope: 'profile.submitVerification' });
   },
 };

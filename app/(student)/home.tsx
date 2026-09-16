@@ -1,10 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Screen, Text, Card, SectionHeader, EmptyState, ScreenHeader } from '@/components/ui';
+import { Screen, Text, Card, SectionHeader, EmptyState, ScreenHeader, Banner } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { qk } from '@/lib/queryClient';
@@ -50,6 +50,7 @@ export default function StudentHome() {
   const queryClient = useQueryClient();
   const { user, profile } = useAuth();
   const city = profile?.city ?? null;
+  const [verifyDismissed, setVerifyDismissed] = useState(false);
 
   const unread = useUnreadNotificationCount();
 
@@ -188,6 +189,16 @@ export default function StudentHome() {
               <Ionicons name="chevron-forward" size={18} color={theme.colors.textTertiary} />
             </View>
           </Card>
+        ) : null}
+
+        {profile?.verification === 'unverified' && !verifyDismissed ? (
+          <Banner
+            tone="info"
+            title="Verify your student ID"
+            message="Get the verified badge so landlords and roommates know it's really you."
+            onPress={() => router.push('/profile/verification')}
+            onDismiss={() => setVerifyDismissed(true)}
+          />
         ) : null}
 
         {/* quick actions */}

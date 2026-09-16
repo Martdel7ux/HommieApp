@@ -102,6 +102,14 @@ export default function DashboardPage() {
         <StatTile accent="indigo" icon="🔑" value={stats?.landlords ?? 0} label="Landlords" loading={loading} />
         <StatTile accent="teal" icon="📅" value={stats?.upcomingEvents ?? 0} label="Upcoming events" loading={loading} />
         <StatTile accent="pink" icon="💼" value={stats?.activeJobs ?? 0} label="Active jobs" loading={loading} />
+        <StatTile
+          href="/verification"
+          accent="purple"
+          icon="🪪"
+          value={stats?.pendingVerifications ?? 0}
+          label="Pending verifications"
+          loading={loading}
+        />
       </div>
 
       <p className="dash-section-title">Quick actions</p>
@@ -127,6 +135,14 @@ export default function DashboardPage() {
           <div>
             <p className="action-title">Create Job</p>
             <p className="muted">Add a new job board listing</p>
+          </div>
+          <span className="action-arrow">→</span>
+        </Link>
+        <Link href="/verification" className="action-card">
+          <div className="action-icon">🪪</div>
+          <div>
+            <p className="action-title">Review Verifications</p>
+            <p className="muted">Approve or reject student ID uploads</p>
           </div>
           <span className="action-arrow">→</span>
         </Link>

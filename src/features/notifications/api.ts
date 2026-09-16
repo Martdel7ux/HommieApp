@@ -79,7 +79,11 @@ export function routeForNotification(
     case 'roommate_saved':
       return data.profile_id ? `/roommates/${data.profile_id}` : null;
     case 'system':
-      return data.listing_id ? `/listing/${data.listing_id}` : null;
+      return data.kind === 'verification'
+        ? '/profile/verification'
+        : data.listing_id
+          ? `/listing/${data.listing_id}`
+          : null;
     default:
       return null;
   }
