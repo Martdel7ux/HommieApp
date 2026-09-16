@@ -38,8 +38,10 @@ export function SegmentedControl<T extends string>({
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
             style={{
+              flex: 1,
               flexDirection: 'row',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: 5,
               paddingHorizontal: theme.spacing.lg,
               paddingVertical: 7,

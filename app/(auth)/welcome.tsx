@@ -23,14 +23,14 @@ const ROLES: RoleOption[] = [
     role: 'student',
     title: "I'm a Student",
     blurb: 'Find a place, meet roommates, and settle in.',
-    image: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=1000',
+    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1000',
     renderIcon: (color) => <Ionicons name="school" size={22} color={color} />,
   },
   {
     role: 'landlord',
     title: "I'm a Landlord",
     blurb: 'List your property and manage enquiries.',
-    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1000',
+    image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1000',
     renderIcon: (color) => <MaterialCommunityIcons name="hand-coin" size={22} color={color} />,
   },
 ];
