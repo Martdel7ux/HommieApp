@@ -6,6 +6,7 @@ import { guard } from '@/services/errors';
 import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
+import { haptics } from '@/services/haptics';
 import { messagingApi } from '@/features/messaging/api';
 import { accommodationApi } from './api';
 import { landlordProfileApi } from './landlordProfileApi';
@@ -123,6 +124,7 @@ export function useSavedListings() {
     mutationFn: ({ id, next }: { id: string; next: boolean }) =>
       accommodationApi.toggleSave(user!.id, id, next),
     onMutate: async ({ id, next }) => {
+      haptics.select();
       await queryClient.cancelQueries({ queryKey: key });
       const prev = queryClient.getQueryData<string[]>(key) ?? [];
       queryClient.setQueryData<string[]>(key, next ? [...prev, id] : prev.filter((x) => x !== id));

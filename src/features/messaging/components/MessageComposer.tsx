@@ -3,6 +3,7 @@ import { Alert, Pressable, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme';
+import { haptics } from '@/services/haptics';
 
 export function MessageComposer({
   onSend,
@@ -17,6 +18,7 @@ export function MessageComposer({
 
   const submit = () => {
     if (!canSend) return;
+    haptics.tap();
     onSend(text.trim());
     setText('');
   };

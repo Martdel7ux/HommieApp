@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Screen, Text, Button, Avatar } from '@/components/ui';
-import { useTheme } from '@/theme';
+import { useTheme, useThemeMode } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { authApi } from '@/features/auth/api';
 import { profileApi } from '@/features/profile/api';
@@ -15,6 +15,7 @@ import { STORAGE_BUCKETS } from '@/lib/supabase';
 import { resolveAvatar } from '@/lib/images';
 import { uploadImage } from '@/lib/upload';
 import { toAppError } from '@/services/errors';
+import { haptics } from '@/services/haptics';
 import { APP_NAME } from '@/config/constants';
 import { verificationLabels } from '@/config/labels';
 
@@ -109,8 +110,11 @@ const mci = (name: ComponentProps<typeof MaterialCommunityIcons>['name']): RowIc
   render: (color, size) => <MaterialCommunityIcons name={name} size={size} color={color} />,
 });
 
+const APPEARANCE_LABELS = { light: 'Light', dark: 'Dark', system: 'Matches device' } as const;
+
 export function ProfileScreen() {
   const theme = useTheme();
+  const { preference } = useThemeMode();
   const router = useRouter();
   const { profile, landlordProfile, role, user, refreshProfile } = useAuth();
   const isStudent = role !== 'landlord';
@@ -181,7 +185,14 @@ export function ProfileScreen() {
   const logout = () => {
     Alert.alert('Log out', 'Are you sure you want to log out?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Log out', style: 'destructive', onPress: () => authApi.signOut() },
+      {
+        text: 'Log out',
+        style: 'destructive',
+        onPress: () => {
+          haptics.warning();
+          authApi.signOut();
+        },
+      },
     ]);
   };
 
@@ -195,6 +206,7 @@ export function ProfileScreen() {
           text: 'Request deletion',
           style: 'destructive',
           onPress: async () => {
+            haptics.warning();
             try {
               await authApi.requestAccountDeletion();
             } catch (e) {
@@ -304,6 +316,12 @@ export function ProfileScreen() {
             label="Notifications"
             subtitle="Push and email alerts"
             onPress={() => router.push('/profile/notifications')}
+          />
+          <SettingsRow
+            icon={ion('contrast-outline')}
+            label="Appearance"
+            subtitle={APPEARANCE_LABELS[preference]}
+            onPress={() => router.push('/profile/appearance')}
           />
           <SettingsRow
             icon={ion('help-circle-outline')}

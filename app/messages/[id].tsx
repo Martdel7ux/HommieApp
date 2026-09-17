@@ -12,11 +12,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Avatar, LoadingState, ErrorState } from '@/components/ui';
-import { useTheme } from '@/theme';
+import { useTheme, useThemeMode } from '@/theme';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { dayLabel } from '@/lib/datetime';
 import { toAppError } from '@/services/errors';
+import { haptics } from '@/services/haptics';
 import { REPORT_REASONS } from '@/config/constants';
 import { useConversation, useThread } from '@/features/messaging/thread';
 import { messagingApi } from '@/features/messaging/api';
@@ -53,6 +54,7 @@ function DaySeparator({ label }: { label: string }) {
 
 export default function ConversationThread() {
   const theme = useTheme();
+  const { isDark } = useThemeMode();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -131,6 +133,7 @@ export default function ConversationThread() {
                 text: 'Block',
                 style: 'destructive',
                 onPress: async () => {
+                  haptics.warning();
                   try {
                     await messagingApi.blockUser(user!.id, other.id, id);
                     router.back();
@@ -150,7 +153,7 @@ export default function ConversationThread() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Stack.Screen options={{ headerShown: false }} />
-      <StatusBar style="dark" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
 
       {/* header */}
       <View

@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { theme } from '@/theme';
+import { ThemeProvider, useTheme } from '@/theme';
 import { queryClient, queryPersister } from '@/lib/queryClient';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { analytics, consoleAnalyticsProvider } from '@/services/analytics';
@@ -16,6 +16,18 @@ SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 analytics.configure([consoleAnalyticsProvider]);
 
+function RootStack() {
+  const theme = useTheme();
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: theme.colors.background },
+      }}
+    />
+  );
+}
+
 export default function RootLayout() {
   useEffect(() => {
     analytics.track('app_opened', { cold_start: true });
@@ -23,23 +35,20 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <ErrorBoundary>
-          <PersistQueryClientProvider client={queryClient} persistOptions={{ persister: queryPersister }}>
-            <AuthProvider>
-              <AuthGate>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: theme.colors.background },
-                  }}
-                />
-                <PushBootstrap />
-              </AuthGate>
-            </AuthProvider>
-          </PersistQueryClientProvider>
-        </ErrorBoundary>
-      </SafeAreaProvider>
+      <ThemeProvider>
+        <SafeAreaProvider>
+          <ErrorBoundary>
+            <PersistQueryClientProvider client={queryClient} persistOptions={{ persister: queryPersister }}>
+              <AuthProvider>
+                <AuthGate>
+                  <RootStack />
+                  <PushBootstrap />
+                </AuthGate>
+              </AuthProvider>
+            </PersistQueryClientProvider>
+          </ErrorBoundary>
+        </SafeAreaProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

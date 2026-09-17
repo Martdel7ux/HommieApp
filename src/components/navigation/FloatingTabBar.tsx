@@ -4,7 +4,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '@/theme';
+import { useTheme } from '@/theme';
+import { haptics } from '@/services/haptics';
 import { useUnreadConversationCount } from '@/features/messaging/hooks';
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
@@ -42,6 +43,7 @@ const PILL_HEIGHT = 62;
 const RADIUS = PILL_HEIGHT / 2;
 
 export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) {
+  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const unread = useUnreadConversationCount();
@@ -121,6 +123,7 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
                 accessibilityLabel={label}
                 onPress={() => {
                   if (entry.kind === 'action') {
+                    haptics.select();
                     entry.onPress();
                     return;
                   }
@@ -129,7 +132,10 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
                     target: entry.key,
                     canPreventDefault: true,
                   });
-                  if (!focused && !event.defaultPrevented) navigation.navigate(entry.name);
+                  if (!focused && !event.defaultPrevented) {
+                    haptics.select();
+                    navigation.navigate(entry.name);
+                  }
                 }}
                 style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
               >

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useTheme } from '@/theme';
+import { haptics } from '@/services/haptics';
 import { Text } from './Text';
 
 export function Chip({
@@ -54,6 +55,7 @@ export function ChipGroup<T extends string>({
   const selectedList = Array.isArray(value) ? value : value ? [value] : [];
 
   const toggle = (v: T) => {
+    haptics.select();
     if (multiple) {
       const set = new Set(selectedList);
       if (set.has(v)) set.delete(v);

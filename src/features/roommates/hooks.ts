@@ -4,6 +4,7 @@ import { qk } from '@/lib/queryClient';
 import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
+import { haptics } from '@/services/haptics';
 import { roommatesApi } from './api';
 import { buildCompatInput, estimateCompatibility } from './compatibility';
 import type { Compatibility, RoommateFilters, RoommateMatch, RoommateProfileDetail } from './types';
@@ -103,6 +104,7 @@ export function useSaveRoommate(userId: string) {
   return useMutation({
     mutationFn: (next: boolean) => roommatesApi.toggleSave(user!.id, userId, next),
     onMutate: async (next) => {
+      haptics.select();
       await queryClient.cancelQueries({ queryKey: key });
       const prev = queryClient.getQueryData<RoommateProfileDetail>(key);
       if (prev) queryClient.setQueryData<RoommateProfileDetail>(key, { ...prev, saved: next });

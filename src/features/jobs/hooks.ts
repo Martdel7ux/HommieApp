@@ -4,6 +4,7 @@ import { qk } from '@/lib/queryClient';
 import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
+import { haptics } from '@/services/haptics';
 import { jobsApi } from './api';
 import type { JobCard, JobFilters } from './types';
 
@@ -53,6 +54,7 @@ export function useSavedJobs() {
   const toggle = useMutation({
     mutationFn: ({ id, next }: { id: string; next: boolean }) => jobsApi.toggleSave(user!.id, id, next),
     onMutate: async ({ id, next }) => {
+      haptics.select();
       await queryClient.cancelQueries({ queryKey: key });
       const prev = queryClient.getQueryData<string[]>(key) ?? [];
       queryClient.setQueryData<string[]>(key, next ? [...prev, id] : prev.filter((x) => x !== id));

@@ -104,9 +104,13 @@ export const lightColors = {
 export type AppColors = { [K in keyof typeof lightColors]: string };
 
 /**
- * Dark palette reserved for a future release. V1 ships light-only
- * (see `userInterfaceStyle: "light"` in app.config.ts). Keys stay in sync
- * with `lightColors`.
+ * Dark palette. Keys stay in sync with `lightColors`; base hues (primary,
+ * status colors, ratingStar, verifiedBadge, onPrimary, textInverse/OnBrand,
+ * focusRing) are inherited unchanged since they're mid-saturation colors
+ * used as text/icons or sit on a fixed-color surface, so they already
+ * contrast fine in either theme. The pale "subtle" tint backgrounds do need
+ * their own dark values below — the light ones would render as bright white
+ * boxes on a dark screen.
  */
 export const darkColors: AppColors = {
   ...(lightColors as AppColors),
@@ -121,6 +125,15 @@ export const darkColors: AppColors = {
   border: '#2A2937',
   borderStrong: '#3A3948',
   skeleton: '#2A2937',
+  primarySubtle: palette.brand900,
+  primarySubtleInk: palette.brand300,
+  accentSubtle: '#3D2E10',
+  successSubtle: '#153826',
+  warningSubtle: '#3D2E05',
+  dangerSubtle: '#3D1614',
+  infoSubtle: '#0B2A38',
+  tileEventsBg: palette.violet700,
+  tileEventsInk: palette.violet200,
 };
 
 export const colors = lightColors;

@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { Screen, EmptyState } from '@/components/ui';
-import { theme } from '@/theme';
+import { useTheme } from '@/theme';
 import type { Ionicons } from '@expo/vector-icons';
 
 /**
@@ -17,6 +17,7 @@ export function RouteStub({
   icon?: keyof typeof Ionicons.glyphMap;
   message: string;
 }) {
+  const theme = useTheme();
   return (
     <>
       <Stack.Screen

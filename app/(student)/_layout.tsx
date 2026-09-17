@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
-import { theme } from '@/theme';
+import { useTheme } from '@/theme';
 import { FloatingTabBar } from '@/components/navigation/FloatingTabBar';
 
 export default function StudentTabsLayout() {
+  const theme = useTheme();
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Tabs

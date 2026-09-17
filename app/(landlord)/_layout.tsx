@@ -1,8 +1,9 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '@/theme';
+import { useTheme } from '@/theme';
 
 export default function LandlordTabsLayout() {
+  const theme = useTheme();
   return (
     <Tabs
       screenOptions={{

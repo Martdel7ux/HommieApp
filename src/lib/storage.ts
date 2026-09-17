@@ -32,4 +32,5 @@ export const STORAGE_KEYS = {
   onboardingDraft: 'hommie.onboarding-draft.v1',
   lastRoleHint: 'hommie.last-role-hint.v1',
   pushTokenSynced: 'hommie.push-token-synced.v1',
+  themePreference: 'hommie.theme-preference.v1',
 } as const;

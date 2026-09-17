@@ -13,7 +13,8 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { useTheme } from '@/theme';
+import { useTheme, useThemeMode } from '@/theme';
+import { haptics } from '@/services/haptics';
 
 interface ScreenProps {
   children: React.ReactNode;
@@ -42,6 +43,7 @@ export function Screen({
   backgroundColor,
 }: ScreenProps) {
   const theme = useTheme();
+  const { isDark } = useThemeMode();
   const bg = backgroundColor ?? theme.colors.background;
   const pad = padded ? { padding: theme.layout.screenPadding } : null;
 
@@ -52,7 +54,14 @@ export function Screen({
       contentContainerStyle={[{ flexGrow: 1 }, pad, contentContainerStyle]}
       refreshControl={
         onRefresh ? (
-          <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={theme.colors.primary} />
+          <RefreshControl
+            refreshing={!!refreshing}
+            onRefresh={() => {
+              haptics.tap();
+              onRefresh();
+            }}
+            tintColor={theme.colors.primary}
+          />
         ) : undefined
       }
     >
@@ -64,7 +73,7 @@ export function Screen({
 
   return (
     <SafeAreaView edges={edges} style={[{ flex: 1, backgroundColor: bg }, style]}>
-      <StatusBar style="dark" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       {keyboardAvoiding ? (
         <KeyboardAvoidingView
           style={{ flex: 1 }}

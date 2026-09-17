@@ -4,4 +4,5 @@ export { lightColors, darkColors } from './colors';
 export { spacing, radius, layout } from './spacing';
 export { typography, fontFamily } from './typography';
 export { shadows } from './shadows';
-export { useTheme } from './useTheme';
+export { ThemeProvider, useTheme, useThemeMode } from './ThemeProvider';
+export type { ThemePreference } from './ThemeProvider';

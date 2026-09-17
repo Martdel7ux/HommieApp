@@ -8,6 +8,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useTheme } from '@/theme';
+import { haptics } from '@/services/haptics';
 import { Text } from './Text';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -34,6 +35,7 @@ export function Button({
   leftIcon,
   style,
   accessibilityHint,
+  onPress,
   ...rest
 }: ButtonProps) {
   const theme = useTheme();
@@ -73,6 +75,10 @@ export function Button({
         },
         style,
       ]}
+      onPress={(e) => {
+        haptics.tap();
+        onPress?.(e);
+      }}
       {...rest}
     >
       {loading ? (
