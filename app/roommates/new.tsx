@@ -7,7 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, Button, TextField, ChipGroup, Banner, LoadingState } from '@/components/ui';
+import { Screen, Text, Button, TextField, ChipGroup, Banner, LoadingState, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { qk } from '@/lib/queryClient';
@@ -96,8 +96,9 @@ export default function EditRoommateProfile() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // hydrate once from the loaded row / profile fallbacks
-  if (!ready && !mine.isLoading) {
+  // hydrate once from the loaded row / profile fallbacks — never hydrate off
+  // a failed fetch, or a real saved profile would look wiped on a query error
+  if (!ready && !mine.isLoading && !mine.isError) {
     const p = mine.data;
     setHeadline(p?.headline ?? '');
     setAbout(p?.about ?? '');
@@ -208,7 +209,11 @@ export default function EditRoommateProfile() {
           headerTintColor: theme.colors.textPrimary,
         }}
       />
-      {mine.isLoading || !ready ? (
+      {mine.isError ? (
+        <Screen>
+          <ErrorState message="Couldn't load your roommate profile." onRetry={() => mine.refetch()} />
+        </Screen>
+      ) : mine.isLoading || !ready ? (
         <Screen>
           <LoadingState label="Loading your preferences…" />
         </Screen>
