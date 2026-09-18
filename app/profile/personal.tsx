@@ -1,21 +1,25 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { Screen, Text, Button, TextField, Banner } from '@/components/ui';
+import { Screen, Text, Button, TextField, Select, ChipGroup, Banner } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { profileApi } from '@/features/profile/api';
 import { toAppError } from '@/services/errors';
+import { CYPRUS_CITIES, STUDENT_INTERESTS } from '@/config/constants';
 
 export default function PersonalInformation() {
   const theme = useTheme();
   const router = useRouter();
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, role, refreshProfile } = useAuth();
+  const isStudent = role !== 'landlord';
 
   const [firstName, setFirstName] = useState(profile?.first_name ?? '');
   const [lastName, setLastName] = useState(profile?.last_name ?? '');
   const [phone, setPhone] = useState(profile?.phone ?? '');
   const [bio, setBio] = useState(profile?.bio ?? '');
+  const [city, setCity] = useState<string | null>(profile?.city ?? null);
+  const [interests, setInterests] = useState<string[]>(profile?.interests ?? []);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -23,7 +27,9 @@ export default function PersonalInformation() {
     firstName !== (profile?.first_name ?? '') ||
     lastName !== (profile?.last_name ?? '') ||
     phone !== (profile?.phone ?? '') ||
-    bio !== (profile?.bio ?? '');
+    bio !== (profile?.bio ?? '') ||
+    city !== (profile?.city ?? null) ||
+    interests.join(',') !== (profile?.interests ?? []).join(',');
 
   const save = async () => {
     if (!user || !firstName.trim()) return;
@@ -38,6 +44,7 @@ export default function PersonalInformation() {
         display_name: [first, last].filter(Boolean).join(' ') || first,
         phone: phone.trim() || null,
         bio: bio.trim() || null,
+        ...(isStudent ? { city, interests } : {}),
       });
       await refreshProfile();
       router.back();
@@ -82,6 +89,29 @@ export default function PersonalInformation() {
           hint={`${bio.length}/300`}
           style={{ minHeight: 90, textAlignVertical: 'top' }}
         />
+
+        {isStudent ? (
+          <>
+            <Select
+              label="City"
+              placeholder="Select your city"
+              options={CYPRUS_CITIES.map((c) => ({ value: c, label: c }))}
+              value={city ?? ''}
+              onChange={(v) => setCity(v || null)}
+            />
+            <View style={{ gap: theme.spacing.sm }}>
+              <Text variant="label" color={theme.colors.textSecondary}>
+                Interests
+              </Text>
+              <ChipGroup
+                multiple
+                options={STUDENT_INTERESTS.map((i) => ({ value: i, label: i[0].toUpperCase() + i.slice(1) }))}
+                value={interests}
+                onChange={(v) => setInterests(v as string[])}
+              />
+            </View>
+          </>
+        ) : null}
 
         <View style={{ gap: theme.spacing.sm }}>
           <TextField label="Email" value={user?.email ?? ''} editable={false} />

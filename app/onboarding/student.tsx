@@ -15,7 +15,7 @@ import { STORAGE_BUCKETS } from '@/lib/supabase';
 import { uploadImage } from '@/lib/upload';
 import { analytics } from '@/services/analytics';
 import { toAppError } from '@/services/errors';
-import { CYPRUS_CITIES } from '@/config/constants';
+import { CYPRUS_CITIES, STUDENT_INTERESTS } from '@/config/constants';
 import { studentStatusLabels, studyLevelLabels, enumOptions } from '@/config/labels';
 import type { StudentStatus, StudyLevel } from '@/types/database';
 
@@ -42,12 +42,6 @@ type Draft = {
   pets: Pets | null;
   interests: string[];
 };
-
-const INTERESTS = [
-  'football', 'basketball', 'running', 'gym', 'photography', 'music', 'gaming',
-  'cooking', 'baking', 'coffee', 'art', 'cinema', 'travel', 'languages',
-  'volunteering', 'startups', 'reading', 'yoga', 'hiking',
-];
 
 const SLEEP_OPTS = [
   { value: 'early_bird', label: 'Early bird' },
@@ -435,7 +429,7 @@ export default function StudentOnboarding() {
               <Text muted>Pick a few things you&apos;re into. This helps with roommate and event suggestions.</Text>
               <ChipGroup
                 multiple
-                options={INTERESTS.map((i) => ({ value: i, label: i[0].toUpperCase() + i.slice(1) }))}
+                options={STUDENT_INTERESTS.map((i) => ({ value: i, label: i[0].toUpperCase() + i.slice(1) }))}
                 value={draft.interests}
                 onChange={(v) => set('interests', v as string[])}
               />

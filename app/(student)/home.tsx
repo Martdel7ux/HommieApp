@@ -32,13 +32,10 @@ function profileCompletion(profile: ReturnType<typeof useAuth>['profile']): numb
   if (!profile) return 100;
   const checks = [
     !!profile.first_name,
-    !!profile.avatar_url,
     !!profile.university_id,
-    !!profile.city,
     !!profile.study_level,
-    !!profile.student_status,
-    !!profile.move_in_from,
-    !!(profile.budget_min || profile.budget_max),
+    profile.verification === 'verified',
+    !!profile.city,
     profile.interests.length > 0,
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);

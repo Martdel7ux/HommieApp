@@ -123,6 +123,13 @@ export const CYPRUS_CITIES = [
   'Paphos',
 ] as const;
 
+/** Shared with onboarding and the profile editor — keep in sync. */
+export const STUDENT_INTERESTS = [
+  'football', 'basketball', 'running', 'gym', 'photography', 'music', 'gaming',
+  'cooking', 'baking', 'coffee', 'art', 'cinema', 'travel', 'languages',
+  'volunteering', 'startups', 'reading', 'yoga', 'hiking',
+] as const;
+
 /** Neighbourhoods used for the accommodation "Area" filter. */
 export const CYPRUS_AREAS = [
   'Engomi',
