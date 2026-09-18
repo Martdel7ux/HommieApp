@@ -67,7 +67,14 @@ export async function registerPushToken(userId: string): Promise<string | null> 
   try {
     if (!Device.isDevice || isExpoGo) return null;
 
-    const { status } = await Notifications.getPermissionsAsync();
+    let { status } = await Notifications.getPermissionsAsync();
+    // First time we've ever asked — actually show the OS prompt. If the user
+    // already answered before (granted or denied), respect that and don't
+    // ask again here; a denied user can still turn it on via Profile ›
+    // Notifications, which links out to Settings.
+    if (status === 'undetermined') {
+      ({ status } = await Notifications.requestPermissionsAsync());
+    }
     if (status !== 'granted') return null;
 
     await ensureAndroidChannel();
