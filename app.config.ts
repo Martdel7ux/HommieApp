@@ -108,6 +108,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     appleSignInEnabled,
     analyticsEnabled: process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === 'true',
+    posthogApiKey: process.env.EXPO_PUBLIC_POSTHOG_API_KEY,
+    posthogHost: process.env.EXPO_PUBLIC_POSTHOG_HOST,
     environment: process.env.EXPO_PUBLIC_ENV ?? 'development',
     eas: {
       // EAS-CLI statically scans this file for a literal id and can't

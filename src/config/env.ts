@@ -11,6 +11,8 @@ type Extra = {
   googleIosClientId?: string;
   appleSignInEnabled?: boolean;
   analyticsEnabled?: boolean;
+  posthogApiKey?: string;
+  posthogHost?: string;
   environment?: string;
 };
 
@@ -35,6 +37,9 @@ export const env = {
   // Apple Sign-In is built but off until the Apple Developer setup is done.
   appleSignInEnabled: extra.appleSignInEnabled === true,
   analyticsEnabled: extra.analyticsEnabled === true,
+  // Optional: analytics silently stays console-only until both are set.
+  posthogApiKey: extra.posthogApiKey || undefined,
+  posthogHost: extra.posthogHost || undefined,
   environment: (extra.environment ?? 'development') as 'development' | 'preview' | 'production',
   isProduction: extra.environment === 'production',
 } as const;

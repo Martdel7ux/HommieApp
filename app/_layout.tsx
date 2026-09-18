@@ -8,13 +8,16 @@ import { ThemeProvider, useTheme } from '@/theme';
 import { queryClient, queryPersister } from '@/lib/queryClient';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { analytics, consoleAnalyticsProvider } from '@/services/analytics';
+import { posthogAnalyticsProvider } from '@/services/analytics/posthog';
 import { AuthGate } from '@/features/auth/AuthGate';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PushBootstrap } from '@/components/PushBootstrap';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
-analytics.configure([consoleAnalyticsProvider]);
+analytics.configure(
+  [consoleAnalyticsProvider, posthogAnalyticsProvider].filter((p) => p != null),
+);
 
 function RootStack() {
   const theme = useTheme();
