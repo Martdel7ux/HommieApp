@@ -10,6 +10,7 @@ import { qk } from '@/lib/queryClient';
 import { PAGE_SIZE } from '@/config/constants';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { analytics } from '@/services/analytics';
+import { haptics } from '@/services/haptics';
 import { communityApi, type NewPostPhoto } from './api';
 import type { CommunityPost } from './types';
 import type { CommunityCategory } from '@/types/database';
@@ -64,6 +65,7 @@ export function useLikePost() {
     mutationFn: ({ postId, next }: { postId: string; next: boolean }) =>
       communityApi.toggleLike(user!.id, postId, next),
     onMutate: async ({ postId, next }) => {
+      haptics.select();
       analytics.track('community_post_liked', { post_id: postId });
       const patch = (p: CommunityPost): CommunityPost =>
         p.id === postId
