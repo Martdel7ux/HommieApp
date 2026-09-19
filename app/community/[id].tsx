@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, TextInput, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Avatar, LoadingState, ErrorState } from '@/components/ui';
@@ -15,6 +15,7 @@ import { REPORT_REASONS } from '@/config/constants';
 
 export default function PostDetail() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -70,7 +71,12 @@ export default function PostDetail() {
       ) : post.isError || !post.data ? (
         <ErrorState message="Couldn't load this post." onRetry={() => post.refetch()} />
       ) : (
-        <>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          // native header = status-bar inset + the standard 44pt nav bar
+          keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 44 : 0}
+        >
           <ScrollView
             contentContainerStyle={{ padding: theme.layout.screenPadding, paddingBottom: theme.spacing['4xl'], gap: theme.spacing.lg }}
             keyboardShouldPersistTaps="handled"
@@ -160,7 +166,7 @@ export default function PostDetail() {
               </Pressable>
             </View>
           </SafeAreaView>
-        </>
+        </KeyboardAvoidingView>
       )}
     </View>
   );

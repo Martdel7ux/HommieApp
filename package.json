@@ -30,6 +30,7 @@
     "expo-apple-authentication": "~57.0.1",
     "expo-application": "~57.0.3",
     "expo-asset": "~57.0.15",
+    "expo-calendar": "~57.0.4",
     "expo-constants": "~57.0.16",
     "expo-dev-client": "~57.0.18",
     "expo-device": "~57.0.1",

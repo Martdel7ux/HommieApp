@@ -33,13 +33,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: false,
     bundleIdentifier: 'com.hommie.app',
-    buildNumber: '10',
+    buildNumber: '11',
     ...(appleSignInEnabled ? { usesAppleSignIn: true } : {}),
     infoPlist: {
       NSPhotoLibraryUsageDescription:
         'Hommie needs access to your photos so you can add pictures to listings, your profile and marketplace items.',
       NSCameraUsageDescription:
         'Hommie needs camera access so you can take photos for listings and your profile.',
+      NSCalendarsUsageDescription:
+        'Hommie can add events you RSVP to on your calendar.',
+      NSCalendarsWriteOnlyAccessUsageDescription:
+        'Hommie can add events you RSVP to on your calendar.',
       ITSAppUsesNonExemptEncryption: false,
     },
   },

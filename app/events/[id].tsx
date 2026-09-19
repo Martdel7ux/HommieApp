@@ -19,6 +19,7 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { eventDateLabel, eventTimeRange } from '@/lib/datetime';
 import { eventCover } from '@/features/events/api';
 import { useEvent, useEventRsvp } from '@/features/events/hooks';
+import { addEventToCalendar } from '@/features/events/calendar';
 
 function InfoCard({
   icon,
@@ -79,6 +80,16 @@ export default function EventDetail() {
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${q}`);
   };
 
+  const addToCalendar = async () => {
+    if (!event.data) return;
+    const result = await addEventToCalendar(event.data);
+    if (result === 'denied') {
+      Alert.alert('Calendar access needed', 'Allow calendar access in Settings to add events.');
+    } else if (result === 'failed') {
+      Alert.alert('Could not open your calendar', 'Please try again.');
+    }
+  };
+
   const goingState = event.data?.myRsvp ?? null;
   const busy = rsvp.isPending;
 
@@ -89,7 +100,13 @@ export default function EventDetail() {
         { text: 'Cancel RSVP', style: 'destructive', onPress: () => rsvp.mutate(null) },
       ]);
     } else {
-      rsvp.mutate('going');
+      rsvp.mutate('going', {
+        onSuccess: () =>
+          Alert.alert("You're going!", "We'll remind you the day before. Want to add it to your calendar too?", [
+            { text: 'Not now', style: 'cancel' },
+            { text: 'Add to calendar', onPress: addToCalendar },
+          ]),
+      });
     }
   };
 
@@ -192,7 +209,30 @@ export default function EventDetail() {
               </Pressable>
             </View>
 
-            <InfoCard icon="calendar-outline">
+            <InfoCard
+              icon="calendar-outline"
+              right={
+                <Pressable
+                  onPress={addToCalendar}
+                  hitSlop={6}
+                  accessibilityLabel="Add to calendar"
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 4,
+                    backgroundColor: theme.colors.surface,
+                    borderRadius: theme.radius.pill,
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                  }}
+                >
+                  <Ionicons name="add-circle-outline" size={14} color={theme.colors.primary} />
+                  <Text variant="label" color={theme.colors.primary}>
+                    Add
+                  </Text>
+                </Pressable>
+              }
+            >
               <Text variant="h3" style={{ fontSize: 15.5 }}>
                 {eventDateLabel(event.data.starts_at)}
               </Text>

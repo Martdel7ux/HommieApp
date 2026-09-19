@@ -62,6 +62,7 @@ export interface AnalyticsEventMap {
   community_comment_created: { post_id: string };
   event_viewed: { event_id: string };
   event_rsvp_changed: { event_id: string; state: 'going' | 'interested' | 'none' };
+  event_added_to_calendar: { event_id: string };
   marketplace_search_performed: { filters_count: number };
   marketplace_item_viewed: { item_id: string };
   marketplace_item_saved: { item_id: string };
