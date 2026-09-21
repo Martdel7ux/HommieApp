@@ -75,6 +75,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    './plugins/withGradleMemory',
     'expo-secure-store',
     'expo-font',
     'expo-asset',
