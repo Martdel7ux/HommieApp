@@ -13,7 +13,8 @@
     "test": "jest",
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --local > src/types/database.ts"
+    "db:types": "supabase gen types typescript --local > src/types/database.ts",
+    "eas-build-pre-install": "node scripts/write-google-services.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

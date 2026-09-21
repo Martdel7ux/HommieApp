@@ -15,11 +15,11 @@ const appleSignInEnabled = process.env.EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED === 'tr
 // Android push (FCM). Drop the file Firebase gives you at the repo root; the
 // config picks it up automatically. Without it, Android builds still work —
 // they just can't receive push. See docs/PUSH_NOTIFICATIONS_SETUP.md.
-// EAS builds get it via the GOOGLE_SERVICES_JSON file env var (the file is
-// gitignored, so it isn't in the build's project copy).
-const googleServicesFile =
-  process.env.GOOGLE_SERVICES_JSON ??
-  (existsSync('./google-services.json') ? './google-services.json' : undefined);
+// EAS builds recreate it from the GOOGLE_SERVICES_JSON_B64 secret via the
+// eas-build-pre-install hook (scripts/write-google-services.js).
+const googleServicesFile = existsSync('./google-services.json')
+  ? './google-services.json'
+  : undefined;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -58,6 +58,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#FFFFFF',
     },
     permissions: ['CAMERA'],
+    // Libraries add these by default; the app doesn't use them (image picking
+    // and calendar insert go through system UI), and Play scrutinises them.
+    blockedPermissions: [
+      'android.permission.RECORD_AUDIO',
+      'android.permission.READ_EXTERNAL_STORAGE',
+      'android.permission.WRITE_EXTERNAL_STORAGE',
+      'android.permission.READ_CALENDAR',
+      'android.permission.WRITE_CALENDAR',
+      'android.permission.SYSTEM_ALERT_WINDOW',
+    ],
   },
   web: {
     bundler: 'metro',
