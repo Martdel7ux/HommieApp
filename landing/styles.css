@@ -144,8 +144,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 .card .stage { position: relative; margin-top: auto; padding-top: 34px; display: flex; justify-content: center; }
 .card .stage::before { content: ''; position: absolute; left: 50%; bottom: -30%; width: 120%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle, var(--tint, rgba(181, 171, 252, 0.55)), transparent 66%); filter: blur(24px); }
 .card .phone { width: min(56%, 250px); margin-bottom: -34%; }
-.card.t-coral { --tint: rgba(255, 122, 112, 0.42); }
-.card.t-mint { --tint: rgba(52, 211, 153, 0.36); }
+.card.t-lilac { --tint: rgba(181, 171, 252, 0.55); }
+.card.t-soft { --tint: rgba(165, 180, 252, 0.5); }
 .card.t-indigo { --tint: rgba(79, 70, 229, 0.3); }
 
 /* ---------- benefits ---------- */
@@ -212,7 +212,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .cta { padding: 0 0 110px; }
 .cta-panel { position: relative; overflow: hidden; border-radius: 40px; padding: 90px 40px; text-align: center; color: #e9e8ff; background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); }
 .cta-panel::before, .cta-panel::after { content: ''; position: absolute; border-radius: 50%; filter: blur(60px); }
-.cta-panel::before { width: 420px; height: 420px; left: -80px; top: -120px; background: rgba(255, 122, 112, 0.55); }
+.cta-panel::before { width: 420px; height: 420px; left: -80px; top: -120px; background: rgba(165, 180, 252, 0.5); }
 .cta-panel::after { width: 460px; height: 460px; right: -100px; bottom: -160px; background: rgba(181, 171, 252, 0.6); }
 .cta-panel > * { position: relative; z-index: 1; }
 .cta-panel h2 { color: #fff; font-size: clamp(38px, 5vw, 64px); max-width: 720px; margin: 0 auto 18px; }
