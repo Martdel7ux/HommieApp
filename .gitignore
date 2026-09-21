@@ -71,3 +71,4 @@ credentials.json
 *.jks
 *.keystore
 !android/app/debug.keystore
+*.aab
