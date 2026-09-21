@@ -65,3 +65,9 @@ hommie-upload-keystore.txt
 # admin-web (Next.js)
 admin-web/.next/
 admin-web/next-env.d.ts
+
+# Android signing (never commit)
+credentials.json
+*.jks
+*.keystore
+!android/app/debug.keystore

@@ -15,9 +15,11 @@ const appleSignInEnabled = process.env.EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED === 'tr
 // Android push (FCM). Drop the file Firebase gives you at the repo root; the
 // config picks it up automatically. Without it, Android builds still work —
 // they just can't receive push. See docs/PUSH_NOTIFICATIONS_SETUP.md.
-const googleServicesFile = existsSync('./google-services.json')
-  ? './google-services.json'
-  : undefined;
+// EAS builds get it via the GOOGLE_SERVICES_JSON file env var (the file is
+// gitignored, so it isn't in the build's project copy).
+const googleServicesFile =
+  process.env.GOOGLE_SERVICES_JSON ??
+  (existsSync('./google-services.json') ? './google-services.json' : undefined);
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -55,7 +57,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#FFFFFF',
     },
-    permissions: ['CAMERA', 'READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE'],
+    permissions: ['CAMERA'],
   },
   web: {
     bundler: 'metro',
