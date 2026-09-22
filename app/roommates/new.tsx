@@ -7,7 +7,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, Button, TextField, ChipGroup, Banner, LoadingState, ErrorState } from '@/components/ui';
+import { parseISO } from 'date-fns';
+import { Screen, Text, Button, TextField, DateField, ChipGroup, Banner, LoadingState, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { qk } from '@/lib/queryClient';
@@ -356,20 +357,19 @@ export default function EditRoommateProfile() {
               </View>
             </Field>
 
-            <Field label="Move-in window" hint={datesOk ? undefined : 'Use the format YYYY-MM-DD'}>
+            <Field label="Move-in window">
               <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
-                <TextField
-                  containerStyle={{ flex: 1 }}
-                  placeholder="From (YYYY-MM-DD)"
-                  value={moveFrom}
-                  onChangeText={setMoveFrom}
-                />
-                <TextField
-                  containerStyle={{ flex: 1 }}
-                  placeholder="To (optional)"
-                  value={moveTo}
-                  onChangeText={setMoveTo}
-                />
+                <View style={{ flex: 1 }}>
+                  <DateField placeholder="From" value={moveFrom} onChange={setMoveFrom} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <DateField
+                    placeholder="To (optional)"
+                    value={moveTo}
+                    onChange={setMoveTo}
+                    minimumDate={moveFrom ? parseISO(moveFrom) : undefined}
+                  />
+                </View>
               </View>
             </Field>
 

@@ -5,6 +5,7 @@ import Constants, { ExecutionEnvironment } from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/lib/supabase';
 import { logger } from '@/services/logger';
+import { env } from '@/config/env';
 
 // Expo Go can't retrieve a remote push token (removed in SDK 53) — needs a build.
 const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
@@ -85,7 +86,15 @@ export async function registerPushToken(userId: string): Promise<string | null> 
       return null;
     }
 
-    const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
+    // iOS: getExpoPushTokenAsync would otherwise auto-detect sandbox vs
+    // production via expo-application's native helper — that auto-detection
+    // was reporting the wrong environment for our TestFlight build (every
+    // push failed with APNs' "BadEnvironmentKeyInToken"), so tell it
+    // explicitly using our own already-reliable build config instead.
+    const { data: token } = await Notifications.getExpoPushTokenAsync({
+      projectId,
+      development: !env.isProduction,
+    });
 
     const { error } = await supabase.from('push_tokens').upsert(
       {
