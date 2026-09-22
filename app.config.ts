@@ -127,6 +127,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     analyticsEnabled: process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === 'true',
     posthogApiKey: process.env.EXPO_PUBLIC_POSTHOG_API_KEY,
     posthogHost: process.env.EXPO_PUBLIC_POSTHOG_HOST,
+    // Optional: crash reporting stays off until this is set (see src/services/sentry.ts).
+    // The native source-map-upload config plugin isn't added yet — see that file's header.
+    sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
     environment: process.env.EXPO_PUBLIC_ENV ?? 'development',
     eas: {
       // EAS-CLI statically scans this file for a literal id and can't

@@ -54,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (p) {
         analytics.identify(userId, { role: p.role, onboarding_completed: p.onboarding_completed });
         analytics.register({ role: p.role });
+        logger.setUser(userId);
       }
     } catch (e) {
       logger.capture(e, { scope: 'auth.loadProfile' });

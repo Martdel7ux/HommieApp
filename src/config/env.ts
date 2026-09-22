@@ -13,6 +13,7 @@ type Extra = {
   analyticsEnabled?: boolean;
   posthogApiKey?: string;
   posthogHost?: string;
+  sentryDsn?: string;
   environment?: string;
 };
 
@@ -40,6 +41,8 @@ export const env = {
   // Optional: analytics silently stays console-only until both are set.
   posthogApiKey: extra.posthogApiKey || undefined,
   posthogHost: extra.posthogHost || undefined,
+  // Optional: crash reporting stays off until this is set. See src/services/sentry.ts.
+  sentryDsn: extra.sentryDsn || undefined,
   environment: (extra.environment ?? 'development') as 'development' | 'preview' | 'production',
   isProduction: extra.environment === 'production',
 } as const;

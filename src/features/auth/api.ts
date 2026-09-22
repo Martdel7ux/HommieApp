@@ -154,6 +154,7 @@ export const authApi = {
       await supabase.auth.signOut();
       analytics.track('sign_out');
       analytics.reset();
+      logger.setUser(null);
     }, { scope: 'auth.signOut' });
   },
 
@@ -165,6 +166,7 @@ export const authApi = {
       analytics.track('account_deletion_requested');
       await supabase.auth.signOut();
       analytics.reset();
+      logger.setUser(null);
     }, { scope: 'auth.requestAccountDeletion' });
   },
 

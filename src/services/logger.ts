@@ -1,9 +1,10 @@
 import { env } from '@/config/env';
+import * as sentry from './sentry';
 
 /**
- * Minimal logger. In production, wire `capture` to a crash/error reporter
- * (Sentry, Bugsnag) — kept behind this interface so screens never call a
- * vendor SDK directly.
+ * Minimal logger. `capture` also forwards to Sentry (a no-op until
+ * EXPO_PUBLIC_SENTRY_DSN is set — see src/services/sentry.ts) — kept behind
+ * this interface so screens never call a vendor SDK directly.
  */
 type Level = 'debug' | 'info' | 'warn' | 'error';
 
@@ -23,6 +24,8 @@ export const logger = {
   capture: (error: unknown, context?: Record<string, unknown>) => {
     const message = error instanceof Error ? error.message : String(error);
     emit('error', message, { ...context, stack: error instanceof Error ? error.stack : undefined });
-    // TODO(release): forward to crash reporter when DSN is configured.
+    sentry.captureException(error, context);
   },
+  /** Ties crash reports to the signed-in user (id only, no PII). Pass null on sign-out. */
+  setUser: (userId: string | null) => sentry.setUser(userId),
 };

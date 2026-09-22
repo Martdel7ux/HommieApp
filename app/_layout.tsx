@@ -9,11 +9,14 @@ import { queryClient, queryPersister } from '@/lib/queryClient';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { analytics, consoleAnalyticsProvider } from '@/services/analytics';
 import { posthogAnalyticsProvider } from '@/services/analytics/posthog';
+import { initSentry, Sentry } from '@/services/sentry';
 import { AuthGate } from '@/features/auth/AuthGate';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PushBootstrap } from '@/components/PushBootstrap';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
+initSentry();
 
 analytics.configure(
   [consoleAnalyticsProvider, posthogAnalyticsProvider].filter((p) => p != null),
@@ -31,7 +34,7 @@ function RootStack() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   useEffect(() => {
     analytics.track('app_opened', { cold_start: true });
   }, []);
@@ -55,3 +58,7 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+// Sentry.wrap is a no-op passthrough until a DSN is configured (see
+// src/services/sentry.ts) — safe to always wrap.
+export default Sentry.wrap(RootLayout);
