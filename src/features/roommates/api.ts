@@ -43,7 +43,7 @@ const DETAIL_SELECT = `
   student_audience, housing_status, flat_rent_month,
   flat_photos:roommate_flat_photos ( id, storage_path, position ),
   profile:profiles!roommate_preferences_user_id_fkey (
-    id, first_name, last_name, display_name, avatar_url, study_level, interests
+    id, first_name, last_name, display_name, avatar_url, study_level, interests, verification
   ),
   university:universities ( name, short_name )
 `;
@@ -53,7 +53,7 @@ const CARD_SELECT = `
   move_in_from, smoking, sleep_schedule, social_level, cleanliness, lifestyle_tags,
   student_audience, housing_status,
   profile:profiles!roommate_preferences_user_id_fkey (
-    id, first_name, last_name, display_name, avatar_url, study_level
+    id, first_name, last_name, display_name, avatar_url, study_level, verification
   ),
   university:universities ( name, short_name )
 `;

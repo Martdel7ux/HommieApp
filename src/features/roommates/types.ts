@@ -1,4 +1,4 @@
-import type { StudyLevel, StudentAudience, HousingStatus } from '@/types/database';
+import type { StudyLevel, StudentAudience, HousingStatus, VerificationStatus } from '@/types/database';
 
 /** A local flat photo not yet uploaded, or an already-stored one keyed by its path. */
 export interface DraftFlatPhoto {
@@ -33,6 +33,7 @@ export interface RoommateProfileCard {
     display_name: string | null;
     avatar_url: string | null;
     study_level: StudyLevel | null;
+    verification: VerificationStatus;
   } | null;
   university: { name: string; short_name: string | null } | null;
 }
@@ -70,6 +71,7 @@ export interface RoommateProfileDetail {
     avatar_url: string | null;
     study_level: StudyLevel | null;
     interests: string[];
+    verification: VerificationStatus;
   } | null;
   university: { name: string; short_name: string | null } | null;
   saved: boolean;

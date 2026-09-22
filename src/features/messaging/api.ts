@@ -3,7 +3,7 @@ import { resolveAvatar, resolveImage } from '@/lib/images';
 import { guard } from '@/services/errors';
 import { PAGE_SIZE, type ReportReason } from '@/config/constants';
 import type { UserRole, VerificationStatus } from '@/types/database';
-import type { ChatMessage, ConversationDetail, ConversationSummary } from './types';
+import type { BlockedUser, ChatMessage, ConversationDetail, ConversationSummary } from './types';
 
 /** Raw shape of the participant->conversation embed. */
 interface RawParticipant {
@@ -290,5 +290,44 @@ export const messagingApi = {
         .insert({ reporter_id: reporterId, subject_type: 'user', subject_id: subjectId, reason });
       if (error && error.code !== '23505') throw error;
     }, { scope: 'messaging.reportUser' });
+  },
+
+  async listBlockedUsers(blockerId: string): Promise<BlockedUser[]> {
+    return guard(async () => {
+      const { data, error } = await supabase
+        .from('blocked_users')
+        .select(
+          `blocked_id, created_at,
+           profile:profiles!blocked_users_blocked_id_fkey ( id, first_name, display_name, avatar_url )`,
+        )
+        .eq('blocker_id', blockerId)
+        .order('created_at', { ascending: false })
+        .returns<
+          {
+            blocked_id: string;
+            created_at: string;
+            profile: { id: string; first_name: string | null; display_name: string | null; avatar_url: string | null } | null;
+          }[]
+        >();
+      if (error) throw error;
+      return (data ?? []).map((row) => ({
+        id: row.blocked_id,
+        name: row.profile?.first_name ?? row.profile?.display_name ?? 'Hommie user',
+        avatarUrl: resolveAvatar(row.profile?.avatar_url) ?? null,
+        blockedAt: row.created_at,
+      }));
+    }, { scope: 'messaging.listBlockedUsers' });
+  },
+
+  /** Unblocks a user — they can message and start a new conversation with you again. */
+  async unblockUser(blockerId: string, blockedId: string): Promise<void> {
+    return guard(async () => {
+      const { error } = await supabase
+        .from('blocked_users')
+        .delete()
+        .eq('blocker_id', blockerId)
+        .eq('blocked_id', blockedId);
+      if (error) throw error;
+    }, { scope: 'messaging.unblockUser' });
   },
 };

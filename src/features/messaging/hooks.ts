@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { qk } from '@/lib/queryClient';
 import { useAuth } from '@/features/auth/AuthProvider';
@@ -34,6 +34,38 @@ export function useConversations() {
   }, [user, queryClient]);
 
   return query;
+}
+
+export function useBlockedUsers() {
+  const { user, status } = useAuth();
+  return useQuery({
+    queryKey: qk.blockedUsers(user?.id ?? ''),
+    enabled: status === 'signed_in' && !!user,
+    queryFn: () => messagingApi.listBlockedUsers(user!.id),
+  });
+}
+
+/** Unblocks a user, with an optimistic removal from the blocked-users list. */
+export function useUnblockUser() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const key = qk.blockedUsers(user?.id ?? '');
+
+  return useMutation({
+    mutationFn: (blockedId: string) => messagingApi.unblockUser(user!.id, blockedId),
+    onMutate: async (blockedId) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const prev = queryClient.getQueryData<Awaited<ReturnType<typeof messagingApi.listBlockedUsers>>>(key);
+      if (prev) queryClient.setQueryData(key, prev.filter((u) => u.id !== blockedId));
+      return { prev };
+    },
+    onError: (_e, _blockedId, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(key, ctx.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: key });
+    },
+  });
 }
 
 export function useUnreadConversationCount() {

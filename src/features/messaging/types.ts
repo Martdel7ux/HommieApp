@@ -38,3 +38,10 @@ export interface ConversationSummary {
   /** Short context line, e.g. "Modern Studio near UNIC" or "Roommate chat". */
   contextLabel: string | null;
 }
+
+export interface BlockedUser {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  blockedAt: string;
+}

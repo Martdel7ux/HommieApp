@@ -329,6 +329,12 @@ export function ProfileScreen() {
             subtitle="FAQs and contact us"
             onPress={() => router.push('/profile/support')}
           />
+          <SettingsRow
+            icon={ion('shield-checkmark-outline')}
+            label="Blocked Users"
+            subtitle="Manage people you've blocked"
+            onPress={() => router.push('/profile/blocked-users')}
+          />
         </SettingsSection>
 
         <Button

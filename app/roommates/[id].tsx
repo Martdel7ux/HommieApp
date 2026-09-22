@@ -232,26 +232,28 @@ export default function RoommateProfile() {
                 }
               />
 
-              <View
-                style={{
-                  position: 'absolute',
-                  bottom: theme.spacing['3xl'] + theme.spacing.sm,
-                  left: theme.spacing.lg,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 5,
-                  backgroundColor: theme.colors.surface,
-                  borderRadius: theme.radius.pill,
-                  paddingHorizontal: 10,
-                  paddingVertical: 6,
-                  ...theme.shadows.sm,
-                }}
-              >
-                <Ionicons name="checkmark-circle" size={14} color={theme.colors.success} />
-                <Text variant="caption" style={{ fontWeight: '700' }}>
-                  Verified Student
-                </Text>
-              </View>
+              {p.profile?.verification === 'verified' ? (
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: theme.spacing['3xl'] + theme.spacing.sm,
+                    left: theme.spacing.lg,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 5,
+                    backgroundColor: theme.colors.surface,
+                    borderRadius: theme.radius.pill,
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    ...theme.shadows.sm,
+                  }}
+                >
+                  <Ionicons name="checkmark-circle" size={14} color={theme.colors.success} />
+                  <Text variant="caption" style={{ fontWeight: '700' }}>
+                    Verified Student
+                  </Text>
+                </View>
+              ) : null}
             </View>
 
             {/* Identity + about */}

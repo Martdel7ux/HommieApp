@@ -50,6 +50,7 @@ export const qk = {
   conversations: ['conversations'] as const,
   unreadConversations: ['conversations', 'unread-count'] as const,
   messages: (conversationId: string) => ['messages', conversationId] as const,
+  blockedUsers: (userId: string) => ['blocked-users', userId] as const,
   enquiries: ['enquiries'] as const,
   notifications: ['notifications'] as const,
   unreadNotifications: ['notifications', 'unread-count'] as const,

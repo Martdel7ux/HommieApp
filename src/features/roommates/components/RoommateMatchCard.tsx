@@ -69,7 +69,9 @@ export function RoommateMatchCard({
           <Text variant="h3" numberOfLines={1} style={{ fontSize: 15 }}>
             {name}
           </Text>
-          <Ionicons name="checkmark-circle" size={15} color={theme.colors.verifiedBadge} />
+          {p?.verification === 'verified' ? (
+            <Ionicons name="checkmark-circle" size={15} color={theme.colors.verifiedBadge} />
+          ) : null}
         </View>
         <Text variant="bodySm" muted numberOfLines={1}>
           {subtitle}
