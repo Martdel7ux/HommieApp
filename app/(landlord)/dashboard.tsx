@@ -53,7 +53,7 @@ function Stat({
 export default function LandlordDashboard() {
   const theme = useTheme();
   const router = useRouter();
-  const { profile, landlordProfile } = useAuth();
+  const { landlordProfile } = useAuth();
   const unreadMessages = useUnreadConversationCount();
   const unreadNotifications = useUnreadNotificationCount();
 
@@ -78,11 +78,8 @@ export default function LandlordDashboard() {
         <View style={{ gap: theme.spacing.md, marginTop: theme.spacing.xs }}>
           <ScreenHeader
             left={null}
-            avatarUrl={profile?.avatar_url}
-            name={profile?.first_name}
             hasNotifications={(unreadNotifications.data ?? 0) > 0}
             onOpenNotifications={() => router.push('/notifications')}
-            onOpenProfile={() => router.push('/(landlord)/profile')}
           />
           <View>
             <Text variant="bodySm" muted>

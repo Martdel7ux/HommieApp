@@ -157,11 +157,8 @@ export default function StudentHome() {
         <View style={{ gap: theme.spacing.lg, marginTop: theme.spacing.xs }}>
           <ScreenHeader
             left={null}
-            avatarUrl={profile?.avatar_url}
-            name={profile?.first_name}
             hasNotifications={(unread.data ?? 0) > 0}
             onOpenNotifications={() => router.push('/notifications')}
-            onOpenProfile={() => router.push('/profile')}
           />
           <View style={{ gap: 6 }}>
             <Text variant="h1">

@@ -31,13 +31,15 @@ const ICONS: Record<string, [IoniconName, IoniconName]> = {
 };
 
 const SEARCH_ICON: [IoniconName, IoniconName] = ['search', 'search-outline'];
+const PROFILE_ICON: [IoniconName, IoniconName] = ['person', 'person-outline'];
 
 /** A rendered tab is either a real tab-navigator route, or a static action
  * that pushes to a screen outside this tab group (e.g. accommodation
- * search, which lives on the root stack so it can show its own header). */
+ * search and profile, which live on the root stack so they can show their
+ * own headers). */
 type TabEntry =
   | { kind: 'route'; key: string; name: string }
-  | { kind: 'action'; key: string; label: string; onPress: () => void };
+  | { kind: 'action'; key: string; label: string; icon: [IoniconName, IoniconName]; onPress: () => void };
 
 const PILL_HEIGHT = 62;
 const RADIUS = PILL_HEIGHT / 2;
@@ -56,9 +58,10 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
 
   const entries: TabEntry[] = [
     home && { kind: 'route', key: home.key, name: home.name },
-    { kind: 'action', key: 'search', label: 'Search', onPress: () => router.push('/accommodation') },
+    { kind: 'action', key: 'search', label: 'Search', icon: SEARCH_ICON, onPress: () => router.push('/accommodation') },
     messages && { kind: 'route', key: messages.key, name: messages.name },
     community && { kind: 'route', key: community.key, name: community.name },
+    { kind: 'action', key: 'profile', label: 'Profile', icon: PROFILE_ICON, onPress: () => router.push('/profile') },
   ].filter((e): e is TabEntry => !!e);
 
   const activeKey = state.routes[state.index]?.key;
@@ -110,7 +113,7 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
         >
           {entries.map((entry) => {
             const focused = entry.kind === 'route' && entry.key === activeKey;
-            const [on, off] = entry.kind === 'route' ? ICONS[entry.name] : SEARCH_ICON;
+            const [on, off] = entry.kind === 'route' ? ICONS[entry.name] : entry.icon;
             const color = focused ? theme.colors.primary : theme.colors.textSecondary;
             const showBadge = entry.kind === 'route' && entry.name === 'messages' && unreadCount > 0;
             const label = entry.kind === 'route' ? (descriptors[entry.key]?.options.title ?? entry.name) : entry.label;

@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, Button, SegmentedControl, LoadingState, ErrorState, EmptyState, ScreenHeader } from '@/components/ui';
 import { useTheme } from '@/theme';
-import { useAuth } from '@/features/auth/AuthProvider';
 import { LandlordListingCard } from '@/features/landlord/components/LandlordListingCard';
 import { useMyListings } from '@/features/landlord/hooks';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks';
@@ -24,7 +23,6 @@ const FILTERS: { value: Filter; label: string }[] = [
 export default function LandlordListings() {
   const theme = useTheme();
   const router = useRouter();
-  const { profile } = useAuth();
   const listings = useMyListings();
   const unreadNotifications = useUnreadNotificationCount();
   const [filter, setFilter] = useState<Filter>('all');
@@ -39,11 +37,8 @@ export default function LandlordListings() {
     <View style={{ gap: theme.spacing.lg, paddingBottom: theme.spacing.md }}>
       <ScreenHeader
         left={null}
-        avatarUrl={profile?.avatar_url}
-        name={profile?.first_name}
         hasNotifications={(unreadNotifications.data ?? 0) > 0}
         onOpenNotifications={() => router.push('/notifications')}
-        onOpenProfile={() => router.push('/(landlord)/profile')}
       />
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Text variant="h1">My Listings</Text>

@@ -18,6 +18,9 @@ export const notificationsApi = {
       const { data, error } = await supabase
         .from('notifications')
         .select('id, type, title, body, data, is_read, created_at')
+        // New messages already surface their own unread state on the
+        // Messages tab — showing them here too would be a duplicate signal.
+        .neq('type', 'message')
         .order('created_at', { ascending: false })
         .limit(limit)
         .returns<

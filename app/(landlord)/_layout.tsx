@@ -31,8 +31,10 @@ export default function LandlordTabsLayout() {
         name="messages"
         options={{ title: 'Messages', tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble-outline" color={color} size={size} /> }}
       />
-      {/* Reachable from the avatar in the top bar, not a tab. */}
-      <Tabs.Screen name="profile" options={{ href: null }} />
+      <Tabs.Screen
+        name="profile"
+        options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" color={color} size={size} /> }}
+      />
       {/* Reachable from the dashboard's Enquiries tile, not a tab. */}
       <Tabs.Screen name="leads" options={{ href: null }} />
     </Tabs>

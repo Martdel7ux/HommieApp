@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, Text, Button, EmptyState, ErrorState, Card, ScreenHeader } from '@/components/ui';
 import { useTheme } from '@/theme';
-import { useAuth } from '@/features/auth/AuthProvider';
 import { useDebounce } from '@/hooks/useDebounce';
 import { analytics } from '@/services/analytics';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks';
@@ -27,7 +26,6 @@ const CHIPS: { key: ChipKey; label: string; patch: Partial<JobFilters> }[] = [
 export default function Jobs() {
   const theme = useTheme();
   const router = useRouter();
-  const { profile } = useAuth();
   const unread = useUnreadNotificationCount();
 
   const [searchText, setSearchText] = useState('');
@@ -47,11 +45,8 @@ export default function Jobs() {
     <View style={{ gap: theme.spacing.lg, paddingBottom: theme.spacing.lg }}>
       <ScreenHeader
         left={<Text variant="h1">Jobs</Text>}
-        avatarUrl={profile?.avatar_url}
-        name={profile?.first_name}
         hasNotifications={(unread.data ?? 0) > 0}
         onOpenNotifications={() => router.push('/notifications')}
-        onOpenProfile={() => router.push('/profile')}
       />
 
       <View
