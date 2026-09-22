@@ -82,6 +82,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     '@react-native-community/datetimepicker',
     ...(appleSignInEnabled ? ['expo-apple-authentication'] : []),
     [
+      '@sentry/react-native/expo',
+      {
+        // Auth token comes from the SENTRY_AUTH_TOKEN EAS secret at build
+        // time, never here (it's a secret; see src/services/sentry.ts).
+        organization: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+      },
+    ],
+    [
       '@react-native-google-signin/google-signin',
       {
         // Reversed iOS OAuth client id (com.googleusercontent.apps.XXXX).

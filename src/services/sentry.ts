@@ -6,12 +6,11 @@ import { env } from '@/config/env';
  * function here is a safe no-op in that case, same pattern as the PostHog
  * analytics provider (`src/services/analytics/posthog.ts`).
  *
- * NOTE: only the JS-side SDK is wired up so far. The `@sentry/react-native/expo`
- * config plugin (native source-map/dSYM upload during EAS builds) is NOT yet
- * added to app.config.ts — it needs SENTRY_ORG/SENTRY_PROJECT/SENTRY_AUTH_TOKEN
- * and its build-phase script fails the whole build if those are missing or
- * wrong. Add it once those are set and confirmed with EAS secrets, and verify
- * with a real build before relying on it.
+ * The `@sentry/react-native/expo` config plugin (native source-map/dSYM
+ * upload during EAS builds) is wired up in app.config.ts, reading
+ * SENTRY_ORG/SENTRY_PROJECT/SENTRY_AUTH_TOKEN from EAS secrets at build
+ * time — its build-phase script uses `set -e`, so a wrong/missing token
+ * fails the WHOLE build, not just the upload.
  */
 export function initSentry() {
   if (!env.sentryDsn) return;
