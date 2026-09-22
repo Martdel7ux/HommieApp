@@ -149,6 +149,46 @@ ul { margin: 0; padding: 0; list-style: none; }
 .card.t-soft { --tint: rgba(165, 180, 252, 0.5); }
 .card.t-indigo { --tint: rgba(79, 70, 229, 0.3); }
 
+/* student-ID card graphic (verification feature) — same footprint as .card .phone */
+.id-card {
+  position: relative;
+  width: min(70%, 240px);
+  aspect-ratio: 1.55;
+  margin: 0 auto 34px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 50px -20px rgba(31, 27, 90, 0.35);
+  transform: rotate(-5deg);
+  transition: transform 0.4s var(--ease);
+}
+.card:hover .id-card { transform: rotate(-2deg) translateY(-4px); }
+.id-top { display: flex; align-items: center; gap: 7px; }
+.id-top img { width: 16px; height: 16px; opacity: 0.85; }
+.id-top span { font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--muted); }
+.id-body { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.id-avatar {
+  width: 44px; height: 44px; border-radius: 50%; flex: none;
+  background: var(--indigo-soft); color: var(--indigo);
+  display: flex; align-items: center; justify-content: center;
+}
+.id-avatar svg { width: 22px; height: 22px; }
+.id-lines { flex: 1; display: grid; gap: 8px; }
+.id-line { display: block; height: 8px; border-radius: 5px; background: var(--surface); border: 1px solid var(--line); }
+.id-line.w1 { width: 78%; }
+.id-line.w2 { width: 52%; }
+.id-badge {
+  position: absolute; right: -10px; bottom: -14px;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--mint); color: #05372a;
+  padding: 8px 14px; border-radius: 999px;
+  font-size: 13px; font-weight: 700; letter-spacing: -0.01em;
+  box-shadow: 0 16px 28px -10px rgba(5, 55, 42, 0.55);
+  transform: rotate(4deg);
+}
+.id-badge svg { width: 16px; height: 16px; }
+
 /* ---------- benefits ---------- */
 .benefits { background: var(--surface); }
 .benefit-grid { display: grid; grid-template-columns: 1fr minmax(240px, 300px) 1fr; gap: 40px; align-items: center; }
