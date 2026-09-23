@@ -165,7 +165,12 @@ export const authApi = {
     }, { scope: 'auth.signOut' });
   },
 
-  /** Soft delete: flags the profile; a staff job / edge function removes the auth user. */
+  /**
+   * Scrubs personal data and permanently bans the login (RPC), then ends the
+   * local session. The account row itself is kept (not hard-deleted) so
+   * other users' conversations/listings referencing it don't break — see
+   * migration 0031 for why.
+   */
   async requestAccountDeletion() {
     return guard(async () => {
       const { error } = await supabase.rpc('request_account_deletion');

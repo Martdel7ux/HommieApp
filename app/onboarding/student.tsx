@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, Button, TextField, Select, ChipGroup, Banner, LoadingState } from '@/components/ui';
+import { Screen, Text, Button, TextField, DateField, Select, ChipGroup, Banner, LoadingState } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { profileApi } from '@/features/profile/api';
@@ -128,16 +128,15 @@ export default function StudentOnboarding() {
     [universities],
   );
 
-  const dateValid = /^\d{4}-\d{2}-\d{2}$/.test(draft.move_in_from) || draft.move_in_from === '';
   const ageNum = draft.age ? Number(draft.age) : null;
   const ageValid = ageNum == null || (ageNum >= 16 && ageNum <= 99);
 
   const canAdvance = useMemo(() => {
     if (step === 0) return draft.first_name.trim().length > 0 && ageValid;
     if (step === 1) return !!draft.university_id && !!draft.study_level && !!draft.city;
-    if (step === 2) return !!draft.student_status && dateValid;
+    if (step === 2) return !!draft.student_status;
     return true;
-  }, [step, draft, ageValid, dateValid]);
+  }, [step, draft, ageValid]);
 
   const pickPhoto = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -359,12 +358,12 @@ export default function StudentOnboarding() {
                   onChange={(v) => set('student_status', v as StudentStatus)}
                 />
               </Field>
-              <TextField
+              <DateField
                 label="Move-in date (optional)"
-                placeholder="YYYY-MM-DD"
+                placeholder="Select date"
                 value={draft.move_in_from}
-                onChangeText={(v) => set('move_in_from', v)}
-                error={dateValid ? undefined : 'Use the format YYYY-MM-DD'}
+                onChange={(v) => set('move_in_from', v)}
+                minimumDate={new Date()}
               />
               <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
                 <TextField

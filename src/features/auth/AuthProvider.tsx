@@ -37,18 +37,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // during a social landlord sign-up).
   const loadSeq = useRef(0);
 
-  const loadProfile = useCallback(async (userId: string) => {
-    if (loadingProfileFor.current === userId) return;
+  /** Returns false when the session should NOT be treated as signed in (the account was deleted). */
+  const loadProfile = useCallback(async (userId: string): Promise<boolean> => {
+    if (loadingProfileFor.current === userId) return true;
     loadingProfileFor.current = userId;
     const seq = ++loadSeq.current;
     try {
       const { data: p, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
       if (error) throw error;
+      if (p && !p.is_active) {
+        // Deleted account. `request_account_deletion` already bans future
+        // sign-ins at the Supabase Auth layer, but if a session was already
+        // active at the moment of deletion (e.g. another device), close it
+        // here too instead of loading the app as normal.
+        await supabase.auth.signOut();
+        return false;
+      }
       let lp: LandlordProfile | null = null;
       if (p?.role === 'landlord') {
         ({ data: lp } = await supabase.from('landlord_profiles').select('*').eq('id', userId).maybeSingle());
       }
-      if (seq !== loadSeq.current) return; // a newer load has superseded this one
+      if (seq !== loadSeq.current) return true; // a newer load has superseded this one
       setProfile(p);
       setLandlordProfile(lp);
       if (p) {
@@ -56,8 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         analytics.register({ role: p.role });
         logger.setUser(userId);
       }
+      return true;
     } catch (e) {
       logger.capture(e, { scope: 'auth.loadProfile' });
+      return true;
     } finally {
       loadingProfileFor.current = null;
     }
@@ -70,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!active) return;
       setSession(data.session);
       if (data.session?.user) {
-        loadProfile(data.session.user.id).finally(() => active && setStatus('signed_in'));
+        loadProfile(data.session.user.id).then((ok) => { if (active && ok) setStatus('signed_in'); });
       } else {
         setStatus('signed_out');
       }
@@ -87,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       if (newSession.user) {
-        loadProfile(newSession.user.id).finally(() => active && setStatus('signed_in'));
+        loadProfile(newSession.user.id).then((ok) => { if (active && ok) setStatus('signed_in'); });
       }
     });
 

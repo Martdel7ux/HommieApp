@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { Screen, Text, Button, TextField, Select, Banner } from '@/components/ui';
+import { Screen, Text, Button, TextField, DateField, Select, Banner } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { profileApi } from '@/features/profile/api';
@@ -20,10 +20,8 @@ export default function HousingFilters() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const dateValid = /^\d{4}-\d{2}-\d{2}$/.test(moveIn) || moveIn === '';
-
   const save = async () => {
-    if (!user || !dateValid) return;
+    if (!user) return;
     setSaving(true);
     setError(null);
     try {
@@ -85,15 +83,15 @@ export default function HousingFilters() {
           />
         </View>
 
-        <TextField
+        <DateField
           label="Move-in from (optional)"
-          placeholder="YYYY-MM-DD"
+          placeholder="Select date"
           value={moveIn}
-          onChangeText={setMoveIn}
-          error={dateValid ? undefined : 'Use the format YYYY-MM-DD'}
+          onChange={setMoveIn}
+          minimumDate={new Date()}
         />
 
-        <Button title="Save" loading={saving} disabled={!dateValid} onPress={save} />
+        <Button title="Save" loading={saving} onPress={save} />
       </View>
     </Screen>
   );
