@@ -188,9 +188,13 @@ export function ProfileScreen() {
       {
         text: 'Log out',
         style: 'destructive',
-        onPress: () => {
+        onPress: async () => {
           haptics.warning();
-          authApi.signOut();
+          try {
+            await authApi.signOut();
+          } catch (e) {
+            Alert.alert('Could not log out', toAppError(e).message);
+          }
         },
       },
     ]);

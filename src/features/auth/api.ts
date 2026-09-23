@@ -150,11 +150,18 @@ export const authApi = {
   async signOut() {
     return guard(async () => {
       await unregisterPushToken().catch(() => undefined);
-      await signOutGoogle();
-      await supabase.auth.signOut();
-      analytics.track('sign_out');
-      analytics.reset();
-      logger.setUser(null);
+      await signOutGoogle().catch(() => undefined);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      // The account is signed out at this point — never let a tracking hiccup
+      // downstream make the caller think signOut() itself failed.
+      try {
+        analytics.track('sign_out');
+        analytics.reset();
+        logger.setUser(null);
+      } catch (e) {
+        logger.capture(e, { scope: 'auth.signOut.tracking' });
+      }
     }, { scope: 'auth.signOut' });
   },
 
@@ -163,10 +170,15 @@ export const authApi = {
     return guard(async () => {
       const { error } = await supabase.rpc('request_account_deletion');
       if (error) throw error;
-      analytics.track('account_deletion_requested');
-      await supabase.auth.signOut();
-      analytics.reset();
-      logger.setUser(null);
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
+      try {
+        analytics.track('account_deletion_requested');
+        analytics.reset();
+        logger.setUser(null);
+      } catch (e) {
+        logger.capture(e, { scope: 'auth.requestAccountDeletion.tracking' });
+      }
     }, { scope: 'auth.requestAccountDeletion' });
   },
 
