@@ -303,6 +303,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .legal li { margin-bottom: 6px; }
 .legal hr { border: 0; border-top: 1px solid var(--line); margin: 34px 0; }
 .legal a { color: var(--indigo); text-decoration: underline; text-underline-offset: 3px; }
+.legal a.btn { color: #fff; text-decoration: none; }
 .legal strong { color: var(--ink); font-weight: 600; }
 .legal-switch { display: flex; gap: 10px; margin: 0 0 34px; }
 .legal .legal-switch a { text-decoration: none; color: var(--ink); padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line); font-size: 15px; font-weight: 500; }
