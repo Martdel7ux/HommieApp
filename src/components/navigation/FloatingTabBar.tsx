@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -144,13 +144,10 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
               >
                 <View
                   style={{
-                    minWidth: 56,
-                    paddingHorizontal: focused ? 12 : 0,
-                    paddingVertical: focused ? 7 : 8,
+                    padding: focused ? 10 : 8,
                     borderRadius: theme.radius.pill,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: 2,
                     backgroundColor: focused ? theme.colors.primarySubtle : 'transparent',
                   }}
                 >
@@ -172,14 +169,6 @@ export function FloatingTabBar({ state, navigation, descriptors }: TabBarProps) 
                       />
                     ) : null}
                   </View>
-                  {focused ? (
-                    <Text
-                      numberOfLines={1}
-                      style={{ fontSize: 11, fontWeight: '700', color: theme.colors.primary }}
-                    >
-                      {label}
-                    </Text>
-                  ) : null}
                 </View>
               </Pressable>
             );

@@ -8,7 +8,6 @@ import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, Button, Avatar, LoadingState, ErrorState, OverlayHeader, OverlayIconButton } from '@/components/ui';
 import { useTheme } from '@/theme';
-import { useAuth } from '@/features/auth/AuthProvider';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
 import { resolveImage } from '@/lib/images';
@@ -238,7 +237,6 @@ export default function ListingDetail() {
   const theme = useTheme();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { profile } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const listing = useListing(id);
@@ -297,19 +295,11 @@ export default function ListingDetail() {
               <OverlayHeader
                 onBack={() => router.back()}
                 right={
-                  <>
-                    <OverlayIconButton
-                      icon="notifications-outline"
-                      label="Notifications"
-                      onPress={() => router.push('/notifications')}
-                    />
-                    <Pressable
-                      onPress={() => router.push('/profile')}
-                      accessibilityLabel="Open profile"
-                    >
-                      <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={38} />
-                    </Pressable>
-                  </>
+                  <OverlayIconButton
+                    icon="notifications-outline"
+                    label="Notifications"
+                    onPress={() => router.push('/notifications')}
+                  />
                 }
               />
 

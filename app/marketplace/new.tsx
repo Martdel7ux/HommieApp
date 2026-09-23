@@ -6,7 +6,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Button, Select, Banner, Avatar } from '@/components/ui';
+import { Text, Button, Select, Banner } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { toAppError } from '@/services/errors';
@@ -115,9 +115,6 @@ export default function NewListing() {
               accessibilityLabel="Notifications"
             >
               <Ionicons name="notifications-outline" size={24} color={theme.colors.textPrimary} />
-            </Pressable>
-            <Pressable onPress={() => router.push('/profile')} accessibilityLabel="Open profile">
-              <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={34} />
             </Pressable>
           </View>
         </View>

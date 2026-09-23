@@ -4,9 +4,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Button, Avatar, Card, EmptyState, ErrorState } from '@/components/ui';
+import { Text, Button, Card, EmptyState, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme';
-import { useAuth } from '@/features/auth/AuthProvider';
 import { useDebounce } from '@/hooks/useDebounce';
 import { analytics } from '@/services/analytics';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks';
@@ -19,7 +18,6 @@ import type { MarketplaceCategory } from '@/types/database';
 export default function Marketplace() {
   const theme = useTheme();
   const router = useRouter();
-  const { profile } = useAuth();
   const unread = useUnreadNotificationCount();
 
   const [search, setSearch] = useState('');
@@ -134,9 +132,6 @@ export default function Marketplace() {
                   }}
                 />
               ) : null}
-            </Pressable>
-            <Pressable onPress={() => router.push('/profile')} accessibilityLabel="Open profile">
-              <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={34} />
             </Pressable>
           </View>
         </View>

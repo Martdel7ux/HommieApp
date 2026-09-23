@@ -3,9 +3,8 @@ import { ActivityIndicator, FlatList, Pressable, TextInput, View } from 'react-n
 import { ScrollView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Text, Button, Avatar, EmptyState, ErrorState } from '@/components/ui';
+import { Screen, Text, Button, EmptyState, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme';
-import { useAuth } from '@/features/auth/AuthProvider';
 import { useUnreadNotificationCount } from '@/features/notifications/hooks';
 import { COMMUNITY_CATEGORIES } from '@/config/constants';
 import { communityCategoryLabels } from '@/config/labels';
@@ -16,7 +15,6 @@ import type { CommunityCategory } from '@/types/database';
 export default function Community() {
   const theme = useTheme();
   const router = useRouter();
-  const { profile } = useAuth();
   const unread = useUnreadNotificationCount();
 
   const [category, setCategory] = useState<CommunityCategory | null>(null);
@@ -74,9 +72,6 @@ export default function Community() {
                 }}
               />
             ) : null}
-          </Pressable>
-          <Pressable onPress={() => router.push('/profile')} accessibilityLabel="Open profile">
-            <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={40} />
           </Pressable>
         </View>
       </View>

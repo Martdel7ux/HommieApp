@@ -227,12 +227,9 @@ export function ProfileScreen() {
           <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel="Go back">
             <Ionicons name="arrow-back" size={24} color={theme.colors.textPrimary} />
           </Pressable>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-            <Pressable onPress={() => router.push('/notifications')} hitSlop={10} accessibilityLabel="Notifications">
-              <Ionicons name="notifications-outline" size={24} color={theme.colors.textPrimary} />
-            </Pressable>
-            <Avatar uri={avatarUri} name={name} size={34} />
-          </View>
+          <Pressable onPress={() => router.push('/notifications')} hitSlop={10} accessibilityLabel="Notifications">
+            <Ionicons name="notifications-outline" size={24} color={theme.colors.textPrimary} />
+          </Pressable>
         </View>
 
         {/* Identity */}

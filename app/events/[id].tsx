@@ -15,7 +15,6 @@ import {
   OverlayIconButton,
 } from '@/components/ui';
 import { useTheme } from '@/theme';
-import { useAuth } from '@/features/auth/AuthProvider';
 import { eventDateLabel, eventTimeRange } from '@/lib/datetime';
 import { eventCover } from '@/features/events/api';
 import { useEvent, useEventRsvp } from '@/features/events/hooks';
@@ -64,7 +63,6 @@ export default function EventDetail() {
   const theme = useTheme();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { profile } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const event = useEvent(id);
@@ -141,19 +139,11 @@ export default function EventDetail() {
               <OverlayHeader
                 onBack={() => router.back()}
                 right={
-                  <>
-                    <OverlayIconButton
-                      icon="notifications-outline"
-                      label="Notifications"
-                      onPress={() => router.push('/notifications')}
-                    />
-                    <Pressable
-                      onPress={() => router.push('/profile')}
-                      accessibilityLabel="Open profile"
-                    >
-                      <Avatar uri={profile?.avatar_url} name={profile?.first_name} size={38} />
-                    </Pressable>
-                  </>
+                  <OverlayIconButton
+                    icon="notifications-outline"
+                    label="Notifications"
+                    onPress={() => router.push('/notifications')}
+                  />
                 }
               />
 
