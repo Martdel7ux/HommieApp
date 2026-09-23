@@ -337,6 +337,20 @@ ul { margin: 0; padding: 0; list-style: none; }
   .float.f2 { right: 4px; top: 220px; }
   .cta-panel { padding: 64px 24px; border-radius: 30px; }
 }
+/* Tablet portrait (roughly 640-980px): the mobile single-column layout above
+   still applies, but its phone/card graphics were sized for narrow phone
+   screens and looked small and lost inside these much wider cards — scale
+   them up so they fill the space properly. */
+@media (min-width: 640px) and (max-width: 980px) {
+  .city-row { gap: 10px 18px; font-size: 15.5px; }
+  .card .phone { width: min(50%, 340px); }
+  .id-card { width: min(60%, 300px); }
+  .benefit-phone { width: 320px; }
+  .benefit-phone-wrap { height: 480px; }
+  .show-art { height: 600px; }
+  .show-art .phone { width: 46%; max-width: 360px; }
+  .landlord-art .phone { width: min(46%, 340px); }
+}
 @media (max-width: 560px) {
   :root { --gutter: 18px; }
   body { font-size: 16px; }
