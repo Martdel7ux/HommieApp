@@ -9,7 +9,8 @@ import { LoadingState } from '@/components/ui';
  * Central navigation guard.
  *
  * Routing rules:
- *  - not signed in            -> (auth) group
+ *  - not signed in            -> (auth)/browse (guest landing — real listings,
+ *    no account required; App Review Guideline 5.1.1(v))
  *  - signed in, email unverified -> (auth)/verify-email
  *  - signed in, onboarding incomplete -> onboarding/<role>
  *  - signed in student        -> (student) group
@@ -40,7 +41,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     if (isPublic) return;
 
     if (status === 'signed_out') {
-      if (!inAuth) router.replace('/(auth)/welcome');
+      if (!inAuth) router.replace('/(auth)/browse');
       return;
     }
 

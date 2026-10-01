@@ -35,7 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: false,
     bundleIdentifier: 'com.hommie.app',
-    buildNumber: '18',
+    buildNumber: '19',
     ...(appleSignInEnabled ? { usesAppleSignIn: true } : {}),
     infoPlist: {
       NSPhotoLibraryUsageDescription:
