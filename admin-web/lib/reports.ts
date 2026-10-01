@@ -72,6 +72,24 @@ export async function setReportStatus(id: string, status: ReportStatus): Promise
   if (error) throw error;
 }
 
+const HIDEABLE_TABLE: Record<string, 'community_posts' | 'community_comments'> = {
+  community_post: 'community_posts',
+  community_comment: 'community_comments',
+};
+
+export function isHideable(subjectType: string): boolean {
+  return subjectType in HIDEABLE_TABLE;
+}
+
+/** Hides the reported post/comment (removes it from every feed immediately) and marks the report actioned. */
+export async function hideReportedContent(report: Pick<OpenReport, 'id' | 'subject_type' | 'subject_id'>): Promise<void> {
+  const table = HIDEABLE_TABLE[report.subject_type];
+  if (!table) throw new Error(`Content type "${report.subject_type}" can't be hidden from here.`);
+  const { error: hideError } = await supabase.from(table).update({ is_hidden: true }).eq('id', report.subject_id);
+  if (hideError) throw hideError;
+  await setReportStatus(report.id, 'actioned');
+}
+
 export async function openReportsCount(): Promise<number> {
   const { count, error } = await supabase
     .from('reports')

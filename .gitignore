@@ -72,3 +72,4 @@ credentials.json
 *.keystore
 !android/app/debug.keystore
 *.aab
+.vercel

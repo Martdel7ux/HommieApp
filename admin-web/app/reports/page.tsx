@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { openReports, reporterName, setReportStatus, type OpenReport } from '@/lib/reports';
+import { hideReportedContent, isHideable, openReports, reporterName, setReportStatus, type OpenReport } from '@/lib/reports';
 
 const REASON_LABEL: Record<string, string> = {
   spam: 'Spam',
@@ -78,6 +78,18 @@ export default function ReportsPage() {
     }
   };
 
+  const hide = async (r: OpenReport) => {
+    setBusyId(r.id);
+    try {
+      await hideReportedContent(r);
+      setReports((prev) => prev.filter((x) => x.id !== r.id));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to hide content.');
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     router.replace('/');
@@ -123,14 +135,20 @@ export default function ReportsPage() {
               <button className="btn-secondary" disabled={busyId === r.id} onClick={() => act(r.id, 'dismissed')}>
                 Dismiss
               </button>
-              <button
-                className="btn-primary"
-                style={{ marginTop: 0 }}
-                disabled={busyId === r.id}
-                onClick={() => act(r.id, 'actioned')}
-              >
-                Mark actioned
-              </button>
+              {isHideable(r.subject_type) ? (
+                <button className="btn-secondary" disabled={busyId === r.id} onClick={() => hide(r)}>
+                  Hide {SUBJECT_LABEL[r.subject_type]?.toLowerCase() ?? 'content'}
+                </button>
+              ) : (
+                <button
+                  className="btn-primary"
+                  style={{ marginTop: 0 }}
+                  disabled={busyId === r.id}
+                  onClick={() => act(r.id, 'actioned')}
+                >
+                  Mark actioned
+                </button>
+              )}
             </div>
           </div>
         ))
