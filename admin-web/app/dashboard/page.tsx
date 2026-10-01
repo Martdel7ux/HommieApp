@@ -110,6 +110,14 @@ export default function DashboardPage() {
           label="Pending verifications"
           loading={loading}
         />
+        <StatTile
+          href="/reports"
+          accent="red"
+          icon="🚩"
+          value={stats?.openReports ?? 0}
+          label="Open reports"
+          loading={loading}
+        />
       </div>
 
       <p className="dash-section-title">Quick actions</p>
@@ -143,6 +151,14 @@ export default function DashboardPage() {
           <div>
             <p className="action-title">Review Verifications</p>
             <p className="muted">Approve or reject student ID uploads</p>
+          </div>
+          <span className="action-arrow">→</span>
+        </Link>
+        <Link href="/reports" className="action-card">
+          <div className="action-icon">🚩</div>
+          <div>
+            <p className="action-title">Reports</p>
+            <p className="muted">Reported content and blocked-user reports</p>
           </div>
           <span className="action-arrow">→</span>
         </Link>

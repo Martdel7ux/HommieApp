@@ -293,6 +293,10 @@ a.stat-tile:hover {
   --accent: #9333ea;
   --accent-bg: #f3e8fd;
 }
+.stat-tile.accent-red {
+  --accent: #d92d20;
+  --accent-bg: #fdeceb;
+}
 
 .action-grid {
   display: grid;
