@@ -17,7 +17,6 @@ export interface AnalyticsEventMap {
   social_sign_in_completed: { provider: 'apple' | 'google'; is_new_user: boolean };
   social_sign_in_failed: { provider: 'apple' | 'google'; reason: string };
   sign_out: Record<string, never>;
-  email_verification_sent: Record<string, never>;
   password_reset_requested: Record<string, never>;
   account_deletion_requested: Record<string, never>;
   role_selected: { role: UserRole };

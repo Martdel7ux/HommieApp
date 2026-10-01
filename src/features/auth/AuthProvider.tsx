@@ -18,7 +18,6 @@ interface AuthState {
   profile: Profile | null;
   landlordProfile: LandlordProfile | null;
   role: UserRole | null;
-  isEmailVerified: boolean;
   needsOnboarding: boolean;
   refreshProfile: () => Promise<void>;
 }
@@ -122,7 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthState>(() => {
     const user = session?.user ?? null;
     const role = (profile?.role ?? (user?.user_metadata?.role as UserRole | undefined) ?? null) as UserRole | null;
-    const isEmailVerified = !!user?.email_confirmed_at || !!user?.confirmed_at;
     return {
       status,
       session,
@@ -130,7 +128,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       landlordProfile,
       role,
-      isEmailVerified,
       needsOnboarding: status === 'signed_in' && !!profile && !profile.onboarding_completed,
       refreshProfile,
     };

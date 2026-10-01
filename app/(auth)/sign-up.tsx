@@ -61,7 +61,7 @@ export default function SignUp() {
     setSubmitError(null);
     try {
       await authApi.signUp(values);
-      router.replace('/(auth)/verify-email');
+      // AuthGate handles the redirect once the session propagates.
     } catch (e) {
       setSubmitError(toAppError(e).message);
     }

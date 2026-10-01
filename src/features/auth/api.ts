@@ -124,14 +124,6 @@ export const authApi = {
     }, { scope: 'auth.signUp' });
   },
 
-  async resendVerification(email: string) {
-    return guard(async () => {
-      const { error } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: redirectTo } });
-      if (error) throw error;
-      analytics.track('email_verification_sent');
-    }, { scope: 'auth.resendVerification' });
-  },
-
   async requestPasswordReset(email: string) {
     return guard(async () => {
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });

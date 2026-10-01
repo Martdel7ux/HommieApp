@@ -11,15 +11,20 @@ import { LoadingState } from '@/components/ui';
  * Routing rules:
  *  - not signed in            -> (auth)/browse (guest landing — real listings,
  *    no account required; App Review Guideline 5.1.1(v))
- *  - signed in, email unverified -> (auth)/verify-email
  *  - signed in, onboarding incomplete -> onboarding/<role>
  *  - signed in student        -> (student) group
  *  - signed in landlord       -> (landlord) group
  *
+ * Email confirmation is NOT gated here on purpose — Supabase's built-in
+ * mailer is capped at 2 emails/hour project-wide with no custom SMTP
+ * configured, so confirmation emails were unreliable and could strand a
+ * real new user on a dead-end screen. Decision: drop the requirement
+ * rather than block signup on an unreliable email step.
+ *
  * Role enforcement here is UX only — Supabase RLS is the real boundary.
  */
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  const { status, role, isEmailVerified, needsOnboarding, session } = useAuth();
+  const { status, role, needsOnboarding } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -46,11 +51,6 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     }
 
     // signed in
-    if (session && !isEmailVerified) {
-      if (segments.join('/') !== '(auth)/verify-email') router.replace('/(auth)/verify-email');
-      return;
-    }
-
     if (needsOnboarding) {
       if (!inOnboarding) router.replace(role === 'landlord' ? '/onboarding/landlord' : '/onboarding/student');
       return;
@@ -60,7 +60,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     if (inAuth || inOnboarding || group === undefined) {
       router.replace(role === 'landlord' ? '/(landlord)/dashboard' : '/(student)/home');
     }
-  }, [status, role, isEmailVerified, needsOnboarding, session, segments, router]);
+  }, [status, role, needsOnboarding, segments, router]);
 
   if (status === 'loading') {
     return (
