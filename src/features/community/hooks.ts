@@ -52,7 +52,7 @@ export function usePostComments(postId: string) {
   return useQuery({
     queryKey: ['post', postId, 'comments'],
     enabled: !!user && !!postId,
-    queryFn: () => communityApi.listComments(postId),
+    queryFn: () => communityApi.listComments(postId, user!.id),
   });
 }
 

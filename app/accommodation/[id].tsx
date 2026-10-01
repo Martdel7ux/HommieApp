@@ -8,6 +8,8 @@ import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, Button, Avatar, LoadingState, ErrorState, OverlayHeader, OverlayIconButton } from '@/components/ui';
 import { useTheme } from '@/theme';
+import { useAuth } from '@/features/auth/AuthProvider';
+import { promptSignIn } from '@/features/auth/guestPrompt';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
 import { resolveImage } from '@/lib/images';
@@ -236,6 +238,7 @@ function EnquirySheet({
 export default function ListingDetail() {
   const theme = useTheme();
   const router = useRouter();
+  const { user } = useAuth();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -298,7 +301,11 @@ export default function ListingDetail() {
                   <OverlayIconButton
                     icon="notifications-outline"
                     label="Notifications"
-                    onPress={() => router.push('/notifications')}
+                    onPress={() =>
+                      user
+                        ? router.push('/notifications')
+                        : promptSignIn(router, 'Sign in to see your notifications.')
+                    }
                   />
                 }
               />
@@ -545,8 +552,12 @@ export default function ListingDetail() {
             <View style={{ padding: theme.spacing.lg }}>
               <Button
                 title="Contact Landlord"
-                disabled={!d.landlord}
+                disabled={!!user && !d.landlord}
                 onPress={() => {
+                  if (!user) {
+                    promptSignIn(router, 'Create a free account to contact landlords.');
+                    return;
+                  }
                   analytics.track('listing_contact_started', { listing_id: d.id });
                   setSheetOpen(true);
                 }}

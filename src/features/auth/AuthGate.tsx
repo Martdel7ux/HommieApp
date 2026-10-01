@@ -29,9 +29,14 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     const group = segments[0];
     const inAuth = group === '(auth)';
     const inOnboarding = group === 'onboarding';
-    // Screens reachable from anywhere, signed in or not (e.g. the Terms/Privacy
-    // link on the sign-up form).
-    const isPublic = group === 'legal';
+    // Screens reachable from anywhere, signed in or not:
+    //  - legal: the Terms/Privacy link on the sign-up form.
+    //  - accommodation: guest browsing/search, required by App Review
+    //    Guideline 5.1.1(v) — browsing listings isn't account-based, so it
+    //    can't be gated behind sign-up. Account-based actions inside those
+    //    screens (save, enquire, message) prompt sign-in at the point of
+    //    use instead (see app/accommodation/index.tsx and [id].tsx).
+    const isPublic = group === 'legal' || group === 'accommodation';
     if (isPublic) return;
 
     if (status === 'signed_out') {

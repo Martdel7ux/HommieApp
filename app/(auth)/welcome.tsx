@@ -49,6 +49,26 @@ export default function Welcome() {
 
   return (
     <Screen scroll contentContainerStyle={{ paddingBottom: theme.spacing.xl }}>
+      {router.canGoBack() ? (
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 2,
+            alignSelf: 'flex-start',
+            marginTop: theme.spacing.md,
+          }}
+        >
+          <Ionicons name="chevron-back" size={22} color={theme.colors.textPrimary} />
+          <Text variant="label" color={theme.colors.textSecondary}>
+            Back
+          </Text>
+        </Pressable>
+      ) : null}
       <View style={{ alignItems: 'center', gap: theme.spacing.md, marginTop: theme.spacing.xl }}>
         <Logo size={56} />
         <Text variant="h1" align="center">
@@ -133,6 +153,15 @@ export default function Welcome() {
         >
           <Text variant="label" color={theme.colors.primary}>
             I already have an account
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => router.push('/(auth)/browse')}
+          accessibilityRole="link"
+          style={{ alignSelf: 'center', padding: theme.spacing.sm }}
+        >
+          <Text variant="label" muted>
+            Browse without an account
           </Text>
         </Pressable>
       </View>

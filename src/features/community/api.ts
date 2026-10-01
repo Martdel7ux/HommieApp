@@ -47,6 +47,16 @@ function mapPost(r: RawPost, likedIds: Set<string>): CommunityPost {
   };
 }
 
+/**
+ * Ids this user has blocked, so their posts/comments can be filtered out of
+ * feeds immediately — App Review Guideline 1.2 expects blocking to remove the
+ * blocked user's content from your feed, not just hide a chat thread.
+ */
+async function blockedAuthorIds(userId: string): Promise<Set<string>> {
+  const { data } = await supabase.from('blocked_users').select('blocked_id').eq('blocker_id', userId);
+  return new Set((data ?? []).map((r) => r.blocked_id));
+}
+
 export const communityApi = {
   async listPosts(
     userId: string,
@@ -63,9 +73,12 @@ export const communityApi = {
       const limit = opts.limit ?? PAGE_SIZE.community;
       const offset = opts.offset ?? 0;
 
-      const { data, error } = await q.range(offset, offset + limit - 1).returns<RawPost[]>();
+      const [{ data, error }, blocked] = await Promise.all([
+        q.range(offset, offset + limit - 1).returns<RawPost[]>(),
+        blockedAuthorIds(userId),
+      ]);
       if (error) throw error;
-      const posts = data ?? [];
+      const posts = (data ?? []).filter((p) => !p.author || !blocked.has(p.author.id));
 
       // which of these did I like?
       const likedIds = new Set<string>();
@@ -145,43 +158,48 @@ export const communityApi = {
     }, { scope: 'community.createPost' });
   },
 
-  async listComments(postId: string): Promise<PostComment[]> {
+  async listComments(postId: string, userId: string): Promise<PostComment[]> {
     return guard(async () => {
-      const { data, error } = await supabase
-        .from('community_comments')
-        .select(
-          `id, body, created_at,
-           author:profiles!community_comments_author_id_fkey ( id, first_name, display_name, avatar_url )`,
-        )
-        .eq('post_id', postId)
-        .eq('is_hidden', false)
-        .order('created_at', { ascending: true })
-        .returns<
-          {
-            id: string;
-            body: string;
-            created_at: string;
-            author: {
+      const [{ data, error }, blocked] = await Promise.all([
+        supabase
+          .from('community_comments')
+          .select(
+            `id, body, created_at,
+             author:profiles!community_comments_author_id_fkey ( id, first_name, display_name, avatar_url )`,
+          )
+          .eq('post_id', postId)
+          .eq('is_hidden', false)
+          .order('created_at', { ascending: true })
+          .returns<
+            {
               id: string;
-              first_name: string | null;
-              display_name: string | null;
-              avatar_url: string | null;
-            } | null;
-          }[]
-        >();
+              body: string;
+              created_at: string;
+              author: {
+                id: string;
+                first_name: string | null;
+                display_name: string | null;
+                avatar_url: string | null;
+              } | null;
+            }[]
+          >(),
+        blockedAuthorIds(userId),
+      ]);
       if (error) throw error;
-      return (data ?? []).map((c) => ({
-        id: c.id,
-        body: c.body,
-        createdAt: c.created_at,
-        author: c.author
-          ? {
-              id: c.author.id,
-              name: c.author.first_name ?? c.author.display_name ?? 'Hommie user',
-              avatarUrl: resolveAvatar(c.author.avatar_url) ?? null,
-            }
-          : null,
-      }));
+      return (data ?? [])
+        .filter((c) => !c.author || !blocked.has(c.author.id))
+        .map((c) => ({
+          id: c.id,
+          body: c.body,
+          createdAt: c.created_at,
+          author: c.author
+            ? {
+                id: c.author.id,
+                name: c.author.first_name ?? c.author.display_name ?? 'Hommie user',
+                avatarUrl: resolveAvatar(c.author.avatar_url) ?? null,
+              }
+            : null,
+        }));
     }, { scope: 'community.listComments' });
   },
 

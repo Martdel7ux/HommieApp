@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text, Button, SegmentedControl, EmptyState, ErrorState, Card } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { promptSignIn } from '@/features/auth/guestPrompt';
 import { qk } from '@/lib/queryClient';
 import { useDebounce } from '@/hooks/useDebounce';
 import { analytics } from '@/services/analytics';
@@ -78,6 +79,13 @@ export default function AccommodationSearch() {
 
   const search = useAccommodationSearch(filters);
   const { toggle } = useSavedListings();
+  const toggleSave = (id: string, next: boolean) => {
+    if (!user) {
+      promptSignIn(router, 'Create a free account to save listings.');
+      return;
+    }
+    toggle(id, next);
+  };
 
   const savedIds = useQuery({
     queryKey: qk.savedListings(user?.id ?? 'anon'),
@@ -187,7 +195,7 @@ export default function AccommodationSearch() {
             <ListingMap
               listings={search.rows}
               savedSet={savedSet}
-              onToggleSave={(id, next) => toggle(id, next)}
+              onToggleSave={(id, next) => toggleSave(id, next)}
               onOpen={(id) => {
                 analytics.track('listing_viewed', { listing_id: id, source: 'accommodation_map' });
                 router.push(`/accommodation/${id}`);
@@ -210,7 +218,7 @@ export default function AccommodationSearch() {
               listing={item}
               layout="list"
               saved={savedSet.has(item.id)}
-              onToggleSave={() => toggle(item.id, !savedSet.has(item.id))}
+              onToggleSave={() => toggleSave(item.id, !savedSet.has(item.id))}
               onPress={() => {
                 analytics.track('listing_viewed', { listing_id: item.id, source: 'accommodation' });
                 router.push(`/accommodation/${item.id}`);

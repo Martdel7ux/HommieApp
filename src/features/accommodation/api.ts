@@ -68,7 +68,13 @@ export const accommodationApi = {
     }, { scope: 'accommodation.list' });
   },
 
-  async get(id: string, userId: string): Promise<AccommodationDetail> {
+  /**
+   * `userId` is optional — guests can browse listing detail pages without an
+   * account (see migration 0032). `landlord` comes back `null` for a guest
+   * request since `profiles` stays authenticated-only; the UI already
+   * handles that (contact/message actions prompt sign-in instead).
+   */
+  async get(id: string, userId?: string): Promise<AccommodationDetail> {
     return guard(async () => {
       const { data, error } = await supabase
         .from('accommodation_listings')
@@ -89,6 +95,8 @@ export const accommodationApi = {
         .eq('id', id)
         .single<Omit<AccommodationDetail, 'saved'>>();
       if (error) throw error;
+
+      if (!userId) return { ...data, saved: false };
 
       const { data: sv } = await supabase
         .from('saved_accommodation_listings')

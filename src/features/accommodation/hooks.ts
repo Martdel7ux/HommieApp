@@ -12,12 +12,13 @@ import { accommodationApi } from './api';
 import { landlordProfileApi } from './landlordProfileApi';
 import type { AccommodationDetail, AccommodationFilters, AccommodationCard } from './types';
 
+/** Works signed out too — guests can browse listing details (see migration 0032). */
 export function useListing(id: string) {
   const { user } = useAuth();
   const query = useQuery({
     queryKey: qk.listing(id),
-    queryFn: () => accommodationApi.get(id, user!.id),
-    enabled: !!user && !!id,
+    queryFn: () => accommodationApi.get(id, user?.id),
+    enabled: !!id,
   });
 
   useEffect(() => {

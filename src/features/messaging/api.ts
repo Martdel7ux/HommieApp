@@ -266,7 +266,14 @@ export const messagingApi = {
     }, { scope: 'messaging.sendMessage' });
   },
 
-  /** Blocks the other user and archives this conversation out of the blocker's own inbox. */
+  /**
+   * Blocks the other user and archives this conversation out of the blocker's
+   * own inbox. Also files a report (reason: harassment) so the block itself
+   * surfaces to moderation — App Review Guideline 1.2 expects blocking an
+   * abusive user to notify the developer, not just silently hide them from
+   * the blocker. A user who already reported this person hits the `reports`
+   * table's unique constraint, which is fine — one open report is enough.
+   */
   async blockUser(blockerId: string, blockedId: string, conversationId: string): Promise<void> {
     return guard(async () => {
       const { error: blockError } = await supabase
@@ -280,6 +287,15 @@ export const messagingApi = {
         .eq('conversation_id', conversationId)
         .eq('user_id', blockerId);
       if (archiveError) throw archiveError;
+
+      const { error: reportError } = await supabase.from('reports').insert({
+        reporter_id: blockerId,
+        subject_type: 'user',
+        subject_id: blockedId,
+        reason: 'harassment',
+        details: 'Auto-filed: user was blocked from a conversation.',
+      });
+      if (reportError && reportError.code !== '23505') throw reportError;
     }, { scope: 'messaging.blockUser' });
   },
 
