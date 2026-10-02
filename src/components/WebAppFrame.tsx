@@ -8,10 +8,15 @@ import { authApi } from '@/features/auth/api';
 
 const WIDE_BREAKPOINT = 900;
 
+/** Grid/carousel screens should fill the browser, not sit in a narrow boxed column. */
+function isFullBleedRoute(pathname: string): boolean {
+  return pathname === '/browse' || pathname === '/accommodation';
+}
+
 /** How much horizontal room a given route should get on a wide (desktop) browser. */
 function maxWidthFor(pathname: string, isWide: boolean): number {
   if (!isWide) return 480; // narrow browser/phone web: unchanged, looks like the native app
-  if (pathname === '/browse' || pathname === '/accommodation') return 1160; // grids/carousels that should use the space
+  if (isFullBleedRoute(pathname)) return 1800; // effectively the whole browser on any normal monitor
   if (pathname.startsWith('/accommodation/')) return 760; // listing detail: more room for images/description
   return 560; // forms, chat, landlord-web: a bit more breathing room than mobile, still a focused column
 }
@@ -39,6 +44,12 @@ function WebAppFrameWeb({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isWide = width >= WIDE_BREAKPOINT;
   const maxWidth = maxWidthFor(pathname, isWide);
+  // Full-bleed routes no longer have a boxed column keeping them off the
+  // viewport edges, so give them page-level side margins directly here
+  // instead (the list/grid screens' own internal padding was only ever
+  // tuned for mobile's ~16-20px, which looks cramped flush against a wide
+  // browser window).
+  const edgePadding = isWide && isFullBleedRoute(pathname) ? theme.spacing['2xl'] : 0;
   // Guest screens (browse, accommodation) already have their own header
   // with a "Sign in" link built in — only add this top nav once there's a
   // fully set-up account (not signed-out, and not mid-onboarding, same as
@@ -88,7 +99,7 @@ function WebAppFrameWeb({ children }: { children: React.ReactNode }) {
             </View>
           </View>
         ) : null}
-        <View style={{ flex: 1 }}>{children}</View>
+        <View style={{ flex: 1, paddingHorizontal: edgePadding }}>{children}</View>
       </View>
     </View>
   );

@@ -1,9 +1,11 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   PressableProps,
   StyleProp,
+  useWindowDimensions,
   View,
   ViewStyle,
 } from 'react-native';
@@ -39,7 +41,14 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const theme = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
   const isDisabled = disabled || loading;
+  // fullWidth="stretch to fill the parent" is the right call on a phone (or
+  // phone-width web) screen, but on a desktop browser a "full width" button
+  // would stretch to whatever wide column it sits in and look oversized —
+  // real desktop sites size buttons to their label instead. Only this,
+  // narrower-than-the-mobile-default behavior changes; native is untouched.
+  const isDesktopWeb = Platform.OS === 'web' && windowWidth >= 700;
 
   const heights: Record<Size, number> = { sm: 38, md: 48, lg: 54 };
 
@@ -70,7 +79,9 @@ export function Button({
           flexDirection: 'row',
           gap: theme.spacing.sm,
           paddingHorizontal: theme.spacing.xl,
-          alignSelf: fullWidth ? 'stretch' : 'flex-start',
+          alignSelf: fullWidth ? (isDesktopWeb ? 'center' : 'stretch') : 'flex-start',
+          width: fullWidth && isDesktopWeb ? '100%' : undefined,
+          maxWidth: fullWidth && isDesktopWeb ? 360 : undefined,
           opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1,
         },
         style,

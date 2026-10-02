@@ -51,14 +51,24 @@ export default function AccommodationSearch() {
   const router = useRouter();
   const { user, profile } = useAuth();
   const { width: windowWidth } = useWindowDimensions();
-  // WebAppFrame gives this route up to ~1160px on desktop and keeps it at
-  // ~480px on narrower browsers — lay listings out in a grid once there's
-  // real room, using this screen's own measured width (not raw window
-  // width, which doesn't match WebAppFrame's actual column width and would
-  // cram a multi-column grid into a still-narrow container at in-between
-  // sizes). Native and narrow/mobile-web stay exactly as before (1 column).
+  // WebAppFrame lets this route fill almost the whole browser on desktop
+  // and keeps it at ~480px on narrower browsers — lay listings out in a
+  // grid once there's real room, using this screen's own measured width
+  // (not raw window width, which doesn't match WebAppFrame's actual column
+  // width and would cram a multi-column grid into a still-narrow container
+  // at in-between sizes). Native and narrow/mobile-web stay exactly as
+  // before (1 column).
   const [containerWidth, setContainerWidth] = useState(windowWidth);
-  const numColumns = Platform.OS !== 'web' ? 1 : containerWidth >= 900 ? 3 : containerWidth >= 620 ? 2 : 1;
+  const numColumns =
+    Platform.OS !== 'web'
+      ? 1
+      : containerWidth >= 1500
+        ? 4
+        : containerWidth >= 900
+          ? 3
+          : containerWidth >= 620
+            ? 2
+            : 1;
 
   const [searchText, setSearchText] = useState('');
   const debouncedSearch = useDebounce(searchText, 400);
