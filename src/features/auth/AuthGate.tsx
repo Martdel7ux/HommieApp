@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useRouter, useSegments } from 'expo-router';
 import { useAuth } from './AuthProvider';
@@ -12,8 +12,13 @@ import { LoadingState } from '@/components/ui';
  *  - not signed in            -> (auth)/browse (guest landing — real listings,
  *    no account required; App Review Guideline 5.1.1(v))
  *  - signed in, onboarding incomplete -> onboarding/<role>
- *  - signed in student        -> (student) group
- *  - signed in landlord       -> (landlord) group
+ *  - signed in student, native   -> (student) group
+ *  - signed in landlord, native  -> (landlord) group
+ *  - signed in student, web      -> /accommodation (the web app's scope is
+ *    browse/search/contact/message — see the web-app plan; no native tab
+ *    group exists on web)
+ *  - signed in landlord, web     -> /landlord-web (points at the app for
+ *    everything landlord-side; not built for web)
  *
  * Email confirmation is NOT gated here on purpose — Supabase's built-in
  * mailer is capped at 2 emails/hour project-wide with no custom SMTP
@@ -58,7 +63,11 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
     // fully onboarded — keep out of auth/onboarding
     if (inAuth || inOnboarding || group === undefined) {
-      router.replace(role === 'landlord' ? '/(landlord)/dashboard' : '/(student)/home');
+      if (Platform.OS === 'web') {
+        router.replace(role === 'landlord' ? '/landlord-web' : '/accommodation');
+      } else {
+        router.replace(role === 'landlord' ? '/(landlord)/dashboard' : '/(student)/home');
+      }
     }
   }, [status, role, needsOnboarding, segments, router]);
 
