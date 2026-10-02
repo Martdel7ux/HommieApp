@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Alert, Modal, Pressable, Switch, TextInput, View, useWindowDimensions } from 'react-native';
+import { Modal, Pressable, Switch, TextInput, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -11,6 +11,7 @@ import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { promptSignIn } from '@/features/auth/guestPrompt';
 import { toAppError } from '@/services/errors';
+import { notify } from '@/services/alert';
 import { analytics } from '@/services/analytics';
 import { resolveImage } from '@/lib/images';
 import { amenityLabels } from '@/config/labels';
@@ -171,7 +172,7 @@ function EnquirySheet({
       },
       {
         onSuccess: (conversationId) => onSent(conversationId),
-        onError: (e) => Alert.alert('Could not send', toAppError(e).message),
+        onError: (e) => notify('Could not send', toAppError(e).message),
       },
     );
   };

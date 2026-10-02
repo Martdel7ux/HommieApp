@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, TextInput, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme';
 import { haptics } from '@/services/haptics';
+import { notify } from '@/services/alert';
 
 export function MessageComposer({
   onSend,
@@ -38,7 +39,7 @@ export function MessageComposer({
         }}
       >
         <Pressable
-          onPress={() => Alert.alert('Attachments', 'Photo attachments arrive with a later update.')}
+          onPress={() => notify('Attachments', 'Photo attachments arrive with a later update.')}
           hitSlop={8}
           accessibilityLabel="Add attachment"
           style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}

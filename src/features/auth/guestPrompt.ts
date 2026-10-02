@@ -1,5 +1,5 @@
-import { Alert } from 'react-native';
 import type { useRouter } from 'expo-router';
+import { confirmAlert } from '@/services/alert';
 
 type Router = ReturnType<typeof useRouter>;
 
@@ -11,8 +11,7 @@ type Router = ReturnType<typeof useRouter>;
  * is gated, and only at the point the guest actually tries to use it.
  */
 export function promptSignIn(router: Router, message: string) {
-  Alert.alert('Sign in to continue', message, [
-    { text: 'Not now', style: 'cancel' },
-    { text: 'Sign in', onPress: () => router.push('/(auth)/welcome') },
-  ]);
+  confirmAlert('Sign in to continue', message, () => router.push('/(auth)/welcome'), {
+    confirmLabel: 'Sign in',
+  });
 }

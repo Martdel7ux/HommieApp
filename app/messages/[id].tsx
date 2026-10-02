@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -12,13 +12,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Avatar, LoadingState, ErrorState } from '@/components/ui';
+import { ActionSheet } from '@/components/ui/ActionSheet';
 import { useTheme, useThemeMode } from '@/theme';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { dayLabel } from '@/lib/datetime';
 import { toAppError } from '@/services/errors';
 import { haptics } from '@/services/haptics';
-import { REPORT_REASONS } from '@/config/constants';
+import { confirmAlert, notify } from '@/services/alert';
+import { REPORT_REASONS, type ReportReason } from '@/config/constants';
 import { useConversation, useThread } from '@/features/messaging/thread';
 import { messagingApi } from '@/features/messaging/api';
 import { MessageBubble } from '@/features/messaging/components/MessageBubble';
@@ -93,14 +95,50 @@ export default function ConversationThread() {
   );
 
   const other = convo.data?.other;
+  const [menuMode, setMenuMode] = useState<'main' | 'report' | null>(null);
 
   const viewProfile = () => {
     if (!other) return;
     router.push(other.role === 'landlord' ? `/landlord/${other.id}` : `/roommates/${other.id}`);
   };
 
+  const confirmBlock = () => {
+    if (!other) return;
+    confirmAlert(
+      'Block this person?',
+      "They won't be able to message you again, and this chat will be removed from your inbox.",
+      async () => {
+        haptics.warning();
+        try {
+          await messagingApi.blockUser(user!.id, other.id, id);
+          router.back();
+        } catch (e) {
+          notify('Could not block this user', toAppError(e).message);
+        }
+      },
+      { confirmLabel: 'Block', destructive: true },
+    );
+  };
+
+  const reportReason = async (reason: ReportReason) => {
+    if (!other) return;
+    try {
+      await messagingApi.reportUser(user!.id, other.id, reason);
+      notify('Thanks', "We've received your report and will take a look.");
+    } catch (e) {
+      notify('Something went wrong', toAppError(e).message);
+    }
+  };
+
   const openMenu = () => {
     if (!other) return;
+    if (Platform.OS === 'web') {
+      // react-native-web's Alert shim only supports a 2-button window.confirm,
+      // not this 4-option menu (or the report-reasons submenu below) — use
+      // the ActionSheet modal instead. Native keeps Alert.alert unchanged.
+      setMenuMode('main');
+      return;
+    }
     Alert.alert(other.name, undefined, [
       { text: 'View profile', onPress: viewProfile },
       {
@@ -253,6 +291,27 @@ export default function ConversationThread() {
 
         <MessageComposer onSend={thread.sendMessage} disabled={thread.isSending} />
       </KeyboardAvoidingView>
+
+      <ActionSheet
+        visible={menuMode === 'main'}
+        title={other?.name}
+        onClose={() => setMenuMode(null)}
+        options={[
+          { label: 'View profile', onPress: viewProfile },
+          { label: 'Report user', onPress: () => setMenuMode('report') },
+          { label: 'Block user', destructive: true, onPress: confirmBlock },
+        ]}
+      />
+      <ActionSheet
+        visible={menuMode === 'report'}
+        title="Report user"
+        message="Why are you reporting this person?"
+        onClose={() => setMenuMode(null)}
+        options={REPORT_REASONS.map((reason) => ({
+          label: cap(reason.replace(/_/g, ' ')),
+          onPress: () => reportReason(reason),
+        }))}
+      />
     </View>
   );
 }
