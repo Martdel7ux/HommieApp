@@ -16,7 +16,11 @@ import { env } from '@/config/env';
 export const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 /** Google needs a configured web client id; Apple is iOS-only and keyless. */
-export const googleSignInConfigured = !isExpoGo && !!env.googleWebClientId;
+// Web excluded on purpose: @react-native-google-signin's web shim is a
+// separate Google Identity Services JS integration, not built — web auth
+// is email/password only for now (mirrors appleSignInSupported's existing
+// Platform.OS === 'ios' gate below).
+export const googleSignInConfigured = !isExpoGo && Platform.OS !== 'web' && !!env.googleWebClientId;
 /** Apple is built but stays hidden until EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED=true. */
 export const appleSignInSupported = !isExpoGo && Platform.OS === 'ios' && env.appleSignInEnabled;
 export const socialAuthSupported = googleSignInConfigured || appleSignInSupported;

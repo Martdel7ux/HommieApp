@@ -72,6 +72,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: {
     bundler: 'metro',
     favicon: './assets/favicon.png',
+    // Plain SPA shell, not per-route static prerendering — every route here
+    // is auth-gated at runtime by AuthGate, so prerendering would just
+    // produce empty shells for no SEO benefit (the landing page at
+    // hommieapp.com already covers that). See the web-app plan.
+    output: 'single',
+    name: 'Hommie',
   },
   plugins: [
     'expo-router',

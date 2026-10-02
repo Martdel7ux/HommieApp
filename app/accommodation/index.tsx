@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -142,6 +142,7 @@ export default function AccommodationSearch() {
               : 'Finding places…'}
           </Text>
         </View>
+        {Platform.OS === 'web' ? null : (
         <SegmentedControl
           options={[
             { value: 'list', label: 'List', icon: 'list' },
@@ -153,6 +154,7 @@ export default function AccommodationSearch() {
             analytics.track('accommodation_view_toggled', { view: v });
           }}
         />
+        )}
       </View>
     </View>
   );
@@ -188,7 +190,7 @@ export default function AccommodationSearch() {
 
       <FilterSheet visible={sheetOpen} filters={baseFilters} onClose={() => setSheetOpen(false)} onApply={patchFilters} />
 
-      {view === 'map' ? (
+      {view === 'map' && Platform.OS !== 'web' ? (
         <View style={{ flex: 1 }}>
           <View style={{ paddingHorizontal: theme.layout.screenPadding, paddingTop: theme.spacing.md }}>{header}</View>
           <View style={{ flex: 1, overflow: 'hidden' }}>

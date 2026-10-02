@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -18,8 +19,19 @@ function routeFrom(data: unknown): string | null {
  * Renders nothing. Wires the device up for push once signed in, keeps the
  * in-app list fresh when a push lands in the foreground, and routes taps to the
  * right screen. Everything here is a safe no-op until push credentials exist.
+ *
+ * Web push isn't built (out of scope for the web app — see the web-app
+ * plan), so this never mounts the real logic on web at all: not because
+ * anything here would crash (expo-notifications degrades gracefully), but
+ * registerPushToken() would otherwise trigger an unsolicited browser
+ * notification-permission prompt on every web sign-in.
  */
 export function PushBootstrap() {
+  if (Platform.OS === 'web') return null;
+  return <PushBootstrapNative />;
+}
+
+function PushBootstrapNative() {
   const { user, status, profile } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();

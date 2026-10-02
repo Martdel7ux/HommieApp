@@ -16,6 +16,9 @@ import { PushBootstrap } from '@/components/PushBootstrap';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
+// On web this resolves to src/services/sentry.web.ts (all no-ops) via
+// Metro's platform extension — see that file for why the real
+// @sentry/react-native import can't happen on web at all.
 initSentry();
 
 analytics.configure(
@@ -59,6 +62,6 @@ function RootLayout() {
   );
 }
 
-// Sentry.wrap is a no-op passthrough until a DSN is configured (see
-// src/services/sentry.ts) — safe to always wrap.
+// Sentry.wrap is a no-op passthrough until a DSN is configured (native) or
+// always (web, via sentry.web.ts) — safe to always wrap.
 export default Sentry.wrap(RootLayout);
