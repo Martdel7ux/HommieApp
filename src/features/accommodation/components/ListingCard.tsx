@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme';
@@ -135,7 +135,14 @@ export function ListingCard({
   return (
     <Pressable
       onPress={onPress}
-      accessibilityRole="button"
+      // Web only: this card contains its own nested buttons (the save
+      // heart, and the landlord-name link), and react-native-web renders
+      // accessibilityRole="button" as a real <button> — nesting <button>
+      // inside <button> is invalid HTML and React logs a hydration
+      // warning for it. Dropping the role on web only (native keeps full
+      // button semantics for screen readers, where this nesting issue
+      // doesn't apply) avoids that; onPress keeps working either way.
+      accessibilityRole={Platform.OS === 'web' ? undefined : 'button'}
       accessibilityLabel={`${listing.title}, ${listing.rent_month} euro per month, ${locationLabel(listing)}`}
       style={({ pressed }) => ({
         width: carousel ? 272 : undefined,

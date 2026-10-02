@@ -13,6 +13,7 @@ import { initSentry, Sentry } from '@/services/sentry';
 import { AuthGate } from '@/features/auth/AuthGate';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PushBootstrap } from '@/components/PushBootstrap';
+import { WebAppFrame } from '@/components/WebAppFrame';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -50,7 +51,9 @@ function RootLayout() {
             <PersistQueryClientProvider client={queryClient} persistOptions={{ persister: queryPersister }}>
               <AuthProvider>
                 <AuthGate>
-                  <RootStack />
+                  <WebAppFrame>
+                    <RootStack />
+                  </WebAppFrame>
                   <PushBootstrap />
                 </AuthGate>
               </AuthProvider>
