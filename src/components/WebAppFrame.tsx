@@ -1,16 +1,30 @@
-import { Platform, Pressable, View } from 'react-native';
-import { Link } from 'expo-router';
+import { Platform, Pressable, useWindowDimensions, View } from 'react-native';
+import { Link, usePathname } from 'expo-router';
 import { useTheme } from '@/theme';
 import { Text } from '@/components/ui';
 import { Logo } from '@/components/Brand/Logo';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { authApi } from '@/features/auth/api';
 
+const WIDE_BREAKPOINT = 900;
+
+/** How much horizontal room a given route should get on a wide (desktop) browser. */
+function maxWidthFor(pathname: string, isWide: boolean): number {
+  if (!isWide) return 480; // narrow browser/phone web: unchanged, looks like the native app
+  if (pathname === '/browse' || pathname === '/accommodation') return 1160; // grids/carousels that should use the space
+  if (pathname.startsWith('/accommodation/')) return 760; // listing detail: more room for images/description
+  return 560; // forms, chat, landlord-web: a bit more breathing room than mobile, still a focused column
+}
+
 /**
  * Web-only: centers the app's existing phone-width screens in a column on
- * desktop browsers, instead of letting them stretch edge-to-edge. Every
- * screen stays pixel-identical — this wraps around the whole thing once in
- * app/_layout.tsx rather than touching individual screens (which mix
+ * desktop browsers, instead of letting them stretch edge-to-edge or look
+ * like a phone mockup floating in gray space. The column's width adapts to
+ * both the route (list/grid screens get real desktop width; forms and chat
+ * stay a focused reading column, which is normal for those even on wide
+ * desktop web apps) and the viewport (phones/narrow browsers keep the
+ * original mobile-width treatment). This wraps around the whole thing once
+ * in app/_layout.tsx rather than touching individual screens (which mix
  * layout conventions: Screen, raw SafeAreaView, bare View). See the
  * web-app plan. No-op on native.
  */
@@ -21,6 +35,10 @@ export function WebAppFrame({ children }: { children: React.ReactNode }) {
 
 function WebAppFrameWeb({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
+  const { width } = useWindowDimensions();
+  const pathname = usePathname();
+  const isWide = width >= WIDE_BREAKPOINT;
+  const maxWidth = maxWidthFor(pathname, isWide);
   // Guest screens (browse, accommodation) already have their own header
   // with a "Sign in" link built in — only add this top nav once there's a
   // fully set-up account (not signed-out, and not mid-onboarding, same as
@@ -30,7 +48,7 @@ function WebAppFrameWeb({ children }: { children: React.ReactNode }) {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', backgroundColor: theme.colors.surfaceSunken }}>
-      <View style={{ flex: 1, width: '100%', maxWidth: 480 }}>
+      <View style={{ flex: 1, width: '100%', maxWidth }}>
         {showNav ? (
           <View
             style={{

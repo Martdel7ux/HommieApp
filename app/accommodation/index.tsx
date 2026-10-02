@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, Pressable, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, Pressable, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -50,6 +50,15 @@ export default function AccommodationSearch() {
   const theme = useTheme();
   const router = useRouter();
   const { user, profile } = useAuth();
+  const { width: windowWidth } = useWindowDimensions();
+  // WebAppFrame gives this route up to ~1160px on desktop and keeps it at
+  // ~480px on narrower browsers — lay listings out in a grid once there's
+  // real room, using this screen's own measured width (not raw window
+  // width, which doesn't match WebAppFrame's actual column width and would
+  // cram a multi-column grid into a still-narrow container at in-between
+  // sizes). Native and narrow/mobile-web stay exactly as before (1 column).
+  const [containerWidth, setContainerWidth] = useState(windowWidth);
+  const numColumns = Platform.OS !== 'web' ? 1 : containerWidth >= 900 ? 3 : containerWidth >= 620 ? 2 : 1;
 
   const [searchText, setSearchText] = useState('');
   const debouncedSearch = useDebounce(searchText, 400);
@@ -185,7 +194,10 @@ export default function AccommodationSearch() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <View
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+    >
       {topBar}
 
       <FilterSheet visible={sheetOpen} filters={baseFilters} onClose={() => setSheetOpen(false)} onApply={patchFilters} />
@@ -212,24 +224,30 @@ export default function AccommodationSearch() {
         </View>
       ) : (
         <FlatList
+          key={numColumns}
           data={search.rows}
           keyExtractor={(l) => l.id}
+          numColumns={numColumns}
+          columnWrapperStyle={numColumns > 1 ? { gap: theme.spacing.lg } : undefined}
           ListHeaderComponent={header}
-          renderItem={({ item }) => (
-            <ListingCard
-              listing={item}
-              layout="list"
-              saved={savedSet.has(item.id)}
-              onToggleSave={() => toggleSave(item.id, !savedSet.has(item.id))}
-              onPress={() => {
-                analytics.track('listing_viewed', { listing_id: item.id, source: 'accommodation' });
-                router.push(`/accommodation/${item.id}`);
-              }}
-              onPressLandlord={
-                item.landlord ? () => router.push(`/landlord/${item.landlord!.id}`) : undefined
-              }
-            />
-          )}
+          renderItem={({ item }) => {
+            const card = (
+              <ListingCard
+                listing={item}
+                layout="list"
+                saved={savedSet.has(item.id)}
+                onToggleSave={() => toggleSave(item.id, !savedSet.has(item.id))}
+                onPress={() => {
+                  analytics.track('listing_viewed', { listing_id: item.id, source: 'accommodation' });
+                  router.push(`/accommodation/${item.id}`);
+                }}
+                onPressLandlord={
+                  item.landlord ? () => router.push(`/landlord/${item.landlord!.id}`) : undefined
+                }
+              />
+            );
+            return numColumns > 1 ? <View style={{ flex: 1 }}>{card}</View> : card;
+          }}
           ItemSeparatorComponent={() => <View style={{ height: theme.spacing.lg }} />}
           ListFooterComponent={listFooter}
           contentContainerStyle={{

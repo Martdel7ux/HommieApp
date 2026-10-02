@@ -240,7 +240,17 @@ export default function ListingDetail() {
   const theme = useTheme();
   const router = useRouter();
   const { user } = useAuth();
-  const { width } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
+  // On native this screen is always genuinely full-device-width, so
+  // windowWidth is already correct. On web, WebAppFrame constrains this
+  // screen to a centered column narrower than the browser window — using
+  // windowWidth directly here made the gallery images render wider than
+  // their actual container (and broke the swipe-to-index paging math,
+  // which divides scroll offset by this same width). Measure the gallery's
+  // real rendered width instead, falling back to windowWidth only until
+  // the first layout pass has happened.
+  const [galleryWidth, setGalleryWidth] = useState(0);
+  const width = galleryWidth || windowWidth;
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const listing = useListing(id);
@@ -272,7 +282,7 @@ export default function ListingDetail() {
             showsVerticalScrollIndicator={false}
           >
             {/* Gallery */}
-            <View>
+            <View onLayout={(e) => setGalleryWidth(e.nativeEvent.layout.width)}>
               {images.length ? (
                 <ScrollView
                   horizontal
