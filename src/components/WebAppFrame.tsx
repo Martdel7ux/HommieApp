@@ -6,7 +6,7 @@ import { Logo } from '@/components/Brand/Logo';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { authApi } from '@/features/auth/api';
 
-const WIDE_BREAKPOINT = 900;
+export const WEB_WIDE_BREAKPOINT = 900;
 
 /** Grid/carousel screens should fill the browser, not sit in a narrow boxed column. */
 function isFullBleedRoute(pathname: string): boolean {
@@ -18,7 +18,8 @@ function maxWidthFor(pathname: string, isWide: boolean): number {
   if (!isWide) return 480; // narrow browser/phone web: unchanged, looks like the native app
   if (isFullBleedRoute(pathname)) return 1800; // effectively the whole browser on any normal monitor
   if (pathname.startsWith('/accommodation/')) return 760; // listing detail: more room for images/description
-  return 560; // forms, chat, landlord-web: a bit more breathing room than mobile, still a focused column
+  if (pathname.startsWith('/messages')) return 1100; // two-pane conversation list + open thread
+  return 560; // forms, landlord-web: a bit more breathing room than mobile, still a focused column
 }
 
 /**
@@ -42,7 +43,7 @@ function WebAppFrameWeb({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const pathname = usePathname();
-  const isWide = width >= WIDE_BREAKPOINT;
+  const isWide = width >= WEB_WIDE_BREAKPOINT;
   const maxWidth = maxWidthFor(pathname, isWide);
   // Full-bleed routes no longer have a boxed column keeping them off the
   // viewport edges, so give them page-level side margins directly here
