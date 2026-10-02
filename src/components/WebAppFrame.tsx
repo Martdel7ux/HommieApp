@@ -19,7 +19,10 @@ function maxWidthFor(pathname: string, isWide: boolean): number {
   if (isFullBleedRoute(pathname)) return 1800; // effectively the whole browser on any normal monitor
   if (pathname.startsWith('/accommodation/')) return 760; // listing detail: more room for images/description
   if (pathname.startsWith('/messages')) return 1100; // two-pane conversation list + open thread
-  return 560; // forms, landlord-web: a bit more breathing room than mobile, still a focused column
+  return 720; // forms, onboarding, landlord-web: still one focused centered column (the normal
+  // pattern for these even on desktop — Stripe, Linear, Notion all do this for
+  // sign-up/login), just noticeably bigger than the old 560 so it doesn't read as a
+  // phone-width box dropped onto a big screen
 }
 
 /**
