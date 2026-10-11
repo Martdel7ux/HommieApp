@@ -49,11 +49,9 @@ export const profileApi = {
     return this.updateProfile(userId, { onboarding_completed: true });
   },
 
-  async submitVerification(userId: string, localUri: string, mimeType?: string | null) {
+  async submitVerification(userId: string, localUri: string) {
     return guard(async () => {
-      const path = await uploadImage(STORAGE_BUCKETS.verificationDocs, userId, localUri, {
-        contentType: mimeType ?? 'image/jpeg',
-      });
+      const path = await uploadImage(STORAGE_BUCKETS.verificationDocs, userId, localUri);
       const { data, error } = await supabase
         .from('profiles')
         .update({ verification: 'submitted', verification_doc_path: path })

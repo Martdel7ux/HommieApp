@@ -137,9 +137,7 @@ export const communityApi = {
     return guard(async () => {
       const imagePaths: string[] = [];
       for (const photo of input.photos ?? []) {
-        const path = await uploadImage(STORAGE_BUCKETS.communityImages, `${userId}`, photo.uri, {
-          contentType: photo.mimeType ?? 'image/jpeg',
-        });
+        const path = await uploadImage(STORAGE_BUCKETS.communityImages, `${userId}`, photo.uri);
         imagePaths.push(path);
       }
 

@@ -161,9 +161,7 @@ export default function StudentOnboarding() {
     try {
       let avatarPath: string | undefined;
       if (draft.photo) {
-        avatarPath = await uploadImage(STORAGE_BUCKETS.avatars, user.id, draft.photo.uri, {
-          contentType: draft.photo.mimeType ?? 'image/jpeg',
-        });
+        avatarPath = await uploadImage(STORAGE_BUCKETS.avatars, user.id, draft.photo.uri);
       }
 
       await profileApi.updateProfile(user.id, {

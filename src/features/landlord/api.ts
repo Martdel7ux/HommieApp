@@ -69,7 +69,6 @@ async function syncPhotos(listingId: string, ownerId: string, photos: DraftPhoto
       STORAGE_BUCKETS.listingImages,
       `${ownerId}/${listingId}`,
       photo.uri,
-      { contentType: photo.mimeType ?? 'image/jpeg' },
     );
     await supabase
       .from('accommodation_listing_images')

@@ -55,7 +55,7 @@ export default function UniversityVerification() {
     setUploading(true);
     setError(null);
     try {
-      await profileApi.submitVerification(user.id, result.assets[0].uri, result.assets[0].mimeType);
+      await profileApi.submitVerification(user.id, result.assets[0].uri);
       await refreshProfile();
       Alert.alert('Submitted', "We're checking your student ID — this usually takes 1–2 business days.");
     } catch (e) {

@@ -122,7 +122,7 @@ export function ProfileScreen() {
     ? profile?.verification === 'verified'
     : landlordProfile?.verification === 'verified';
 
-  const [pendingPhoto, setPendingPhoto] = useState<{ uri: string; mimeType?: string | null } | null>(null);
+  const [pendingPhoto, setPendingPhoto] = useState<{ uri: string } | null>(null);
   const [saving, setSaving] = useState(false);
 
   const universities = useQuery({
@@ -161,16 +161,14 @@ export function ProfileScreen() {
       quality: 0.8,
     });
     if (result.canceled) return;
-    setPendingPhoto({ uri: result.assets[0].uri, mimeType: result.assets[0].mimeType });
+    setPendingPhoto({ uri: result.assets[0].uri });
   };
 
   const save = async () => {
     if (!pendingPhoto || !user) return;
     setSaving(true);
     try {
-      const path = await uploadImage(STORAGE_BUCKETS.avatars, `${user.id}`, pendingPhoto.uri, {
-        contentType: pendingPhoto.mimeType ?? 'image/jpeg',
-      });
+      const path = await uploadImage(STORAGE_BUCKETS.avatars, `${user.id}`, pendingPhoto.uri);
       await profileApi.updateProfile(user.id, { avatar_url: path });
       await refreshProfile();
       setPendingPhoto(null);

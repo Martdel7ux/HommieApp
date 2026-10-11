@@ -120,7 +120,6 @@ export const marketplaceApi = {
             STORAGE_BUCKETS.marketplaceImages,
             `${userId}/${id}`,
             photo.uri,
-            { contentType: photo.mimeType ?? 'image/jpeg' },
           );
           rows.push({ listing_id: id, storage_path: path, position: i });
         }

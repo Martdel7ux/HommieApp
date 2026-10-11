@@ -97,7 +97,6 @@ async function syncFlatPhotos(userId: string, photos: DraftFlatPhoto[]) {
       STORAGE_BUCKETS.roommateFlatImages,
       `${userId}/flat`,
       photo.uri,
-      { contentType: photo.mimeType ?? 'image/jpeg' },
     );
     await supabase
       .from('roommate_flat_photos')
