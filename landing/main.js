@@ -1,7 +1,7 @@
 // Store links: fill these in once the listings are live. While empty, the
 // badges show a "coming soon" message instead of navigating.
 const STORE_LINKS = {
-  ios: '',      // e.g. https://apps.apple.com/app/hommie/id6811326854
+  ios: 'https://apps.apple.com/app/6811326854',
   android: '',  // e.g. https://play.google.com/store/apps/details?id=com.hommie.app
 };
 
