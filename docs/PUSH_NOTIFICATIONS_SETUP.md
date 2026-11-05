@@ -180,3 +180,66 @@ key for iOS):
   list + sound, no badge.
 - `notification-icon.png` + the accent colour are already in the
   `expo-notifications` plugin block in `app.config.ts`.
+
+---
+
+## 8. Web push (separate from everything above)
+
+Expo's push service has no documented delivery path to a browser (its docs
+only cover FCM/APNs), so web bypasses `exp.host` entirely and uses the Web
+Push protocol (VAPID) directly — a second, independent pipeline:
+
+- `public/push-worker.js` — the service worker; receives the push and
+  shows/routes it, works even if the tab/app isn't open
+- `src/features/notifications/push.ts`'s web branch — subscribes the
+  browser and stores the subscription in `push_tokens`
+  (`web_push_endpoint` / `web_push_keys`, added by migration 0035)
+- `supabase/functions/push-notify`'s web branch — sends via `npm:web-push`
+  instead of `exp.host` for those rows
+
+A VAPID key pair has already been generated for this and is sitting in
+`.env` (gitignored): `EXPO_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
+`VAPID_SUBJECT`. Three things still need doing to make it live:
+
+### 8a. Apply migration 0035
+
+`supabase/migrations/0035_web_push_subscriptions.sql` adds the web
+subscription columns. Apply with `python3 scripts/db-apply.py migrations`
+(or `supabase db push` once `supabase link` is set up).
+
+### 8b. Push the VAPID secrets to the edge function
+
+The private key must never go in the app bundle — only `.env`'s
+`EXPO_PUBLIC_VAPID_PUBLIC_KEY` ships to the client. Push all three to the
+function's own secrets (reading straight from `.env` so nothing gets
+retyped):
+
+```
+set -a; source .env; set +a
+supabase secrets set --project-ref ywleliavgtumbafptwci \
+  VAPID_PUBLIC_KEY="$EXPO_PUBLIC_VAPID_PUBLIC_KEY" \
+  VAPID_PRIVATE_KEY="$VAPID_PRIVATE_KEY" \
+  VAPID_SUBJECT="$VAPID_SUBJECT"
+```
+
+### 8c. Redeploy the function
+
+```
+supabase functions deploy push-notify --no-verify-jwt --project-ref ywleliavgtumbafptwci
+```
+
+### 8d. Test on web
+
+1. Open the web app (needs a real HTTPS origin or `localhost` — service
+   workers refuse to register anywhere else), sign in → Profile →
+   Notifications → turn **Push notifications** on → accept the browser's
+   permission prompt.
+2. Check a `push_tokens` row appears with `platform = 'web'` and
+   `web_push_endpoint` set.
+3. From a second account, send a message to the first. A real OS-level
+   browser notification should arrive, including with the tab closed;
+   clicking it opens/focuses the app at the right screen.
+
+Safari doesn't support the standard Push API/VAPID yet — the toggle just
+silently does nothing there for now (`registerWebPushToken` returns `null`,
+no error shown).

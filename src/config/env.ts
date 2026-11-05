@@ -15,6 +15,7 @@ type Extra = {
   posthogHost?: string;
   sentryDsn?: string;
   environment?: string;
+  vapidPublicKey?: string;
 };
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Extra;
@@ -43,6 +44,8 @@ export const env = {
   posthogHost: extra.posthogHost || undefined,
   // Optional: crash reporting stays off until this is set. See src/services/sentry.ts.
   sentryDsn: extra.sentryDsn || undefined,
+  // Optional: web push stays off until this is set. See src/features/notifications/push.ts.
+  vapidPublicKey: extra.vapidPublicKey || undefined,
   environment: (extra.environment ?? 'development') as 'development' | 'preview' | 'production',
   isProduction: extra.environment === 'production',
 } as const;

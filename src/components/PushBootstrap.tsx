@@ -20,15 +20,34 @@ function routeFrom(data: unknown): string | null {
  * in-app list fresh when a push lands in the foreground, and routes taps to the
  * right screen. Everything here is a safe no-op until push credentials exist.
  *
- * Web push isn't built (out of scope for the web app — see the web-app
- * plan), so this never mounts the real logic on web at all: not because
- * anything here would crash (expo-notifications degrades gracefully), but
- * registerPushToken() would otherwise trigger an unsolicited browser
- * notification-permission prompt on every web sign-in.
+ * Web never auto-registers here (unlike native) — that would trigger an
+ * unsolicited browser notification-permission prompt on every sign-in.
+ * Registration only happens from the explicit opt-in toggle in Profile ›
+ * Notifications (see push.ts). This component's web half is just listening
+ * for push-worker.js's "a notification was clicked" message and routing it,
+ * same as native's tap handlers below.
  */
 export function PushBootstrap() {
-  if (Platform.OS === 'web') return null;
+  if (Platform.OS === 'web') return <PushBootstrapWeb />;
   return <PushBootstrapNative />;
+}
+
+function PushBootstrapWeb() {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.serviceWorker) return;
+    const onMessage = (event: MessageEvent) => {
+      const path = (event.data as { type?: string; path?: string } | undefined)?.path;
+      if ((event.data as { type?: string } | undefined)?.type === 'hommie-push-click' && path) {
+        router.push(path as never);
+      }
+    };
+    navigator.serviceWorker.addEventListener('message', onMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', onMessage);
+  }, [router]);
+
+  return null;
 }
 
 function PushBootstrapNative() {

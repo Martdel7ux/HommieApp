@@ -145,6 +145,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Optional: crash reporting stays off until this is set (see src/services/sentry.ts).
     // The native source-map-upload config plugin isn't added yet — see that file's header.
     sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+    vapidPublicKey: process.env.EXPO_PUBLIC_VAPID_PUBLIC_KEY,
     environment: process.env.EXPO_PUBLIC_ENV ?? 'development',
     eas: {
       // EAS-CLI statically scans this file for a literal id and can't
