@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Modal, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
+import { Alert, Modal, Platform, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -15,9 +15,11 @@ import {
   OverlayHeader,
   OverlayIconButton,
 } from '@/components/ui';
+import { ActionSheet } from '@/components/ui/ActionSheet';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { timeAgo } from '@/lib/datetime';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
 import { supabase } from '@/lib/supabase';
@@ -26,6 +28,9 @@ import { marketplaceConditionLabels, marketplaceCategoryLabels } from '@/config/
 import { itemImages, priceLabel } from '@/features/marketplace/api';
 import { useMarketplaceItem, useSavedMarketplace } from '@/features/marketplace/hooks';
 import type { MarketplaceItemDetail } from '@/features/marketplace/types';
+
+const cap = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+const REPORT_LISTING_REASONS = ['scam_or_fraud', 'inappropriate', 'spam', 'other'] as const;
 
 function MessageSellerSheet({
   visible,
@@ -131,6 +136,7 @@ export default function MarketplaceItem() {
   const isMine = !!user && item.data?.seller?.id === user.id;
   const images = itemImages(item.data?.images);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const contact = useMutation({
     mutationFn: async (message: string) => {
@@ -146,23 +152,28 @@ export default function MarketplaceItem() {
       setSheetOpen(false);
       router.push(`/messages/${conversationId}`);
     },
-    onError: (e) => Alert.alert('Could not send your message', toAppError(e).message),
+    onError: (e) => notify('Could not send your message', toAppError(e).message),
   });
 
+  const submitReport = async (reason: (typeof REPORT_LISTING_REASONS)[number]) => {
+    await supabase.from('reports').insert({
+      reporter_id: user!.id,
+      subject_type: 'marketplace_listing' as never,
+      subject_id: id,
+      reason: reason as never,
+    });
+    notify('Thanks', 'Our team will take a look.');
+  };
+
   const report = () => {
+    if (Platform.OS === 'web') {
+      // react-native-web's Alert shim only supports a 2-button window.confirm,
+      // not this reason-list menu — use the ActionSheet modal instead.
+      setReportOpen(true);
+      return;
+    }
     Alert.alert('Report this listing', 'Why are you reporting it?', [
-      ...(['scam_or_fraud', 'inappropriate', 'spam', 'other'] as const).map((reason) => ({
-        text: reason.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-        onPress: async () => {
-          await supabase.from('reports').insert({
-            reporter_id: user!.id,
-            subject_type: 'marketplace_listing' as never,
-            subject_id: id,
-            reason: reason as never,
-          });
-          Alert.alert('Thanks', 'Our team will take a look.');
-        },
-      })),
+      ...REPORT_LISTING_REASONS.map((reason) => ({ text: cap(reason), onPress: () => submitReport(reason) })),
       { text: 'Cancel', style: 'cancel' as const },
     ]);
   };
@@ -376,6 +387,14 @@ export default function MarketplaceItem() {
               onSend={(message) => contact.mutate(message)}
             />
           ) : null}
+
+          <ActionSheet
+            visible={reportOpen}
+            title="Report this listing"
+            message="Why are you reporting it?"
+            onClose={() => setReportOpen(false)}
+            options={REPORT_LISTING_REASONS.map((reason) => ({ label: cap(reason), onPress: () => submitReport(reason) }))}
+          />
         </>
       )}
     </View>

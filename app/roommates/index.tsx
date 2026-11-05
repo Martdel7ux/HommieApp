@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text, Card, EmptyState, ErrorState } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { analytics } from '@/services/analytics';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { messagingApi } from '@/features/messaging/api';
 import { useRoommateBrowse, useHasRoommateProfile } from '@/features/roommates/hooks';
@@ -51,7 +52,7 @@ export default function RoommatesBrowse() {
     },
     onError: (e) => {
       // surface lightly — a full-screen error would be heavy for a single tap
-      Alert.alert('Could not start the chat', toAppError(e).message);
+      notify('Could not start the chat', toAppError(e).message);
     },
   });
 

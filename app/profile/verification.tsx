@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, Platform, View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Screen, Text, Button, Select, ChipGroup, Banner, Card } from '@/components/ui';
+import { ActionSheet } from '@/components/ui/ActionSheet';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { profileApi } from '@/features/profile/api';
 import { qk } from '@/lib/queryClient';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { studentStatusLabels, studyLevelLabels, verificationLabels, enumOptions } from '@/config/labels';
 import type { StudentStatus, StudyLevel } from '@/types/database';
@@ -24,6 +26,7 @@ export default function UniversityVerification() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadSheetOpen, setUploadSheetOpen] = useState(false);
 
   const verification = profile?.verification ?? 'unverified';
 
@@ -34,7 +37,7 @@ export default function UniversityVerification() {
         ? await ImagePicker.requestCameraPermissionsAsync()
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert(
+      notify(
         source === 'camera' ? 'Camera permission needed' : 'Photos permission needed',
         'Enable access in Settings to upload your student ID.',
       );
@@ -57,7 +60,7 @@ export default function UniversityVerification() {
     try {
       await profileApi.submitVerification(user.id, result.assets[0].uri);
       await refreshProfile();
-      Alert.alert('Submitted', "We're checking your student ID — this usually takes 1–2 business days.");
+      notify('Submitted', "We're checking your student ID — this usually takes 1–2 business days.");
     } catch (e) {
       setError(toAppError(e).message);
     } finally {
@@ -66,6 +69,12 @@ export default function UniversityVerification() {
   };
 
   const onUploadPress = () => {
+    if (Platform.OS === 'web') {
+      // react-native-web's Alert shim only supports a 2-button window.confirm,
+      // not this 3-option menu — use the ActionSheet modal instead.
+      setUploadSheetOpen(true);
+      return;
+    }
     Alert.alert('Upload student ID', 'Choose how to add your ID photo.', [
       { text: 'Take Photo', onPress: () => pickAndSubmit('camera') },
       { text: 'Choose from Library', onPress: () => pickAndSubmit('library') },
@@ -193,6 +202,17 @@ export default function UniversityVerification() {
 
         <Button title="Save" loading={saving} disabled={!dirty} onPress={save} />
       </View>
+
+      <ActionSheet
+        visible={uploadSheetOpen}
+        title="Upload student ID"
+        message="Choose how to add your ID photo."
+        onClose={() => setUploadSheetOpen(false)}
+        options={[
+          { label: 'Take Photo', onPress: () => pickAndSubmit('camera') },
+          { label: 'Choose from Library', onPress: () => pickAndSubmit('library') },
+        ]}
+      />
     </Screen>
   );
 }

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +14,7 @@ import { qk } from '@/lib/queryClient';
 import { STORAGE_BUCKETS } from '@/lib/supabase';
 import { uploadImage } from '@/lib/upload';
 import { analytics } from '@/services/analytics';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { CYPRUS_CITIES, STUDENT_INTERESTS } from '@/config/constants';
 import { studentStatusLabels, studyLevelLabels, enumOptions } from '@/config/labels';
@@ -141,7 +142,7 @@ export default function StudentOnboarding() {
   const pickPhoto = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Photos permission needed', 'Enable photo access in Settings to add a picture.');
+      notify('Photos permission needed', 'Enable photo access in Settings to add a picture.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({

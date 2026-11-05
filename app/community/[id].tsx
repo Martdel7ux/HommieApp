@@ -5,13 +5,17 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Avatar, LoadingState, ErrorState } from '@/components/ui';
+import { ActionSheet } from '@/components/ui/ActionSheet';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { timeAgo } from '@/lib/datetime';
+import { notify } from '@/services/alert';
 import { PostCard } from '@/features/community/components/PostCard';
 import { usePostDetail, usePostComments, useAddComment, useLikePost } from '@/features/community/hooks';
 import { communityApi } from '@/features/community/api';
 import { REPORT_REASONS } from '@/config/constants';
+
+const cap = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
 export default function PostDetail() {
   const theme = useTheme();
@@ -24,19 +28,25 @@ export default function PostDetail() {
   const addComment = useAddComment(id);
   const like = useLikePost();
   const [text, setText] = useState('');
+  const [reportOpen, setReportOpen] = useState(false);
+
+  const reportReasons = REPORT_REASONS.filter((r) =>
+    ['spam', 'scam_or_fraud', 'inappropriate', 'harassment'].includes(r),
+  );
+
+  const submitReport = (r: (typeof reportReasons)[number]) => {
+    communityApi.reportPost(user!.id, id, r).then(() => notify('Thanks', 'Our team will take a look.'));
+  };
 
   const report = () => {
+    if (Platform.OS === 'web') {
+      // react-native-web's Alert shim only supports a 2-button window.confirm,
+      // not this reason-list menu — use the ActionSheet modal instead.
+      setReportOpen(true);
+      return;
+    }
     Alert.alert('Report post', 'Why are you reporting this?', [
-      ...REPORT_REASONS.filter((r) => ['spam', 'scam_or_fraud', 'inappropriate', 'harassment'].includes(r)).map(
-        (r) => ({
-          text: r.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-          onPress: () => {
-            communityApi.reportPost(user!.id, id, r).then(() =>
-              Alert.alert('Thanks', 'Our team will take a look.'),
-            );
-          },
-        }),
-      ),
+      ...reportReasons.map((r) => ({ text: cap(r), onPress: () => submitReport(r) })),
       { text: 'Cancel', style: 'cancel' as const },
     ]);
   };
@@ -168,6 +178,14 @@ export default function PostDetail() {
           </SafeAreaView>
         </KeyboardAvoidingView>
       )}
+
+      <ActionSheet
+        visible={reportOpen}
+        title="Report post"
+        message="Why are you reporting this?"
+        onClose={() => setReportOpen(false)}
+        options={reportReasons.map((r) => ({ label: cap(r), onPress: () => submitReport(r) }))}
+      />
     </View>
   );
 }

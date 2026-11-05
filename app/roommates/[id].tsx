@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Alert, Pressable, View, useWindowDimensions } from 'react-native';
+import { Alert, Platform, Pressable, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -9,8 +9,10 @@ import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, Button, LoadingState, ErrorState, OverlayHeader, OverlayIconButton } from '@/components/ui';
+import { ActionSheet } from '@/components/ui/ActionSheet';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
 import { supabase, STORAGE_BUCKETS } from '@/lib/supabase';
@@ -128,6 +130,7 @@ export default function RoommateProfile() {
   const save = useSaveRoommate(id);
   const p = query.data;
   const [flatImgIndex, setFlatImgIndex] = useState(0);
+  const [menuMode, setMenuMode] = useState<'main' | 'report' | null>(null);
 
   const message = useMutation({
     mutationFn: () => messagingApi.startConversation(id, { context: 'roommate', roommateProfileId: id }),
@@ -135,7 +138,7 @@ export default function RoommateProfile() {
       analytics.track('roommate_contact_started', { profile_id: id });
       router.push(`/messages/${conversationId}`);
     },
-    onError: (e) => Alert.alert('Could not start the chat', toAppError(e).message),
+    onError: (e) => notify('Could not start the chat', toAppError(e).message),
   });
 
   const first = p?.profile?.first_name ?? p?.profile?.display_name ?? 'Student';
@@ -145,25 +148,33 @@ export default function RoommateProfile() {
   const level = p?.profile?.study_level ? studyLevelLabels[p.profile.study_level] : null;
   const interests = p?.profile?.interests ?? [];
 
+  const reportReasons = ['inappropriate', 'harassment', 'spam', 'other'] as const;
+
+  const submitReport = async (reason: (typeof reportReasons)[number]) => {
+    await supabase.from('reports').insert({
+      reporter_id: user!.id,
+      subject_type: 'roommate_profile' as never,
+      subject_id: id,
+      reason: reason as never,
+    });
+    notify('Thanks', 'Our team will take a look.');
+  };
+
   const openMenu = () => {
+    if (Platform.OS === 'web') {
+      // react-native-web's Alert shim only supports a 2-button window.confirm,
+      // not this menu (or the report-reasons submenu below) — use the
+      // ActionSheet modal instead. Native keeps Alert.alert unchanged.
+      setMenuMode('main');
+      return;
+    }
     Alert.alert('Profile options', undefined, [
       {
         text: 'Report profile',
         style: 'destructive',
         onPress: () =>
           Alert.alert('Report profile', 'Why are you reporting this?', [
-            ...(['inappropriate', 'harassment', 'spam', 'other'] as const).map((reason) => ({
-              text: cap(reason),
-              onPress: async () => {
-                await supabase.from('reports').insert({
-                  reporter_id: user!.id,
-                  subject_type: 'roommate_profile' as never,
-                  subject_id: id,
-                  reason: reason as never,
-                });
-                Alert.alert('Thanks', 'Our team will take a look.');
-              },
-            })),
+            ...reportReasons.map((reason) => ({ text: cap(reason), onPress: () => submitReport(reason) })),
             { text: 'Cancel', style: 'cancel' as const },
           ]),
       },
@@ -451,6 +462,19 @@ export default function RoommateProfile() {
           </SafeAreaView>
         </>
       )}
+
+      <ActionSheet
+        visible={menuMode === 'main'}
+        onClose={() => setMenuMode(null)}
+        options={[{ label: 'Report profile', destructive: true, onPress: () => setMenuMode('report') }]}
+      />
+      <ActionSheet
+        visible={menuMode === 'report'}
+        title="Report profile"
+        message="Why are you reporting this?"
+        onClose={() => setMenuMode(null)}
+        options={reportReasons.map((reason) => ({ label: cap(reason), onPress: () => submitReport(reason) }))}
+      />
     </View>
   );
 }

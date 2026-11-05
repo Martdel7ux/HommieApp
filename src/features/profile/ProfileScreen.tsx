@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { useState } from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
@@ -14,6 +14,7 @@ import { qk } from '@/lib/queryClient';
 import { STORAGE_BUCKETS } from '@/lib/supabase';
 import { resolveAvatar } from '@/lib/images';
 import { uploadImage } from '@/lib/upload';
+import { confirmAlert, notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { haptics } from '@/services/haptics';
 import { APP_NAME } from '@/config/constants';
@@ -151,7 +152,7 @@ export function ProfileScreen() {
   const pickPhoto = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Photos permission needed', 'Enable photo access in Settings to change your picture.');
+      notify('Photos permission needed', 'Enable photo access in Settings to change your picture.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -172,55 +173,47 @@ export function ProfileScreen() {
       await profileApi.updateProfile(user.id, { avatar_url: path });
       await refreshProfile();
       setPendingPhoto(null);
-      Alert.alert('Saved', 'Your profile picture has been updated.');
+      notify('Saved', 'Your profile picture has been updated.');
     } catch (e) {
-      Alert.alert('Could not save', toAppError(e).message);
+      notify('Could not save', toAppError(e).message);
     } finally {
       setSaving(false);
     }
   };
 
   const logout = () => {
-    Alert.alert('Log out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Log out',
-        style: 'destructive',
-        onPress: async () => {
-          haptics.warning();
-          try {
-            await authApi.signOut();
-          } catch (e) {
-            Alert.alert('Could not log out', toAppError(e).message);
-          }
-        },
+    confirmAlert(
+      'Log out',
+      'Are you sure you want to log out?',
+      async () => {
+        haptics.warning();
+        try {
+          await authApi.signOut();
+        } catch (e) {
+          notify('Could not log out', toAppError(e).message);
+        }
       },
-    ]);
-  };
-
-  const requestDelete = () => {
-    Alert.alert(
-      'Delete account',
-      `This requests deletion of your ${APP_NAME} account. Your profile is deactivated immediately and permanently removed by our team. This cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Request deletion',
-          style: 'destructive',
-          onPress: async () => {
-            haptics.warning();
-            try {
-              await authApi.requestAccountDeletion();
-            } catch (e) {
-              Alert.alert('Could not complete', toAppError(e).message);
-            }
-          },
-        },
-      ],
+      { confirmLabel: 'Log out', destructive: true },
     );
   };
 
-  const soon = (what: string) => () => Alert.alert('Coming soon', what);
+  const requestDelete = () => {
+    confirmAlert(
+      'Delete account',
+      `This requests deletion of your ${APP_NAME} account. Your profile is deactivated immediately and permanently removed by our team. This cannot be undone.`,
+      async () => {
+        haptics.warning();
+        try {
+          await authApi.requestAccountDeletion();
+        } catch (e) {
+          notify('Could not complete', toAppError(e).message);
+        }
+      },
+      { confirmLabel: 'Request deletion', destructive: true },
+    );
+  };
+
+  const soon = (what: string) => () => notify('Coming soon', what);
 
   return (
     <Screen scroll backgroundColor={theme.colors.surfaceAlt} contentContainerStyle={{ paddingBottom: theme.spacing['4xl'] }}>

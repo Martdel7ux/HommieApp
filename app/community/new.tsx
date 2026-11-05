@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Pressable, TextInput, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,6 +9,7 @@ import { useTheme } from '@/theme';
 import { IMAGE_UPLOAD } from '@/config/constants';
 import { communityCategoryLabels, enumOptions } from '@/config/labels';
 import { useCreatePost } from '@/features/community/hooks';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import type { CommunityCategory } from '@/types/database';
 
@@ -35,7 +36,7 @@ export default function NewPost() {
     if (photos.length >= MAX) return;
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Photos permission needed', 'Enable photo access in Settings to add pictures.');
+      notify('Photos permission needed', 'Enable photo access in Settings to add pictures.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({

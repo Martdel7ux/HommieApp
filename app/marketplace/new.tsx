@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Pressable, TextInput, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text, Button, Select, Banner } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { marketplaceCategoryLabels, marketplaceConditionLabels, enumOptions } from '@/config/labels';
 import { useCreateListing } from '@/features/marketplace/hooks';
@@ -53,7 +54,7 @@ export default function NewListing() {
     if (photos.length >= MAX_PHOTOS) return;
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Photos permission needed', 'Enable photo access in Settings to add pictures.');
+      notify('Photos permission needed', 'Enable photo access in Settings to add pictures.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({

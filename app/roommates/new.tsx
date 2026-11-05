@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Alert, Pressable, Switch, View } from 'react-native';
+import { Pressable, Switch, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -14,6 +14,7 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { qk } from '@/lib/queryClient';
 import { resolveImage } from '@/lib/images';
 import { STORAGE_BUCKETS } from '@/lib/supabase';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
 import { CYPRUS_AREAS, IMAGE_UPLOAD } from '@/config/constants';
@@ -136,7 +137,7 @@ export default function EditRoommateProfile() {
     if (flatPhotos.length >= MAX_FLAT_PHOTOS) return;
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Photos permission needed', 'Enable photo access in Settings to add pictures.');
+      notify('Photos permission needed', 'Enable photo access in Settings to add pictures.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({

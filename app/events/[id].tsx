@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Alert, Linking, Pressable, View, useWindowDimensions } from 'react-native';
+import { Linking, Pressable, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { eventDateLabel, eventTimeRange } from '@/lib/datetime';
+import { confirmAlert, notify } from '@/services/alert';
 import { eventCover } from '@/features/events/api';
 import { useEvent, useEventRsvp } from '@/features/events/hooks';
 import { addEventToCalendar } from '@/features/events/calendar';
@@ -82,9 +83,9 @@ export default function EventDetail() {
     if (!event.data) return;
     const result = await addEventToCalendar(event.data);
     if (result === 'denied') {
-      Alert.alert('Calendar access needed', 'Allow calendar access in Settings to add events.');
+      notify('Calendar access needed', 'Allow calendar access in Settings to add events.');
     } else if (result === 'failed') {
-      Alert.alert('Could not open your calendar', 'Please try again.');
+      notify('Could not open your calendar', 'Please try again.');
     }
   };
 
@@ -93,17 +94,21 @@ export default function EventDetail() {
 
   const onRsvp = () => {
     if (goingState === 'going') {
-      Alert.alert('Cancel your RSVP?', "You can RSVP again any time before the event.", [
-        { text: 'Keep it', style: 'cancel' },
-        { text: 'Cancel RSVP', style: 'destructive', onPress: () => rsvp.mutate(null) },
-      ]);
+      confirmAlert(
+        'Cancel your RSVP?',
+        'You can RSVP again any time before the event.',
+        () => rsvp.mutate(null),
+        { confirmLabel: 'Cancel RSVP', destructive: true },
+      );
     } else {
       rsvp.mutate('going', {
         onSuccess: () =>
-          Alert.alert("You're going!", "We'll remind you the day before. Want to add it to your calendar too?", [
-            { text: 'Not now', style: 'cancel' },
-            { text: 'Add to calendar', onPress: addToCalendar },
-          ]),
+          confirmAlert(
+            "You're going!",
+            "We'll remind you the day before. Want to add it to your calendar too?",
+            addToCalendar,
+            { confirmLabel: 'Add to calendar' },
+          ),
       });
     }
   };

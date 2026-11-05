@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Text, Button, Avatar, LoadingState, ErrorState, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { analytics } from '@/services/analytics';
 import { qk } from '@/lib/queryClient';
@@ -47,7 +48,7 @@ export default function LandlordProfile() {
       analytics.track('landlord_profile_contact_started', { landlord_id: id });
       router.push(`/messages/${conversationId}`);
     },
-    onError: (e) => Alert.alert('Could not start the chat', toAppError(e).message),
+    onError: (e) => notify('Could not start the chat', toAppError(e).message),
   });
 
   const p = profile.data;

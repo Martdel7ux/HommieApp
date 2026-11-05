@@ -1,7 +1,8 @@
-import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { Screen, Text, Avatar, ErrorState, EmptyState } from '@/components/ui';
 import { useTheme } from '@/theme';
+import { confirmAlert, notify } from '@/services/alert';
 import { toAppError } from '@/services/errors';
 import { useBlockedUsers, useUnblockUser } from '@/features/messaging/hooks';
 import type { BlockedUser } from '@/features/messaging/types';
@@ -57,19 +58,14 @@ export default function BlockedUsers() {
   const unblock = useUnblockUser();
 
   const confirmUnblock = (user: BlockedUser) => {
-    Alert.alert(
+    confirmAlert(
       `Unblock ${user.name}?`,
       'They will be able to message you and see your profile again.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Unblock',
-          onPress: () =>
-            unblock.mutate(user.id, {
-              onError: (e) => Alert.alert('Could not unblock this user', toAppError(e).message),
-            }),
-        },
-      ],
+      () =>
+        unblock.mutate(user.id, {
+          onError: (e) => notify('Could not unblock this user', toAppError(e).message),
+        }),
+      { confirmLabel: 'Unblock' },
     );
   };
 
