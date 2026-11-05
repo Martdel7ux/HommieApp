@@ -53,6 +53,7 @@ yarn-error.*
 google-services.json
 *-firebase-adminsdk-*.json
 fcm-service-account*.json
+play-store-service-account.json
 
 # supabase
 supabase/.branches
