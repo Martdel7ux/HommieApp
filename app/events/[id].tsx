@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Linking, Pressable, View, useWindowDimensions } from 'react-native';
+import { Linking, Platform, Pressable, View, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -86,6 +86,10 @@ export default function EventDetail() {
       notify('Calendar access needed', 'Allow calendar access in Settings to add events.');
     } else if (result === 'failed') {
       notify('Could not open your calendar', 'Please try again.');
+    } else if (result === 'saved' && Platform.OS === 'web') {
+      // No native "event added" screen on web — the browser just downloaded
+      // a file, so say so explicitly rather than leaving the tap looking inert.
+      notify('Calendar file downloaded', 'Open it to add this event to your calendar.');
     }
   };
 
