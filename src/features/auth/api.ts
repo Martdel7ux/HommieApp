@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import { supabase } from '@/lib/supabase';
 import { guard, toAppError } from '@/services/errors';
@@ -16,6 +17,73 @@ import type { SignInInput, SignUpInput } from './schemas';
 import type { UserRole } from '@/types/database';
 
 const redirectTo = Linking.createURL('/auth/callback');
+
+type PendingSocialAuth = { provider: SocialProvider; role?: UserRole };
+const PENDING_SOCIAL_AUTH_KEY = 'hommie.pendingSocialAuth';
+
+/**
+ * Google-on-web is a full-page redirect (Supabase's OAuth flow), not an
+ * awaitable call — the page navigates away and back through
+ * `/(auth)/callback`, so the role picked on the welcome screen has to
+ * survive that round trip in storage rather than a closure.
+ */
+function stashPendingSocialAuth(data: PendingSocialAuth) {
+  try {
+    window.localStorage.setItem(PENDING_SOCIAL_AUTH_KEY, JSON.stringify(data));
+  } catch {
+    /* best-effort — a brand-new social sign-up just keeps the default role */
+  }
+}
+
+function consumePendingSocialAuth(): PendingSocialAuth | null {
+  try {
+    const raw = window.localStorage.getItem(PENDING_SOCIAL_AUTH_KEY);
+    window.localStorage.removeItem(PENDING_SOCIAL_AUTH_KEY);
+    return raw ? (JSON.parse(raw) as PendingSocialAuth) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Finishes what `signInWithGoogleWeb` started, once the browser has
+ * redirected back and `/(auth)/callback` has a session. Mirrors
+ * `completeIdTokenSignIn`'s role application for a brand-new native social
+ * sign-up; a no-op if nothing's stashed (e.g. a plain email-link callback).
+ */
+export async function completePendingSocialAuth(
+  user: { id: string; created_at: string; last_sign_in_at?: string | null } | null | undefined,
+): Promise<void> {
+  const pending = consumePendingSocialAuth();
+  if (!pending || !user) return;
+
+  const createdAt = new Date(user.created_at).getTime();
+  const lastSignIn = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : createdAt;
+  const isNewUser = Math.abs(createdAt - lastSignIn) < 5000;
+
+  if (isNewUser && pending.role && pending.role !== 'student') {
+    const { error } = await supabase.rpc('apply_selected_role', { p_role: pending.role });
+    if (error) logger.capture(error, { scope: 'auth.applySelectedRole' });
+  }
+  analytics.track('social_sign_in_completed', { provider: pending.provider, is_new_user: isNewUser });
+}
+
+async function signInWithGoogleWeb(selectedRole: UserRole | undefined): Promise<void> {
+  analytics.track('social_sign_in_started', { provider: 'google' });
+  stashPendingSocialAuth({ provider: 'google', role: selectedRole });
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo, queryParams: { prompt: 'select_account' } },
+  });
+  if (error) {
+    const err = toAppError(error);
+    logger.capture(err, { scope: 'auth.signInWith.google.web', code: err.code });
+    analytics.track('social_sign_in_failed', { provider: 'google', reason: err.code });
+    throw err;
+  }
+  // Supabase navigates the browser away to Google from here — nothing after
+  // this point runs; the flow resumes in /(auth)/callback.
+}
 
 /**
  * Exchange a provider ID token for a Supabase session, then, for a brand-new
@@ -88,8 +156,9 @@ export const authApi = {
     return socialSignIn('apple', getAppleCredential, selectedRole);
   },
 
-  /** Native Google Sign-In. */
+  /** Native Google Sign-In, or Supabase's OAuth redirect flow on web. */
   signInWithGoogle(selectedRole?: UserRole) {
+    if (Platform.OS === 'web') return signInWithGoogleWeb(selectedRole);
     return socialSignIn('google', getGoogleCredential, selectedRole);
   },
 

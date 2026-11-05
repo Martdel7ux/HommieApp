@@ -15,12 +15,15 @@ import { env } from '@/config/env';
 /** Expo Go can't host the native auth modules — hide the buttons there. */
 export const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
-/** Google needs a configured web client id; Apple is iOS-only and keyless. */
-// Web excluded on purpose: @react-native-google-signin's web shim is a
-// separate Google Identity Services JS integration, not built — web auth
-// is email/password only for now (mirrors appleSignInSupported's existing
-// Platform.OS === 'ios' gate below).
-export const googleSignInConfigured = !isExpoGo && Platform.OS !== 'web' && !!env.googleWebClientId;
+/**
+ * Google needs a configured web client id. Native uses
+ * `@react-native-google-signin` + `signInWithIdToken` (below); web uses
+ * Supabase's own OAuth redirect flow (`authApi.signInWithGoogle` branches on
+ * `Platform.OS` — see api.ts) and needs the Google provider enabled with a
+ * client secret in the Supabase dashboard, which is a separate requirement
+ * from this env var.
+ */
+export const googleSignInConfigured = !isExpoGo && !!env.googleWebClientId;
 /** Apple is built but stays hidden until EXPO_PUBLIC_APPLE_SIGN_IN_ENABLED=true. */
 export const appleSignInSupported = !isExpoGo && Platform.OS === 'ios' && env.appleSignInEnabled;
 export const socialAuthSupported = googleSignInConfigured || appleSignInSupported;

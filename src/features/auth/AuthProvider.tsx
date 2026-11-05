@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { analytics } from '@/services/analytics';
 import { logger } from '@/services/logger';
+import { completePendingSocialAuth } from '@/features/auth/api';
 import type { Tables, UserRole } from '@/types/database';
 
 export type Profile = Tables<'profiles'>;
@@ -97,7 +98,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       if (newSession.user) {
-        loadProfile(newSession.user.id).then((ok) => { if (active && ok) setStatus('signed_in'); });
+        // Google-on-web's redirect flow resumes here (detectSessionInUrl
+        // handles the code exchange before this fires), not in the
+        // callback screen — apply any role stashed before the redirect
+        // away first, so the profile load below already reflects it.
+        completePendingSocialAuth(newSession.user)
+          .catch(() => undefined)
+          .finally(() => {
+            loadProfile(newSession.user!.id).then((ok) => { if (active && ok) setStatus('signed_in'); });
+          });
       }
     });
 
