@@ -207,7 +207,20 @@ function WebAppFrameWeb({ children }: { children: React.ReactNode }) {
       {showPanel ? (
         <View style={{ flex: 1, flexDirection: 'row' }}>
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: theme.spacing.xl }}>
-            <View style={{ width: '100%', maxWidth: contentWidth }}>{children}</View>
+            {/* height: '100%' (not flex: 1) is load-bearing: a <Screen
+                scroll> descendant's ScrollView needs a real, definite
+                height from every ancestor to compute its own height from —
+                a shrink-to-content wrapper leaves it with nothing to grow
+                into and it silently renders at ~0px (see welcome.tsx). It's
+                paired with maxHeight (not used on flex: 1) specifically so
+                there's leftover space left for the parent's
+                justifyContent: 'center' to center a short form in —
+                compare sign-in (short) against welcome (tall: two listing
+                photos, legitimately scrolls within this box on a smaller
+                laptop screen, which is normal). */}
+            <View style={{ height: '100%', maxHeight: 880, width: '100%', maxWidth: contentWidth }}>
+              {children}
+            </View>
           </View>
           <View style={{ flex: 1, maxWidth: 640 }}>
             <BrandPanel />
