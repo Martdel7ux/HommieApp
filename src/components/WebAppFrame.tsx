@@ -1,12 +1,24 @@
 import { Platform, Pressable, useWindowDimensions, View } from 'react-native';
 import { Link, usePathname } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme';
 import { Text } from '@/components/ui';
 import { Logo } from '@/components/Brand/Logo';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { authApi } from '@/features/auth/api';
+import { useUnreadNotificationCount } from '@/features/notifications/hooks';
 
 export const WEB_WIDE_BREAKPOINT = 900;
+
+// Jobs is deliberately left out here — it's hidden on native too until a
+// job-listing partner is lined up (see (student)/_layout.tsx's explore tab).
+const NAV_LINKS = [
+  { href: '/accommodation', label: 'Browse' },
+  { href: '/marketplace', label: 'Marketplace' },
+  { href: '/roommates', label: 'Roommates' },
+  { href: '/events', label: 'Events' },
+  { href: '/community', label: 'Community' },
+] as const;
 
 /** Grid/carousel screens should fill the browser, not sit in a narrow boxed column. */
 function isFullBleedRoute(pathname: string): boolean {
@@ -60,6 +72,7 @@ function WebAppFrameWeb({ children }: { children: React.ReactNode }) {
   // native has no tab bar until onboarding finishes either).
   const { status, role, needsOnboarding } = useAuth();
   const showNav = status === 'signed_in' && !needsOnboarding;
+  const unread = useUnreadNotificationCount();
 
   return (
     <View style={{ flex: 1, alignItems: 'center', backgroundColor: theme.colors.surfaceSunken }}>
@@ -79,19 +92,50 @@ function WebAppFrameWeb({ children }: { children: React.ReactNode }) {
           >
             <Logo size={24} />
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.lg }}>
-              {role !== 'landlord' ? (
-                <Link href="/accommodation" asChild>
-                  <Pressable>
-                    <Text variant="label" color={theme.colors.textSecondary}>
-                      Browse
-                    </Text>
-                  </Pressable>
-                </Link>
-              ) : null}
+              {role !== 'landlord'
+                ? NAV_LINKS.map((link) => (
+                    <Link key={link.href} href={link.href} asChild>
+                      <Pressable>
+                        <Text variant="label" color={theme.colors.textSecondary}>
+                          {link.label}
+                        </Text>
+                      </Pressable>
+                    </Link>
+                  ))
+                : null}
               <Link href="/messages" asChild>
                 <Pressable>
                   <Text variant="label" color={theme.colors.textSecondary}>
                     Messages
+                  </Text>
+                </Pressable>
+              </Link>
+              <Link href="/notifications" asChild>
+                <Pressable accessibilityLabel="Notifications" style={{ paddingVertical: 2 }}>
+                  <View>
+                    <Ionicons name="notifications-outline" size={20} color={theme.colors.textSecondary} />
+                    {(unread.data ?? 0) > 0 ? (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          top: -2,
+                          right: -2,
+                          width: 8,
+                          height: 8,
+                          borderRadius: 4,
+                          backgroundColor: theme.colors.danger,
+                          borderWidth: 1.5,
+                          borderColor: theme.colors.background,
+                        }}
+                      />
+                    ) : null}
+                  </View>
+                </Pressable>
+              </Link>
+              <Link href="/profile" asChild>
+                <Pressable>
+                  <Text variant="label" color={theme.colors.textSecondary}>
+                    Profile
                   </Text>
                 </Pressable>
               </Link>
